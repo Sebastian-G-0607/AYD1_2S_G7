@@ -1,0 +1,28 @@
+# Docker ignore file for Vue Vite project
+
+# Dependency directories
+node_modules
+
+# Production build output
+dist
+
+# Environment files
+.env*
+*.local
+
+# Version control
+.git
+.gitignore
+
+# IDE configuration
+.vscode
+.vim
+
+# Cache and temp
+.vite
+.cache
+.tmp
+
+# Prettier and ESLint cache
+.eslintcache
+.pretty-tmp
