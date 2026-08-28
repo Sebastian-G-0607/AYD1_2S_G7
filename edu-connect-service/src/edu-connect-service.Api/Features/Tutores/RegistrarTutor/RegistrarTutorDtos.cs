@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace edu_connect_service.Api.Features.Tutores.RegistrarTutor;
 
@@ -11,7 +12,7 @@ public record RegistrarTutorRequestDto(
     [Required] string Direccion,
     [Required] string Telefono,
     [Required] DateOnly FechaNacimiento,
-    [Required] string FotografiaUrl,
+    [Required] IFormFile Fotografia,
     [Required] string DireccionTutoria,
     [Required] int AnioInicio,
     [Required] string Universidad,

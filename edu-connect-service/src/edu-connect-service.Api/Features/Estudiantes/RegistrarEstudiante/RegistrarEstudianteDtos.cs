@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace edu_connect_service.Api.Features.Estudiantes.RegistrarEstudiante;
 
@@ -12,7 +13,7 @@ public record RegistrarEstudianteRequestDto(
     [Required] DateOnly FechaNacimiento,
     [Required][EmailAddress] string Correo,
     [Required] string Password,
-    string? FotografiaUrl
+    IFormFile? Fotografia
 );
 
 public record EstudianteResponseDto(

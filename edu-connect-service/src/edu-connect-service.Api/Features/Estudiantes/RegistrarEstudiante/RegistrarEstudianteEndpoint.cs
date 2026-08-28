@@ -11,6 +11,8 @@ public static class RegistrarEstudianteEndpoint
     public static void MapRegistrarEstudiante(this IEndpointRouteBuilder app)
     {
         app.MapPost("/registro", HandleAsync)
+            .DisableAntiforgery()
+            .Accepts<RegistrarEstudianteRequestDto>("multipart/form-data")
             .Produces<EstudianteResponseDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -18,11 +20,13 @@ public static class RegistrarEstudianteEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         app.MapPost("/registros", HandleAsync)
+            .DisableAntiforgery()
+            .Accepts<RegistrarEstudianteRequestDto>("multipart/form-data")
             .ExcludeFromDescription();
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromBody] RegistrarEstudianteRequestDto request,
+        [FromForm] RegistrarEstudianteRequestDto request,
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
@@ -75,6 +79,13 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
+        string? fotografiaUrl = null;
+        if (request.Fotografia is not null && request.Fotografia.Length > 0)
+        {
+            // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
+            fotografiaUrl = $"/uploads/estudiantes/{Guid.NewGuid():N}.jpg";
+        }
+
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var usuario = new Usuario
@@ -99,7 +110,7 @@ public static class RegistrarEstudianteEndpoint
             Direccion = request.Direccion,
             Telefono = request.Telefono,
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = request.FotografiaUrl
+            FotografiaUrl = fotografiaUrl
         };
 
         dbContext.Estudiantes.Add(estudiante);

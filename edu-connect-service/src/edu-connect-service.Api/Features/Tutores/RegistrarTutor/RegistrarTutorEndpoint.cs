@@ -11,6 +11,8 @@ public static class RegistrarTutorEndpoint
     public static void MapRegistrarTutor(this IEndpointRouteBuilder app)
     {
         app.MapPost("/registro", HandleAsync)
+            .DisableAntiforgery()
+            .Accepts<RegistrarTutorRequestDto>("multipart/form-data")
             .Produces<TutorResponseDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -18,11 +20,13 @@ public static class RegistrarTutorEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         app.MapPost("/registros", HandleAsync)
+            .DisableAntiforgery()
+            .Accepts<RegistrarTutorRequestDto>("multipart/form-data")
             .ExcludeFromDescription();
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromBody] RegistrarTutorRequestDto request,
+        [FromForm] RegistrarTutorRequestDto request,
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
@@ -35,7 +39,7 @@ public static class RegistrarTutorEndpoint
             );
         }
 
-        if (string.IsNullOrWhiteSpace(request.FotografiaUrl))
+        if (request.Fotografia is null || request.Fotografia.Length == 0)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
@@ -152,6 +156,9 @@ public static class RegistrarTutorEndpoint
         dbContext.Usuarios.Add(usuario);
         await dbContext.SaveChangesAsync(cancellationToken);
 
+        // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
+        var fotografiaUrl = $"/uploads/tutores/{Guid.NewGuid():N}.jpg";
+
         var tutor = new Tutor
         {
             UsuarioId = usuario.Id,
@@ -163,7 +170,7 @@ public static class RegistrarTutorEndpoint
             Direccion = request.Direccion,
             Telefono = request.Telefono,
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = request.FotografiaUrl,
+            FotografiaUrl = fotografiaUrl,
             DireccionTutoria = request.DireccionTutoria,
             AnioInicio = request.AnioInicio,
             Universidad = request.Universidad,
