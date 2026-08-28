@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/edu-connect-service.Api/edu-connect-service.Api.csproj" />
+  </Folder>
+</Solution>
