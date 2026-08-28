@@ -7,10 +7,6 @@ namespace edu_connect_service.Api.Data;
 public class edu_connect_serviceContext(DbContextOptions<edu_connect_serviceContext> options)
     : DbContext(options)
 {
-    public DbSet<Item> Items => Set<Item>();
-
-    public DbSet<Category> Categories => Set<Category>();
-
     public DbSet<Rol> Roles => Set<Rol>();
 
     public DbSet<EstadoUsuario> EstadosUsuarios => Set<EstadoUsuario>();
@@ -44,7 +40,7 @@ public class edu_connect_serviceContext(DbContextOptions<edu_connect_serviceCont
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ItemEntityConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(edu_connect_serviceContext).Assembly);
     }
 }
 

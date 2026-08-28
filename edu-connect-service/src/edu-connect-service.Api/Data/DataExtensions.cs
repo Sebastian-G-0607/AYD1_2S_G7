@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using edu_connect_service.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,13 +37,13 @@ public static class DataExtensions
     public static async Task MigrateDbAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        edu_connect_serviceContext dbContext = scope.ServiceProvider
-                                          .GetRequiredService<edu_connect_serviceContext>();
         try
         {
+            edu_connect_serviceContext dbContext = scope.ServiceProvider.
+                        GetRequiredService<edu_connect_serviceContext>();            
             await dbContext.Database.MigrateAsync();
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<WebApplication>>();
             logger.LogError(ex, "An error occurred while migrating the database.");
@@ -64,12 +65,6 @@ public static class DataExtensions
     private static void SeedCatalogsAndData(DbContext context)
     {
         var hasChanges = false;
-
-        if (!context.Set<Category>().Any())
-        {
-            SeedCategories(context);
-            hasChanges = true;
-        }
 
         if (!context.Set<Rol>().Any())
         {
@@ -94,12 +89,6 @@ public static class DataExtensions
             context.SaveChanges();
         }
 
-        if (!context.Set<Item>().Any() && context.Set<Category>().Any())
-        {
-            SeedItems(context);
-            context.SaveChanges();
-        }
-
         if (!context.Set<Usuario>().Any(u => u.Correo == "admin@educonnect.com") &&
             context.Set<Rol>().Any(r => r.Nombre == "Admin") &&
             context.Set<EstadoUsuario>().Any(e => e.Nombre == "APROBADO"))
@@ -111,12 +100,6 @@ public static class DataExtensions
     private static async Task SeedCatalogsAndDataAsync(DbContext context, CancellationToken cancellationToken)
     {
         var hasChanges = false;
-
-        if (!await context.Set<Category>().AnyAsync(cancellationToken))
-        {
-            SeedCategories(context);
-            hasChanges = true;
-        }
 
         if (!await context.Set<Rol>().AnyAsync(cancellationToken))
         {
@@ -141,29 +124,12 @@ public static class DataExtensions
             await context.SaveChangesAsync(cancellationToken);
         }
 
-        if (!await context.Set<Item>().AnyAsync(cancellationToken) && await context.Set<Category>().AnyAsync(cancellationToken))
-        {
-            SeedItems(context);
-            await context.SaveChangesAsync(cancellationToken);
-        }
-
         if (!await context.Set<Usuario>().AnyAsync(u => u.Correo == "admin@educonnect.com", cancellationToken) &&
             await context.Set<Rol>().AnyAsync(r => r.Nombre == "Admin", cancellationToken) &&
             await context.Set<EstadoUsuario>().AnyAsync(e => e.Nombre == "APROBADO", cancellationToken))
         {
             await SeedAdminUserAsync(context, cancellationToken);
         }
-    }
-
-    private static void SeedCategories(DbContext context)
-    {
-        context.Set<Category>().AddRange(
-            new Category { Name = "General" },
-            new Category { Name = "Urgent" },
-            new Category { Name = "Archived" },
-            new Category { Name = "Favorites" },
-            new Category { Name = "Upcoming" }
-        );
     }
 
     private static void SeedRoles(DbContext context)
@@ -192,43 +158,6 @@ public static class DataExtensions
             new EstadoSesion { Nombre = "ATENDIDA", Descripcion = "Sesion atendida con exito" },
             new EstadoSesion { Nombre = "CANCELADA_TUTOR", Descripcion = "Sesion cancelada por el tutor" },
             new EstadoSesion { Nombre = "CANCELADA_ESTUDIANTE", Descripcion = "Sesion cancelada por el estudiante" }
-        );
-    }
-
-    private static void SeedItems(DbContext context)
-    {
-        var generalCategory = context.Set<Category>().First(c => c.Name == "General");
-        var upcomingCategory = context.Set<Category>().First(c => c.Name == "Upcoming");
-        var favoritesCategory = context.Set<Category>().First(c => c.Name == "Favorites");
-
-        context.Set<Item>().AddRange(
-            new Item
-            {
-                Name = "Mechanical Keyboard",
-                CategoryId = generalCategory.Id,
-                Price = 129.99m,
-                ReleaseDate = new DateOnly(2025, 1, 15),
-                Description = "RGB backlit mechanical keyboard with Cherry MX switches",
-                LastUpdatedBy = "system"
-            },
-            new Item
-            {
-                Name = "4K Monitor",
-                CategoryId = upcomingCategory.Id,
-                Price = 449.99m,
-                ReleaseDate = new DateOnly(2025, 6, 20),
-                Description = "27-inch 4K UHD display with HDR support and 144Hz refresh rate",
-                LastUpdatedBy = "system"
-            },
-            new Item
-            {
-                Name = "Wireless Mouse",
-                CategoryId = favoritesCategory.Id,
-                Price = 79.99m,
-                ReleaseDate = new DateOnly(2024, 11, 10),
-                Description = "Ergonomic wireless mouse with programmable buttons and long battery life",
-                LastUpdatedBy = "system"
-            }
         );
     }
 

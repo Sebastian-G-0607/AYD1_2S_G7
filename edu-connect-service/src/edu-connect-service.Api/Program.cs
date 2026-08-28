@@ -1,5 +1,7 @@
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Features.Estudiantes;
 using edu_connect_service.Api.Features.Health;
+using edu_connect_service.Api.Features.Tutores;
 using edu_connect_service.Api.Shared.Cors;
 using edu_connect_service.Api.Shared.ErrorHandling;
 using edu_connect_service.Api.Shared.OpenApi;
@@ -24,11 +26,15 @@ builder.Services.AddHttpLogging(options =>
 builder.Addedu_connect_serviceOpenApi();
 builder.Addedu_connect_serviceCors();
 
+builder.Services.AddValidation();
+
 var app = builder.Build();
 
 app.UseCors();
 
 app.MapHealth();
+app.MapEstudiantes();
+app.MapTutores();
 
 app.UseHttpLogging();
 
