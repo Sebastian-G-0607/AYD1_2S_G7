@@ -1,0 +1,49 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/publish/
+**/*.user
+**/*.suo
+
+# Test results / coverage
+**/TestResults/
+**/coverage/
+**/.coverage
+**/*.coverage
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Docker assets (avoid recursion if Dockerfile is moved)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation (not needed in image)
+**/*.md
+LICENSE
+LICENSE.txt
+
+# Env files (contain secrets — never bake into image)
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+
+# NuGet
+**/.nuget/
+**/*.nupkg
