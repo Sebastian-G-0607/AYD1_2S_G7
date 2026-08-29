@@ -3,18 +3,42 @@ using Microsoft.AspNetCore.Http;
 
 namespace edu_connect_service.Api.Features.Estudiantes.RegistrarEstudiante;
 
-public record RegistrarEstudianteRequestDto(
-    [Required] string Nombre,
-    [Required] string Apellido,
-    [Required] string Carnet,
-    [Required] string Genero,
-    [Required] string Direccion,
-    [Required] string Telefono,
-    [Required] DateOnly FechaNacimiento,
-    [Required][EmailAddress] string Correo,
-    [Required] string Password,
-    IFormFile? Fotografia
-);
+public class RegistrarEstudianteRequestDto
+{
+    [Required]
+    public string Nombre { get; set; } = string.Empty;
+
+    [Required]
+    public string Apellido { get; set; } = string.Empty;
+
+    [Required]
+    public string Carnet { get; set; } = string.Empty;
+
+    [Required]
+    public string Genero { get; set; } = string.Empty;
+
+    [Required]
+    public string Direccion { get; set; } = string.Empty;
+
+    [Required]
+    public string Telefono { get; set; } = string.Empty;
+
+    [Required]
+    public DateOnly FechaNacimiento { get; set; }
+
+    [Required]
+    [EmailAddress]
+    public string Correo { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
+    [Compare(nameof(Password), ErrorMessage = "La contraseña y la confirmación de contraseña no coinciden.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    public IFormFile? Fotografia { get; set; }
+}
 
 public record EstudianteResponseDto(
     int UsuarioId,

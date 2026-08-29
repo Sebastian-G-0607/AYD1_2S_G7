@@ -84,6 +84,12 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!context.Set<Materia>().Any())
+        {
+            SeedMaterias(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             context.SaveChanges();
@@ -118,6 +124,12 @@ public static class DataExtensions
         if (!await context.Set<EstadoSesion>().AnyAsync(cancellationToken))
         {
             SeedEstadosSesiones(context);
+            hasChanges = true;
+        }
+
+        if (!await context.Set<Materia>().AnyAsync(cancellationToken))
+        {
+            SeedMaterias(context);
             hasChanges = true;
         }
 
@@ -192,6 +204,67 @@ public static class DataExtensions
             new EstadoSesion { Nombre = "ATENDIDA", Descripcion = "Sesion atendida con exito" },
             new EstadoSesion { Nombre = "CANCELADA_TUTOR", Descripcion = "Sesion cancelada por el tutor" },
             new EstadoSesion { Nombre = "CANCELADA_ESTUDIANTE", Descripcion = "Sesion cancelada por el estudiante" }
+        );
+    }
+
+    private static void SeedMaterias(DbContext context)
+    {
+        string[] materias =
+        [
+            "Cálculo Diferencial e Integral",
+            "Álgebra Lineal",
+            "Física",
+            "Termodinámica",
+            "Química",
+            "Estructuras de Datos y Algoritmos",
+            "Arquitectura de Computadoras",
+            "Inteligencia Artificial y Aprendizaje Automático",
+            "Mecánica de Fluidos",
+            "Astronomía y Astrofísica",
+            "Biología Celular y Molecular",
+            "Anatomía y Fisiología Humana",
+            "Genética General",
+            "Microbiología e Inmunología",
+            "Bioquímica Clínica",
+            "Ecología y Conservación Ambiental",
+            "Introducción a la Filosofía",
+            "Lógica Formal y Simbólica",
+            "Ética y Deontología Profesional",
+            "Epistemología y Teoría del Conocimiento",
+            "Filosofía Política",
+            "Metafísica",
+            "Literatura Universal",
+            "Literatura Latinoamericana Contemporánea",
+            "Lingüística General y Fonética",
+            "Semiótica y Análisis del Discurso",
+            "Redacción Académica y Argumentación",
+            "Periodismo y Comunicación Digital",
+            "Historia del Arte Clásico y Contemporáneo",
+            "Teoría de la Música y Armonía",
+            "Apreciación Cinematográfica",
+            "Fotografía Digital y Composición",
+            "Dibujo Artístico y Pintura",
+            "Diseño Gráfico y Tipografía",
+            "Expresión Teatral y Actuación",
+            "Historia Universal Contemporánea",
+            "Sociología General",
+            "Antropología Cultural",
+            "Psicología Cognitiva y del Aprendizaje",
+            "Geografía Humana y Geopolítica",
+            "Arqueología y Civilizaciones Antiguas",
+            "Criminología y Victimología",
+            "Microeconomía y Macroeconomía",
+            "Finanzas Corporativas",
+            "Contabilidad Financiera",
+            "Marketing Estratégico",
+            "Gestión y Dirección de Proyectos",
+            "Derecho Constitucional y Derechos Humanos",
+            "Inglés Técnico y Académico",
+            "Francés Intermedio"
+        ];
+
+        context.Set<Materia>().AddRange(
+            materias.Select(nombre => new Materia { Nombre = nombre })
         );
     }
 

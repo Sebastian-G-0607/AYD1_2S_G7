@@ -30,12 +30,30 @@ public static class RegistrarEstudianteEndpoint
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
+        if (request.Password != request.ConfirmPassword)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseñas no coinciden",
+                detail: "La contraseña y la confirmación de contraseña no coinciden."
+            );
+        }
+
         if (!PasswordValidator.IsValid(request.Password))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Contraseña inválida",
                 detail: "La contraseña debe tener un mínimo de 8 caracteres, incluyendo al menos una letra minúscula, una mayúscula y un número."
+            );
+        }
+
+        if (!GeneroValidator.TryNormalize(request.Genero, out var generoNormalizado))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Género inválido",
+                detail: "El género debe ser 'masculino' ('m') o 'femenino' ('f')."
             );
         }
 
@@ -69,13 +87,13 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        var estadoAprobado = await dbContext.EstadosUsuarios.FirstOrDefaultAsync(e => e.Nombre == "APROBADO", cancellationToken);
-        if (estadoAprobado is null)
+        var estadoPendiente = await dbContext.EstadosUsuarios.FirstOrDefaultAsync(e => e.Nombre == "PENDIENTE", cancellationToken);
+        if (estadoPendiente is null)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: "Configuración incompleta",
-                detail: "El estado de usuario 'APROBADO' no está configurado en el sistema."
+                detail: "El estado de usuario 'PENDIENTE' no está configurado en el sistema."
             );
         }
 
@@ -93,7 +111,7 @@ public static class RegistrarEstudianteEndpoint
             Correo = request.Correo,
             PasswordHash = passwordHash,
             RolId = rolEstudiante.Id,
-            EstadoId = estadoAprobado.Id,
+            EstadoId = estadoPendiente.Id,
             FechaRegistro = DateTime.UtcNow
         };
 
@@ -106,7 +124,7 @@ public static class RegistrarEstudianteEndpoint
             Nombre = request.Nombre,
             Apellido = request.Apellido,
             Carnet = request.Carnet,
-            Genero = request.Genero,
+            Genero = generoNormalizado,
             Direccion = request.Direccion,
             Telefono = request.Telefono,
             FechaNacimiento = request.FechaNacimiento,
@@ -128,7 +146,7 @@ public static class RegistrarEstudianteEndpoint
             estudiante.FotografiaUrl,
             usuario.Correo,
             rolEstudiante.Nombre,
-            estadoAprobado.Nombre,
+            estadoPendiente.Nombre,
             usuario.FechaRegistro
         );
 

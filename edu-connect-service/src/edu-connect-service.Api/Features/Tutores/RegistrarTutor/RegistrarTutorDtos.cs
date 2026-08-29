@@ -3,26 +3,64 @@ using Microsoft.AspNetCore.Http;
 
 namespace edu_connect_service.Api.Features.Tutores.RegistrarTutor;
 
-public record RegistrarTutorRequestDto(
-    [Required] string Nombre,
-    [Required] string Apellido,
-    [Required] string CarnetId,
-    [Required] string NumeroIdentificacion,
-    [Required] string Genero,
-    [Required] string Direccion,
-    [Required] string Telefono,
-    [Required] DateOnly FechaNacimiento,
-    [Required] IFormFile Fotografia,
-    [Required] string DireccionTutoria,
-    [Required] int AnioInicio,
-    [Required] string Universidad,
-    [Required][EmailAddress] string Correo,
-    [Required] string Password,
-    [Required] List<int> MateriasIds,
-    TimeOnly? HoraInicio,
-    TimeOnly? HoraFin,
-    List<int>? DiasAtencion
-);
+public class RegistrarTutorRequestDto
+{
+    [Required]
+    public string Nombre { get; set; } = string.Empty;
+
+    [Required]
+    public string Apellido { get; set; } = string.Empty;
+
+    [Required]
+    public string CarnetId { get; set; } = string.Empty;
+
+    [Required]
+    public string NumeroIdentificacion { get; set; } = string.Empty;
+
+    [Required]
+    public string Genero { get; set; } = string.Empty;
+
+    [Required]
+    public string Direccion { get; set; } = string.Empty;
+
+    [Required]
+    public string Telefono { get; set; } = string.Empty;
+
+    [Required]
+    public DateOnly FechaNacimiento { get; set; }
+
+    [Required]
+    public IFormFile Fotografia { get; set; } = null!;
+
+    [Required]
+    public string DireccionTutoria { get; set; } = string.Empty;
+
+    [Required]
+    public int AnioInicio { get; set; }
+
+    [Required]
+    public string Universidad { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    public string Correo { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
+    [Compare(nameof(Password), ErrorMessage = "La contraseña y la confirmación de contraseña no coinciden.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required]
+    public List<int> MateriasIds { get; set; } = [];
+
+    public TimeOnly? HoraInicio { get; set; }
+
+    public TimeOnly? HoraFin { get; set; }
+
+    public List<int>? DiasAtencion { get; set; }
+}
 
 public record TutorResponseDto(
     int UsuarioId,

@@ -30,12 +30,30 @@ public static class RegistrarTutorEndpoint
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
+        if (request.Password != request.ConfirmPassword)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseñas no coinciden",
+                detail: "La contraseña y la confirmación de contraseña no coinciden."
+            );
+        }
+
         if (!PasswordValidator.IsValid(request.Password))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Contraseña inválida",
                 detail: "La contraseña debe tener un mínimo de 8 caracteres, incluyendo al menos una letra minúscula, una mayúscula y un número."
+            );
+        }
+
+        if (!GeneroValidator.TryNormalize(request.Genero, out var generoNormalizado))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Género inválido",
+                detail: "El género debe ser 'masculino' ('m') o 'femenino' ('f')."
             );
         }
 
@@ -166,7 +184,7 @@ public static class RegistrarTutorEndpoint
             Apellido = request.Apellido,
             CarnetId = request.CarnetId,
             NumeroIdentificacion = request.NumeroIdentificacion,
-            Genero = request.Genero,
+            Genero = generoNormalizado,
             Direccion = request.Direccion,
             Telefono = request.Telefono,
             FechaNacimiento = request.FechaNacimiento,
