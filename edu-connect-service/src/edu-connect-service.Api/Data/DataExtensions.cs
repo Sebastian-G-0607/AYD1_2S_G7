@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using edu_connect_service.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,7 @@ public static class DataExtensions
         builder.Services.AddDbContext<TContext>(options =>
         {
             options.UseOracle(connectionString, o => o.UseOracleSQLCompatibility(OracleSQLCompatibility.DatabaseVersion19));
-            ConfigureDbContext(options);
+            ConfigureDbContext(options, builder.Configuration);
         });
 
         return builder;
@@ -36,40 +37,34 @@ public static class DataExtensions
     public static async Task MigrateDbAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        edu_connect_serviceContext dbContext = scope.ServiceProvider
-                                          .GetRequiredService<edu_connect_serviceContext>();
         try
         {
+            edu_connect_serviceContext dbContext = scope.ServiceProvider.
+                        GetRequiredService<edu_connect_serviceContext>();            
             await dbContext.Database.MigrateAsync();
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<WebApplication>>();
             logger.LogError(ex, "An error occurred while migrating the database.");
         }
     }
 
-    private static DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder options)
+    private static DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder options, IConfiguration configuration)
     {
         return options.UseSeeding((context, _) =>
                     {
-                        SeedCatalogsAndData(context);
+                        SeedCatalogsAndData(context, configuration);
                     })
                     .UseAsyncSeeding(async (context, _, cancellationToken) =>
                     {
-                        await SeedCatalogsAndDataAsync(context, cancellationToken);
+                        await SeedCatalogsAndDataAsync(context, configuration, cancellationToken);
                     });
     }
 
-    private static void SeedCatalogsAndData(DbContext context)
+    private static void SeedCatalogsAndData(DbContext context, IConfiguration configuration)
     {
         var hasChanges = false;
-
-        if (!context.Set<Category>().Any())
-        {
-            SeedCategories(context);
-            hasChanges = true;
-        }
 
         if (!context.Set<Rol>().Any())
         {
@@ -89,34 +84,30 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!context.Set<Materia>().Any())
+        {
+            SeedMaterias(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             context.SaveChanges();
         }
 
-        if (!context.Set<Item>().Any() && context.Set<Category>().Any())
-        {
-            SeedItems(context);
-            context.SaveChanges();
-        }
+        var (adminEmail, adminPassword, adminPasswordFase2) = GetAdminSeedCredentials(configuration);
 
-        if (!context.Set<Usuario>().Any(u => u.Correo == "admin@educonnect.com") &&
+        if (!context.Set<Usuario>().Any(u => u.Correo == adminEmail) &&
             context.Set<Rol>().Any(r => r.Nombre == "Admin") &&
             context.Set<EstadoUsuario>().Any(e => e.Nombre == "APROBADO"))
         {
-            SeedAdminUser(context);
+            SeedAdminUser(context, adminEmail, adminPassword, adminPasswordFase2);
         }
     }
 
-    private static async Task SeedCatalogsAndDataAsync(DbContext context, CancellationToken cancellationToken)
+    private static async Task SeedCatalogsAndDataAsync(DbContext context, IConfiguration configuration, CancellationToken cancellationToken)
     {
         var hasChanges = false;
-
-        if (!await context.Set<Category>().AnyAsync(cancellationToken))
-        {
-            SeedCategories(context);
-            hasChanges = true;
-        }
 
         if (!await context.Set<Rol>().AnyAsync(cancellationToken))
         {
@@ -136,34 +127,55 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!await context.Set<Materia>().AnyAsync(cancellationToken))
+        {
+            SeedMaterias(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             await context.SaveChangesAsync(cancellationToken);
         }
 
-        if (!await context.Set<Item>().AnyAsync(cancellationToken) && await context.Set<Category>().AnyAsync(cancellationToken))
-        {
-            SeedItems(context);
-            await context.SaveChangesAsync(cancellationToken);
-        }
+        var (adminEmail, adminPassword, adminPasswordFase2) = GetAdminSeedCredentials(configuration);
 
-        if (!await context.Set<Usuario>().AnyAsync(u => u.Correo == "admin@educonnect.com", cancellationToken) &&
+        if (!await context.Set<Usuario>().AnyAsync(u => u.Correo == adminEmail, cancellationToken) &&
             await context.Set<Rol>().AnyAsync(r => r.Nombre == "Admin", cancellationToken) &&
             await context.Set<EstadoUsuario>().AnyAsync(e => e.Nombre == "APROBADO", cancellationToken))
         {
-            await SeedAdminUserAsync(context, cancellationToken);
+            await SeedAdminUserAsync(context, adminEmail, adminPassword, adminPasswordFase2, cancellationToken);
         }
     }
 
-    private static void SeedCategories(DbContext context)
+    private static (string Email, string? Password, string? PasswordFase2) GetAdminSeedCredentials(IConfiguration configuration)
     {
-        context.Set<Category>().AddRange(
-            new Category { Name = "General" },
-            new Category { Name = "Urgent" },
-            new Category { Name = "Archived" },
-            new Category { Name = "Favorites" },
-            new Category { Name = "Upcoming" }
-        );
+        var email = configuration["ADMIN_EMAIL"]
+            ?? configuration["SEED_ADMIN_EMAIL"]
+            ?? configuration["AdminSeed:Email"]
+            ?? configuration["AdminUser:Email"]
+            ?? configuration["Seed:AdminEmail"]
+            ?? Environment.GetEnvironmentVariable("ADMIN_EMAIL")
+            ?? Environment.GetEnvironmentVariable("SEED_ADMIN_EMAIL")
+            ?? "admin@educonnect.com";
+
+        var password = configuration["SEED_ADMIN_PASSWORD"]
+            ?? configuration["ADMIN_PASSWORD"]
+            ?? configuration["AdminSeed:Password"]
+            ?? configuration["AdminUser:Password"]
+            ?? configuration["Seed:AdminPassword"]
+            ?? Environment.GetEnvironmentVariable("SEED_ADMIN_PASSWORD")
+            ?? Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+        var passwordFase2 = configuration["SEED_ADMIN_PASSWORD_FASE2"]
+            ?? configuration["ADMIN_PASSWORD_FASE2"]
+            ?? configuration["AdminSeed:PasswordFase2"]
+            ?? configuration["AdminUser:PasswordFase2"]
+            ?? configuration["Seed:AdminPasswordFase2"]
+            ?? Environment.GetEnvironmentVariable("SEED_ADMIN_PASSWORD_FASE2")
+            ?? Environment.GetEnvironmentVariable("ADMIN_PASSWORD_FASE2");
+
+        return (email, password, passwordFase2);
     }
 
     private static void SeedRoles(DbContext context)
@@ -195,52 +207,85 @@ public static class DataExtensions
         );
     }
 
-    private static void SeedItems(DbContext context)
+    private static void SeedMaterias(DbContext context)
     {
-        var generalCategory = context.Set<Category>().First(c => c.Name == "General");
-        var upcomingCategory = context.Set<Category>().First(c => c.Name == "Upcoming");
-        var favoritesCategory = context.Set<Category>().First(c => c.Name == "Favorites");
+        string[] materias =
+        [
+            "Cálculo Diferencial e Integral",
+            "Álgebra Lineal",
+            "Física",
+            "Termodinámica",
+            "Química",
+            "Estructuras de Datos y Algoritmos",
+            "Arquitectura de Computadoras",
+            "Inteligencia Artificial y Aprendizaje Automático",
+            "Mecánica de Fluidos",
+            "Astronomía y Astrofísica",
+            "Biología Celular y Molecular",
+            "Anatomía y Fisiología Humana",
+            "Genética General",
+            "Microbiología e Inmunología",
+            "Bioquímica Clínica",
+            "Ecología y Conservación Ambiental",
+            "Introducción a la Filosofía",
+            "Lógica Formal y Simbólica",
+            "Ética y Deontología Profesional",
+            "Epistemología y Teoría del Conocimiento",
+            "Filosofía Política",
+            "Metafísica",
+            "Literatura Universal",
+            "Literatura Latinoamericana Contemporánea",
+            "Lingüística General y Fonética",
+            "Semiótica y Análisis del Discurso",
+            "Redacción Académica y Argumentación",
+            "Periodismo y Comunicación Digital",
+            "Historia del Arte Clásico y Contemporáneo",
+            "Teoría de la Música y Armonía",
+            "Apreciación Cinematográfica",
+            "Fotografía Digital y Composición",
+            "Dibujo Artístico y Pintura",
+            "Diseño Gráfico y Tipografía",
+            "Expresión Teatral y Actuación",
+            "Historia Universal Contemporánea",
+            "Sociología General",
+            "Antropología Cultural",
+            "Psicología Cognitiva y del Aprendizaje",
+            "Geografía Humana y Geopolítica",
+            "Arqueología y Civilizaciones Antiguas",
+            "Criminología y Victimología",
+            "Microeconomía y Macroeconomía",
+            "Finanzas Corporativas",
+            "Contabilidad Financiera",
+            "Marketing Estratégico",
+            "Gestión y Dirección de Proyectos",
+            "Derecho Constitucional y Derechos Humanos",
+            "Inglés Técnico y Académico",
+            "Francés Intermedio"
+        ];
 
-        context.Set<Item>().AddRange(
-            new Item
-            {
-                Name = "Mechanical Keyboard",
-                CategoryId = generalCategory.Id,
-                Price = 129.99m,
-                ReleaseDate = new DateOnly(2025, 1, 15),
-                Description = "RGB backlit mechanical keyboard with Cherry MX switches",
-                LastUpdatedBy = "system"
-            },
-            new Item
-            {
-                Name = "4K Monitor",
-                CategoryId = upcomingCategory.Id,
-                Price = 449.99m,
-                ReleaseDate = new DateOnly(2025, 6, 20),
-                Description = "27-inch 4K UHD display with HDR support and 144Hz refresh rate",
-                LastUpdatedBy = "system"
-            },
-            new Item
-            {
-                Name = "Wireless Mouse",
-                CategoryId = favoritesCategory.Id,
-                Price = 79.99m,
-                ReleaseDate = new DateOnly(2024, 11, 10),
-                Description = "Ergonomic wireless mouse with programmable buttons and long battery life",
-                LastUpdatedBy = "system"
-            }
+        context.Set<Materia>().AddRange(
+            materias.Select(nombre => new Materia { Nombre = nombre })
         );
     }
 
-    private static void SeedAdminUser(DbContext context)
+    private static void SeedAdminUser(DbContext context, string email, string? password, string? passwordFase2)
     {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new InvalidOperationException(
+                "No se puede crear el usuario administrador inicial porque no se proporcionó la contraseña. " +
+                "Por favor, configure la variable de entorno 'SEED_ADMIN_PASSWORD' (o 'ADMIN_PASSWORD' / 'AdminUser:Password').");
+        }
+
+        var fase2Password = string.IsNullOrWhiteSpace(passwordFase2) ? password : passwordFase2;
+
         var adminRol = context.Set<Rol>().First(r => r.Nombre == "Admin");
         var aprobadoEstado = context.Set<EstadoUsuario>().First(e => e.Nombre == "APROBADO");
 
         var adminUser = new Usuario
         {
-            Correo = "admin@educonnect.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123*"),
+            Correo = email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
             RolId = adminRol.Id,
             EstadoId = aprobadoEstado.Id,
             FechaRegistro = DateTime.UtcNow
@@ -252,20 +297,29 @@ public static class DataExtensions
         context.Set<Administrador>().Add(new Administrador
         {
             UsuarioId = adminUser.Id,
-            PasswordFase2Hash = BCrypt.Net.BCrypt.HashPassword("AdminFase2_123*")
+            PasswordFase2Hash = BCrypt.Net.BCrypt.HashPassword(fase2Password)
         });
         context.SaveChanges();
     }
 
-    private static async Task SeedAdminUserAsync(DbContext context, CancellationToken cancellationToken)
+    private static async Task SeedAdminUserAsync(DbContext context, string email, string? password, string? passwordFase2, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new InvalidOperationException(
+                "No se puede crear el usuario administrador inicial porque no se proporcionó la contraseña. " +
+                "Por favor, configure la variable de entorno 'SEED_ADMIN_PASSWORD' (o 'ADMIN_PASSWORD' / 'AdminUser:Password').");
+        }
+
+        var fase2Password = string.IsNullOrWhiteSpace(passwordFase2) ? password : passwordFase2;
+
         var adminRol = await context.Set<Rol>().FirstAsync(r => r.Nombre == "Admin", cancellationToken);
         var aprobadoEstado = await context.Set<EstadoUsuario>().FirstAsync(e => e.Nombre == "APROBADO", cancellationToken);
 
         var adminUser = new Usuario
         {
-            Correo = "admin@educonnect.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123*"),
+            Correo = email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
             RolId = adminRol.Id,
             EstadoId = aprobadoEstado.Id,
             FechaRegistro = DateTime.UtcNow
@@ -277,7 +331,7 @@ public static class DataExtensions
         await context.Set<Administrador>().AddAsync(new Administrador
         {
             UsuarioId = adminUser.Id,
-            PasswordFase2Hash = BCrypt.Net.BCrypt.HashPassword("AdminFase2_123*")
+            PasswordFase2Hash = BCrypt.Net.BCrypt.HashPassword(fase2Password)
         }, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
