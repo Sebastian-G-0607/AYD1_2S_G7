@@ -37,16 +37,31 @@ public static class DataExtensions
     public static async Task MigrateDbAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        try
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<WebApplication>>();
+        var maxRetries = 10;
+        var retryDelay = TimeSpan.FromSeconds(5);
+
+        for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
-            edu_connect_serviceContext dbContext = scope.ServiceProvider.
-                        GetRequiredService<edu_connect_serviceContext>();            
-            await dbContext.Database.MigrateAsync();
-        }
-        catch(Exception ex)
-        {
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<WebApplication>>();
-            logger.LogError(ex, "An error occurred while migrating the database.");
+            try
+            {
+                logger.LogInformation("Intentando aplicar migraciones a la base de datos (intento {Attempt}/{MaxRetries})...", attempt, maxRetries);
+                var dbContext = scope.ServiceProvider.GetRequiredService<edu_connect_serviceContext>();
+                await dbContext.Database.MigrateAsync();
+                logger.LogInformation("Migraciones aplicadas exitosamente.");
+                break;
+            }
+            catch (Exception ex)
+            {
+                if (attempt == maxRetries)
+                {
+                    logger.LogError(ex, "No se pudo migrar la base de datos después de {MaxRetries} intentos.", maxRetries);
+                    throw;
+                }
+
+                logger.LogWarning("Base de datos no disponible aún ({Message}). Reintentando en {Delay}s...", ex.Message, retryDelay.TotalSeconds);
+                await Task.Delay(retryDelay);
+            }
         }
     }
 

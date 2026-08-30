@@ -1,10 +1,13 @@
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Features.Auth;
 using edu_connect_service.Api.Features.Estudiantes;
 using edu_connect_service.Api.Features.Health;
 using edu_connect_service.Api.Features.Tutores;
 using edu_connect_service.Api.Shared.Cors;
 using edu_connect_service.Api.Shared.ErrorHandling;
 using edu_connect_service.Api.Shared.OpenApi;
+using edu_connect_service.Api.Shared.Authentication;
+using edu_connect_service.Api.Shared.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,12 +30,18 @@ builder.Addedu_connect_serviceOpenApi();
 builder.Addedu_connect_serviceCors();
 
 builder.Services.AddValidation();
+builder.Services.AddCustomJwtAuthentication(builder.Configuration);
+builder.Services.AddCustomAuthorization();
 
 var app = builder.Build();
 
 app.UseCors();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapHealth();
+app.MapAuth();
 app.MapEstudiantes();
 app.MapTutores();
 
