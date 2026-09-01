@@ -26,6 +26,6 @@ export default [
     }
   },
   {
-    ignores: ['dist/**', 'node_modules/**', '.gitignore']
+    ignores: ['dist/**', 'node_modules/**', '.gitignore', '.agents/**']
   }
 ]
