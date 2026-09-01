@@ -25,4 +25,3 @@ public record ActualizarEstadoEstudianteResponseDto(
     string Estado,
     string Mensaje
 );
-

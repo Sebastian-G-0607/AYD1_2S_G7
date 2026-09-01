@@ -65,3 +65,4 @@ app.UseStatusCodePages();
 await app.MigrateDbAsync();
 
 app.Run();
+app.Run();

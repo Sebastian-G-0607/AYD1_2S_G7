@@ -123,3 +123,4 @@ public class EmailService(
         await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
     }
 }
+

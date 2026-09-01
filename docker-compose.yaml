@@ -3,7 +3,7 @@ services:
     image: gvenzl/oracle-xe:latest
     container_name: oracle-db
     ports:
-      - "1521:1521"
+      - "1523:1521"
     environment:
       - ORACLE_PASSWORD=Oracle12345
       - APP_USER=api_dev

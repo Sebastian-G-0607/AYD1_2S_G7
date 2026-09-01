@@ -11,3 +11,4 @@ public static class AppRoles
 
     public static bool IsValidRole(string role) => All.Contains(role);
 }
+
