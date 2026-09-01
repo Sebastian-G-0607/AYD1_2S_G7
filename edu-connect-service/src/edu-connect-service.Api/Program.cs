@@ -3,6 +3,7 @@ using edu_connect_service.Api.Features.Administrador;
 using edu_connect_service.Api.Features.Auth;
 using edu_connect_service.Api.Features.Estudiantes;
 using edu_connect_service.Api.Features.Health;
+using edu_connect_service.Api.Features.Materias;
 using edu_connect_service.Api.Features.Tutores;
 using edu_connect_service.Api.Shared.Cors;
 using edu_connect_service.Api.Shared.Emails;
@@ -48,6 +49,7 @@ app.MapAuth();
 app.MapEstudiantes();
 app.MapTutores();
 app.MapAdministrador();
+app.MapMaterias();
 
 app.UseHttpLogging();
 
