@@ -40,20 +40,25 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # 4. Copy built assets from builder stage to nginx's HTML directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 5. Ensure proper ownership for non-root user
+# 5. Copy and prepare runtime entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# 6. Ensure proper ownership for non-root user
 RUN chown -R nginx:nginx /usr/share/nginx/html
 
-# 6. Expose port 8080 (non-privileged port, works for non-root user)
+# 7. Expose port 8080 (non-privileged port, works for non-root user)
 #    Note: nginx alpine by default listens on port 80,
 #    but we override this in nginx.conf to listen on 8080
 EXPOSE 8080
 
-# 7. Run as non-root user (nginx user, UID 101)
+# 8. Run as non-root user (nginx user, UID 101)
 USER nginx
 
-# 8. Health check to verify the server is responding
+# 9. Health check to verify the server is responding
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget -qO- http://localhost:8080/ || exit 1
 
-# 9. Start nginx (daemon off for foreground execution in Docker)
+# 10. Start entrypoint and nginx (daemon off for foreground execution in Docker)
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
