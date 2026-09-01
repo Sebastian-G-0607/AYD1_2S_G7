@@ -4,15 +4,17 @@ import type { AuthUser, TokenResponseDto } from './types'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('edu_auth_token'))
-  const user = ref<AuthUser | null>(() => {
-    const rawUser = localStorage.getItem('edu_auth_user')
-    if (!rawUser) return null
-    try {
-      return JSON.parse(rawUser) as AuthUser
-    } catch {
-      return null
-    }
-  })
+  const user = ref<AuthUser | null>(
+    (() => {
+      const rawUser = localStorage.getItem('edu_auth_user')
+      if (!rawUser) return null
+      try {
+        return JSON.parse(rawUser) as AuthUser
+      } catch {
+        return null
+      }
+    })()
+  )
 
   const isAuthenticated = computed(() => Boolean(token.value))
   const userRole = computed(() => user.value?.rol || '')

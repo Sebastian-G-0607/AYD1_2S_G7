@@ -67,6 +67,20 @@ export function useAuth() {
     return 'Ocurrió un error inesperado al procesar la solicitud.'
   }
 
+  function getRedirectPathByRole(role: string): string {
+    const normalized = role.toLowerCase().trim()
+    if (normalized === 'administrador' || normalized === 'admin') {
+      return '/admin/aprobaciones'
+    }
+    if (normalized === 'tutor') {
+      return '/tutor/dashboard'
+    }
+    if (normalized === 'estudiante' || normalized === 'student') {
+      return '/estudiante/explorar-tutores'
+    }
+    return '/'
+  }
+
   async function login(credentials: LoginCredentials): Promise<boolean> {
     isLoading.value = true
     errorMessage.value = null
@@ -74,7 +88,8 @@ export function useAuth() {
     try {
       const response = await authService.login(credentials)
       authStore.setAuthFromTokenResponse(response)
-      await router.push('/')
+      const targetPath = getRedirectPathByRole(response.rol)
+      await router.push(targetPath)
       return true
     } catch (error: unknown) {
       errorMessage.value = extractErrorMessage(
@@ -85,6 +100,11 @@ export function useAuth() {
     } finally {
       isLoading.value = false
     }
+  }
+
+  async function logout(): Promise<void> {
+    authStore.clearAuth()
+    await router.push('/login')
   }
 
   async function registerStudent(studentData: StudentRegisterData): Promise<boolean> {
@@ -172,7 +192,9 @@ export function useAuth() {
     successMessage,
     clearError,
     clearSuccess,
+    getRedirectPathByRole,
     login,
+    logout,
     registerStudent,
     registerTutor
   }
