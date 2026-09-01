@@ -3,6 +3,7 @@ namespace edu_connect_service.Api.Shared.Authorization;
 public static class AppRoles
 {
     public const string Admin = "Admin";
+    public const string Administrador = Admin;
     public const string Estudiante = "Estudiante";
     public const string Tutor = "Tutor";
 
