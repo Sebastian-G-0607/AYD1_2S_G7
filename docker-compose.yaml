@@ -1,0 +1,54 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:latest
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=Oracle12345
+      - APP_USER=api_dev
+      - APP_USER_PASSWORD=ApiDev1234
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./edu-connect-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./edu-connect-client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:8080"
+    depends_on:
+      - api
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  oracle-data:
