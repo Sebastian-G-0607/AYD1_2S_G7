@@ -1,0 +1,36 @@
+name: Frontend Deploy to OCI
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'edu-connect-client/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase repo name
+        run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          docker build -t ghcr.io/${{ env.REPO_LOWER }}-client:latest ./edu-connect-client
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${{ env.REPO_LOWER }}-client:latest
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          script: |
+            cd ~/edu-connect-client
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
+            docker pull ghcr.io/${{ env.REPO_LOWER }}-client:latest
+            docker compose up -d
