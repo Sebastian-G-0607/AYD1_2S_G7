@@ -91,6 +91,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/tutor/horarios',
+    name: 'tutor-schedule',
+    component: () => import('@/pages/TutorSchedulePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Configuración de Horarios - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/'
   }
