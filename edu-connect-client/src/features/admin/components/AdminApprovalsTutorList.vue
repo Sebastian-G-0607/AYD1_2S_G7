@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { StudentApprovalItem } from '../types'
+import type { TutorApprovalItem } from '../types'
 import { getEnv } from '@/config/env'
 
 interface Props {
-  students: StudentApprovalItem[]
+  tutors: TutorApprovalItem[]
   isLoading?: boolean
 }
 
@@ -13,8 +13,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'approve', student: StudentApprovalItem): void
-  (e: 'reject', student: StudentApprovalItem): void
+  (e: 'approve', tutor: TutorApprovalItem): void
+  (e: 'reject', tutor: TutorApprovalItem): void
 }>()
 
 const failedImages = ref<Record<number, boolean>>({})
@@ -39,7 +39,7 @@ function resolveImageUrl(url?: string): string {
 function getInitials(nombre: string, apellido: string): string {
   const f = nombre ? nombre.charAt(0) : ''
   const l = apellido ? apellido.charAt(0) : ''
-  return `${f}${l}`.toUpperCase() || 'ES'
+  return `${f}${l}`.toUpperCase() || 'TU'
 }
 
 const avatarBgClasses = [
@@ -61,12 +61,12 @@ function getAvatarBgClass(index: number): string {
       class="bg-surface-container-lowest shadow-sm rounded-xl p-12 mb-margin-desktop text-center flex flex-col items-center justify-center min-h-[300px]"
     >
       <div class="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-      <p class="font-body-md text-body-md text-on-surface-variant">Cargando solicitudes de estudiantes...</p>
+      <p class="font-body-md text-body-md text-on-surface-variant">Cargando solicitudes de tutores...</p>
     </div>
 
-    <!-- TABLA DE ESTUDIANTES PENDIENTES (HU-05) -->
+    <!-- TABLA DE TUTORES PENDIENTES (HU-06) -->
     <div
-      v-else-if="props.students.length > 0"
+      v-else-if="props.tutors.length > 0"
       class="bg-surface-container-lowest shadow-sm rounded-xl overflow-hidden mb-margin-desktop"
     >
       <div class="overflow-x-auto">
@@ -75,70 +75,95 @@ function getAvatarBgClass(index: number): string {
             <tr class="text-on-surface-variant font-label-md text-label-md border-b border-surface-container-high">
               <th class="py-3 px-2 w-10 text-center font-semibold">Fotografía</th>
               <th class="py-3 px-3 font-semibold">Nombre Completo</th>
-              <th class="py-3 px-3 w-40 font-semibold">Carnet</th>
-              <th class="py-3 px-2.5 w-24 font-semibold">Género</th>
-              <th class="py-3 px-2.5 w-32 font-semibold">Fecha Nacimiento</th>
+              <th class="py-3 px-2.5 w-32 font-semibold">Carnet</th>
+              <th class="py-3 px-2.5 w-32 font-semibold">ID Tutor</th>
+              <th class="py-3 px-2 w-24 font-semibold">Género</th>
+              <th class="py-3 px-3 font-semibold">Especialidad</th>
               <th class="py-3 px-2.5 w-36 font-semibold">Correo</th>
               <th class="py-3 px-3 w-44 font-semibold text-center">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y-0 text-on-surface">
             <tr
-              v-for="(student, index) in props.students"
-              :key="student.id"
+              v-for="(tutor, index) in props.tutors"
+              :key="tutor.id"
               class="hover:bg-surface-container-low transition-colors group border-b border-surface-container/40 last:border-0"
             >
               <!-- Fotografía (ancho 10 / compacto) -->
               <td class="py-3 px-2 w-10 text-center">
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest flex-shrink-0 mx-auto shadow-xs border border-primary/10">
                   <img
-                    v-if="student.fotografiaUrl && isImageValid(student.id)"
-                    :src="resolveImageUrl(student.fotografiaUrl)"
-                    :alt="`${student.nombre} ${student.apellido}`"
+                    v-if="tutor.fotografiaUrl && isImageValid(tutor.id)"
+                    :src="resolveImageUrl(tutor.fotografiaUrl)"
+                    :alt="`${tutor.nombre} ${tutor.apellido}`"
                     class="w-full h-full object-cover"
-                    @error="handleImageError(student.id)"
+                    @error="handleImageError(tutor.id)"
                   />
                   <div
                     v-else
                     :class="['w-full h-full flex items-center justify-center font-label-sm text-[11px] font-bold', getAvatarBgClass(index)]"
                   >
-                    {{ getInitials(student.nombre, student.apellido) }}
+                    {{ getInitials(tutor.nombre, tutor.apellido) }}
                   </div>
                 </div>
               </td>
 
-              <!-- Nombre Completo -->
+              <!-- Nombre Completo (solo el nombre) -->
               <td class="py-3 px-3">
                 <p class="font-label-md text-label-md text-on-surface whitespace-nowrap">
-                  {{ student.nombre }} {{ student.apellido }}
+                  {{ tutor.nombre }} {{ tutor.apellido }}
                 </p>
               </td>
 
-              <!-- Carnet (más ancho y visible) -->
-              <td class="py-3 px-3 w-40">
-                <span class="font-mono text-xs bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md font-semibold inline-block">
-                  {{ student.carnet }}
+              <!-- Carnet (columna individual) -->
+              <td class="py-3 px-2.5 w-32">
+                <span class="font-mono text-xs bg-surface-container-highest text-on-surface px-2 py-0.5 rounded font-medium inline-block">
+                  {{ tutor.carnetId }}
                 </span>
               </td>
 
-              <!-- Género -->
-              <td class="py-3 px-2.5 w-24 text-sm capitalize text-on-surface-variant whitespace-nowrap">
-                {{ student.genero }}
+              <!-- ID Tutor único -->
+              <td class="py-3 px-2.5 w-32">
+                <span class="font-mono text-xs bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-semibold inline-block">
+                  {{ tutor.numeroIdentificacion }}
+                </span>
               </td>
 
-              <!-- Fecha de Nacimiento -->
-              <td class="py-3 px-2.5 w-32 text-sm text-on-surface-variant whitespace-nowrap">
-                {{ student.fechaNacimiento }}
+              <!-- Género (columna individual) -->
+              <td class="py-3 px-2 w-24 text-sm capitalize text-on-surface-variant whitespace-nowrap">
+                {{ tutor.genero }}
+              </td>
+
+              <!-- Especialidad (esquinas menos redondas: rounded-md) -->
+              <td class="py-3 px-3 max-w-[210px]">
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="materia in (tutor.materias || []).slice(0, 2)"
+                    :key="materia"
+                    class="inline-block bg-primary/10 text-primary text-[11px] px-2 py-0.5 rounded-md font-medium"
+                  >
+                    {{ materia }}
+                  </span>
+                  <span
+                    v-if="(tutor.materias || []).length > 2"
+                    class="inline-block bg-surface-container-highest text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-md font-medium"
+                  >
+                    +{{ tutor.materias.length - 2 }}
+                  </span>
+                </div>
+                <p v-if="tutor.especialidad && (!tutor.materias || tutor.materias.length === 0)" class="text-xs text-on-surface-variant line-clamp-1 mt-0.5">
+                  {{ tutor.especialidad }}
+                </p>
               </td>
 
               <!-- Correo (angosto con tooltip) -->
               <td class="py-3 px-2.5 w-36 text-sm">
                 <a
-                  :href="`mailto:${student.correo}`"
-                  :title="student.correo"
+                  :href="`mailto:${tutor.correo}`"
+                  :title="tutor.correo"
                   class="text-on-surface-variant hover:text-primary transition-colors truncate block max-w-[140px]"
                 >
-                  {{ student.correo }}
+                  {{ tutor.correo }}
                 </a>
               </td>
 
@@ -147,9 +172,9 @@ function getAvatarBgClass(index: number): string {
                 <div class="flex gap-1.5 justify-center">
                   <button
                     type="button"
-                    title="Aceptar solicitud de estudiante"
+                    title="Aceptar solicitud de tutor"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#c3e6cb] text-[#155724] hover:bg-[#218838] hover:text-white transition-all font-label-sm text-label-sm cursor-pointer shadow-xs whitespace-nowrap"
-                    @click="emit('approve', student)"
+                    @click="emit('approve', tutor)"
                   >
                     <span class="material-symbols-outlined text-[16px]">check_circle</span>
                     <span>Aceptar</span>
@@ -157,9 +182,9 @@ function getAvatarBgClass(index: number): string {
 
                   <button
                     type="button"
-                    title="Rechazar solicitud de estudiante"
+                    title="Rechazar solicitud de tutor"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-white transition-all font-label-sm text-label-sm cursor-pointer shadow-xs whitespace-nowrap"
-                    @click="emit('reject', student)"
+                    @click="emit('reject', tutor)"
                   >
                     <span class="material-symbols-outlined text-[16px]">cancel</span>
                     <span>Rechazar</span>
@@ -174,7 +199,7 @@ function getAvatarBgClass(index: number): string {
       <!-- Barra Inferior de Registros / Paginación -->
       <div class="p-3.5 bg-surface-container-lowest border-t border-surface-container-highest flex items-center justify-between">
         <span class="font-label-sm text-label-sm text-on-surface-variant">
-          Mostrando {{ props.students.length }} {{ props.students.length === 1 ? 'registro' : 'registros' }}
+          Mostrando {{ props.tutors.length }} {{ props.tutors.length === 1 ? 'registro' : 'registros' }}
         </span>
 
         <div class="flex gap-1">
@@ -212,7 +237,7 @@ function getAvatarBgClass(index: number): string {
       </div>
       <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Todo al día</h3>
       <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
-        No hay solicitudes de estudiantes pendientes de aprobación en este momento. Vuelve más tarde.
+        No hay solicitudes de tutores pendientes de aprobación en este momento. Vuelve más tarde.
       </p>
     </div>
   </div>
