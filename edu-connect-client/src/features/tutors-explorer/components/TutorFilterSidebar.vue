@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { useMaterias } from '@/composables/useMaterias'
 
 const { materias } = useMaterias()

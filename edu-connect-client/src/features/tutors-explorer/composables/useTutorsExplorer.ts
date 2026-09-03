@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { tutorsExplorerService } from '../services/tutorsExplorer.service'
 import type { TutorExplorerItem, TutorFilterCriteria } from '../types'
 
@@ -37,6 +37,15 @@ export function useTutorsExplorer() {
       isLoading.value = false
     }
   }
+
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined
+
+  watch(filters, () => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      fetchTutors()
+    }, 400)
+  })
 
   return {
     tutors,

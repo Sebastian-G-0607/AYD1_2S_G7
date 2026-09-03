@@ -4,7 +4,12 @@ import { useTutorsExplorer } from '../composables/useTutorsExplorer'
 import TutorCard from './TutorCard.vue'
 import TutorFilterSidebar from './TutorFilterSidebar.vue'
 
-const { filteredTutors, isLoading, viewMode, filters, resetFilters } = useTutorsExplorer()
+const { tutors, isLoading, error, viewMode, filters, resetFilters, fetchTutors } =
+  useTutorsExplorer()
+
+onMounted(() => {
+  fetchTutors()
+})
 </script>
 
 <template>

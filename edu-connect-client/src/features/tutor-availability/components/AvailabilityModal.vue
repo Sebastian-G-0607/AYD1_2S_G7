@@ -66,11 +66,7 @@ const diasNombre: Record<number, string> = {
         <div class="text-sm text-on-surface-variant">
           <span class="font-semibold text-on-surface">{{ availability.nombreCompleto }}</span>
           atiende:
-          <span
-            v-for="dia in availability.diasAtencion"
-            :key="dia"
-            class="inline-block mr-1"
-          >
+          <span v-for="dia in availability.diasAtencion" :key="dia" class="inline-block mr-1">
             {{ diasNombre[dia] }}<span v-if="dia !== availability.diasAtencion.at(-1)">,</span>
           </span>
           <template v-if="availability.horaInicioAtencion && availability.horaFinAtencion">
@@ -78,7 +74,10 @@ const diasNombre: Record<number, string> = {
           </template>
         </div>
 
-        <div v-if="!availability.atiendeEseDia" class="text-sm text-on-surface-variant text-center py-8">
+        <div
+          v-if="!availability.atiendeEseDia"
+          class="text-sm text-on-surface-variant text-center py-8"
+        >
           El tutor no atiende en la fecha seleccionada.
         </div>
 
@@ -103,7 +102,9 @@ const diasNombre: Record<number, string> = {
             Disponible
           </span>
           <span class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded-full bg-surface-container-high border border-outline-variant/30" />
+            <span
+              class="w-3 h-3 rounded-full bg-surface-container-high border border-outline-variant/30"
+            />
             Ocupado
           </span>
         </div>
