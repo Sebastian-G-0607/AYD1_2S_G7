@@ -64,6 +64,14 @@ else
 
 app.UseStatusCodePages();
 
-await app.MigrateDbAsync();
+var connString = app.Configuration.GetConnectionString("edu_connect_serviceDB");
+if (!string.IsNullOrWhiteSpace(connString))
+{
+    await app.MigrateDbAsync();
+}
+else
+{
+    app.Logger.LogWarning("Connection string 'edu_connect_serviceDB' is empty — skipping database migration (useful for local 2FA tests).");
+}
 
 app.Run();
