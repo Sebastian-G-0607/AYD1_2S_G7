@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useTutorsExplorer } from '../composables/useTutorsExplorer'
 import TutorCard from './TutorCard.vue'
 import TutorFilterSidebar from './TutorFilterSidebar.vue'
@@ -55,21 +56,28 @@ const { filteredTutors, isLoading, viewMode, filters, resetFilters } = useTutors
       <TutorFilterSidebar
         v-model:materia="filters.materia"
         v-model:universidad="filters.universidad"
-        v-model:exp-minima="filters.expMinima"
-        v-model:rango-edad="filters.rangoEdad"
+        v-model:experiencia-minima="filters.experienciaMinima"
+        v-model:edad-maxima="filters.edadMaxima"
         v-model:genero="filters.genero"
         @reset="resetFilters"
       />
 
       <div class="flex-1 flex flex-col w-full min-w-0">
         <div
-          v-if="filteredTutors.length > 0"
+          v-if="error"
+          class="bg-error-container text-on-error-container rounded-xl p-6 text-sm font-body"
+        >
+          {{ error }}
+        </div>
+
+        <div
+          v-else-if="tutors.length > 0"
           :class="[
             'grid gap-6 w-full',
             viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'
           ]"
         >
-          <TutorCard v-for="tutor in filteredTutors" :key="tutor.id" :tutor="tutor" />
+          <TutorCard v-for="tutor in tutors" :key="tutor.tutorId" :tutor="tutor" />
         </div>
 
         <div
