@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Features.Auth.Login;
 using edu_connect_service.Api.Features.Auth.Me;
+using edu_connect_service.Api.Features.Auth.AdminTwoFactor;
 
 namespace edu_connect_service.Api.Features.Auth;
 
@@ -14,5 +15,7 @@ public static class AuthEndpoints
         var apiGroup = app.MapGroup("/api");
         apiGroup.MapLogin();
         apiGroup.MapMe();
+
+        app.MapAdminTwoFactor();
     }
 }
