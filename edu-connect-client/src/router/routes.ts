@@ -67,6 +67,17 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/2fa',
+    name: 'admin-2fa',
+    component: () => import('@/pages/AdminTwoFactorPage.vue'),
+    meta: {
+      requiresAuth: false,
+      guestOnly: true,
+      title: 'Verificación Administrador - EduConnect',
+      layout: 'auth'
+    }
+  },
+  {
     path: '/estudiante/explorar-tutores',
     name: 'student-tutors-explorer',
     component: () => import('@/pages/StudentTutorsExplorerPage.vue'),

@@ -9,6 +9,38 @@ import type {
 } from '../types'
 
 export const authService = {
+  async adminInitialLogin(credentials: LoginRequestDto): Promise<{ tempToken: string }> {
+    const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
+    const endpoint = isApiPrefix ? '/admin-login' : '/auth/admin-login'
+
+    const { data } = await api.post<{ tempToken: string }>(endpoint, {
+      correo: credentials.correo,
+      password: credentials.password
+    })
+    return data
+  },
+
+  async uploadAdmin2Fa(file: File, tempToken?: string): Promise<{ token: string; role: string }>
+  {
+    const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
+    const endpoint = isApiPrefix ? '/admin-2fa' : '/auth/admin-2fa'
+
+    const form = new FormData()
+    form.append('file', file)
+
+    const headers: Record<string, string> = {}
+    if (tempToken) headers['Authorization'] = `Bearer ${tempToken}`
+
+    const { data } = await api.post<{ token: string; role: string }>(endpoint, form, {
+      headers: {
+        ...headers,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    return data
+  },
+
   async login(credentials: LoginRequestDto): Promise<TokenResponseDto> {
     const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
     const endpoint = isApiPrefix ? '/login' : '/auth/login'
