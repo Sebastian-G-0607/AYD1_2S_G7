@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { BaseButton } from '@/components/ui'
-import type { TutorExplorerItem } from '../types'
+import { useRouter } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import type { Tutor } from '../types'
 
 interface Props {
-  tutor: TutorExplorerItem
+  tutor: Tutor
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const router = useRouter()
+
+function goToTutorDetail() {
+  router.push(`/estudiante/tutores/${props.tutor.id}`)
+}
 </script>
 
 <template>
@@ -25,6 +32,7 @@ defineProps<Props>()
           :alt="tutor.nombre"
           class="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest"
         />
+
         <div
           v-else
           class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-lg"
@@ -47,31 +55,43 @@ defineProps<Props>()
         >
           {{ tutor.nombre }}
         </h3>
+
         <span class="text-xs font-semibold text-secondary uppercase tracking-wider mt-0.5">
           {{ tutor.especialidad }}
         </span>
 
         <div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
-          <span class="material-symbols-outlined text-[16px] text-[#eab308]">star</span>
-          <span class="text-xs font-bold text-on-surface">{{ tutor.rating.toFixed(1) }}</span>
-          <span class="text-xs text-on-surface-variant">({{ tutor.totalResenas }} reseñas)</span>
+          <span class="material-symbols-outlined text-[16px] text-[#eab308]">
+            star
+          </span>
+
+          <span class="text-xs font-bold text-on-surface">
+            {{ tutor.rating.toFixed(1) }}
+          </span>
+
+          <span class="text-xs text-on-surface-variant">
+            ({{ tutor.totalResenas }} reseñas)
+          </span>
         </div>
       </div>
     </div>
 
     <div class="flex flex-col gap-2 mt-1">
       <div class="flex items-center gap-2 text-on-surface-variant text-xs">
-        <span class="material-symbols-outlined text-[18px] text-on-surface-variant"
-          >location_on</span
-        >
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">
+          location_on
+        </span>
         <span class="truncate">{{ tutor.ubicacion }}</span>
       </div>
 
       <div class="flex items-center gap-2 text-on-surface-variant text-xs">
-        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">school</span>
-        <span class="truncate"
-          >{{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.</span
-        >
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">
+          school
+        </span>
+
+        <span class="truncate">
+          {{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.
+        </span>
       </div>
     </div>
 
@@ -85,10 +105,19 @@ defineProps<Props>()
       </span>
     </div>
 
-    <BaseButton variant="primary" size="md" block class="mt-2">
+    <BaseButton
+      variant="primary"
+      size="md"
+      block
+      class="mt-2"
+      @click="goToTutorDetail"
+    >
       <span>Ver Perfil y Horarios</span>
+
       <template #iconRight>
-        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        <span class="material-symbols-outlined text-[18px]">
+          arrow_forward
+        </span>
       </template>
     </BaseButton>
   </article>

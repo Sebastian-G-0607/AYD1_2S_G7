@@ -12,6 +12,7 @@ using edu_connect_service.Api.Shared.OpenApi;
 using edu_connect_service.Api.Shared.Authentication;
 using edu_connect_service.Api.Shared.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
+using edu_connect_service.Api.Features.Sesiones;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,7 @@ app.MapEstudiantes();
 app.MapTutores();
 app.MapAdministrador();
 app.MapMaterias();
+app.MapSesiones();
 
 app.UseHttpLogging();
 
