@@ -86,6 +86,17 @@ export function useAuth() {
     errorMessage.value = null
 
     try {
+      // If admin email, attempt admin initial login (2FA flow)
+      if ((credentials.correo || '').toLowerCase().includes('admin')) {
+        const res = await authService.adminInitialLogin(credentials as any)
+        // expects { tempToken }
+        if (res?.tempToken) {
+          sessionStorage.setItem('edu_temp_token', res.tempToken)
+          await router.push('/admin/2fa')
+          return true
+        }
+      }
+
       const response = await authService.login(credentials)
       authStore.setAuthFromTokenResponse(response)
       const targetPath = getRedirectPathByRole(response.rol)
