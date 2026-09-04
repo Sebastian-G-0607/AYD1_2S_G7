@@ -103,6 +103,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/estudiante/tutores/:tutorId',
+    name: 'student-tutor-detail',
+    component: () => import('@/pages/StudentTutorDetailPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Programar Sesión - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/'
   }
