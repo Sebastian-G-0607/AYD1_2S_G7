@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { BaseButton } from '@/components/ui'
-import { AvailabilityModal } from '@/features/tutor-availability'
+import { useRouter } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import type { TutorExplorerItem } from '../types'
 
 interface Props {
   tutor: TutorExplorerItem
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-const showAvailability = ref(false)
+const router = useRouter()
+
+function goToTutorDetail() {
+  router.push(`/estudiante/tutores/${props.tutor.tutorId}`)
+}
 </script>
 
 <template>
@@ -51,18 +54,15 @@ const showAvailability = ref(false)
 
       <div class="flex items-center gap-2 text-on-surface-variant text-xs">
         <span class="material-symbols-outlined text-[18px]">school</span>
-        <span class="truncate"
-          >{{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.</span
-        >
+        <span class="truncate">{{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.</span>
       </div>
     </div>
 
-    <BaseButton variant="primary" size="md" block class="mt-2" @click="showAvailability = true">
+    <BaseButton variant="primary" size="md" block class="mt-2" @click="goToTutorDetail">
       <span>Ver Perfil y Horarios</span>
       <template #iconRight>
         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
       </template>
     </BaseButton>
-    <AvailabilityModal v-model="showAvailability" :tutor-id="tutor.tutorId" />
   </article>
 </template>

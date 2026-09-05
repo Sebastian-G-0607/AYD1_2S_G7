@@ -12,6 +12,7 @@ using edu_connect_service.Api.Shared.OpenApi;
 using edu_connect_service.Api.Shared.Authentication;
 using edu_connect_service.Api.Shared.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
+using edu_connect_service.Api.Features.Sesiones;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,7 @@ app.MapEstudiantes();
 app.MapTutores();
 app.MapAdministrador();
 app.MapMaterias();
+app.MapSesiones();
 
 app.UseHttpLogging();
 
@@ -64,6 +66,14 @@ else
 
 app.UseStatusCodePages();
 
-await app.MigrateDbAsync();
+var connString = app.Configuration.GetConnectionString("edu_connect_serviceDB");
+if (!string.IsNullOrWhiteSpace(connString))
+{
+    await app.MigrateDbAsync();
+}
+else
+{
+    app.Logger.LogWarning("Connection string 'edu_connect_serviceDB' is empty — skipping database migration (useful for local 2FA tests).");
+}
 
 app.Run();
