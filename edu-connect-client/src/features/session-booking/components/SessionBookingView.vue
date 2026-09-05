@@ -57,7 +57,7 @@ const today = computed(() => {
   return `${year}-${month}-${day}`
 })
 
-const tutorInitial = computed(() => tutor.value?.nombre?.charAt(0).toUpperCase() || 'T')
+const tutorInitial = computed(() => tutor.value?.nombreCompleto?.charAt(0).toUpperCase() || 'T')
 
 async function loadTutor() {
   if (!Number.isInteger(tutorId.value) || tutorId.value <= 0) {
@@ -70,7 +70,7 @@ async function loadTutor() {
 
   try {
     const tutors = await tutorsExplorerService.getTutors()
-    tutor.value = tutors.find(item => item.id === tutorId.value) ?? null
+    tutor.value = tutors.find(item => item.tutorId === tutorId.value) ?? null
 
     if (!tutor.value) {
       tutorLoadError.value = 'No fue posible cargar la información del tutor seleccionado.'
@@ -359,7 +359,7 @@ onMounted(() => {
               <img
                 v-if="tutor?.fotografiaUrl"
                 :src="tutor.fotografiaUrl"
-                :alt="tutor.nombre"
+                :alt="tutor.nombreCompleto"
                 class="w-16 h-16 rounded-full object-cover shadow-sm"
               />
               <div
@@ -374,10 +374,10 @@ onMounted(() => {
                   Tutor seleccionado
                 </p>
                 <h3 class="font-headline text-lg font-bold text-on-surface truncate mt-0.5">
-                  {{ tutor?.nombre || `Tutor #${tutorId}` }}
+                  {{ tutor?.nombreCompleto || `Tutor #${tutorId}` }}
                 </h3>
                 <p class="text-sm text-on-surface-variant truncate">
-                  {{ tutor?.titulo || tutor?.especialidad || 'Tutor académico' }}
+                  {{ tutor?.materias?.join(', ') || 'Tutor académico' }}
                 </p>
               </div>
             </div>
@@ -390,10 +390,6 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-sm text-on-surface-variant">
                 <span class="material-symbols-outlined text-[19px] text-primary">workspace_premium</span>
                 <span>{{ tutor.aniosExperiencia }} años de experiencia</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm text-on-surface-variant">
-                <span class="material-symbols-outlined text-[19px] text-[#eab308]">star</span>
-                <span>{{ tutor.rating.toFixed(1) }} · {{ tutor.totalResenas }} reseñas</span>
               </div>
             </div>
           </div>

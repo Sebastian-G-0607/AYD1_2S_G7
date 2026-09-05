@@ -1,88 +1,59 @@
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { tutorsExplorerService } from '../services/tutorsExplorer.service'
 import type { TutorExplorerItem, TutorFilterCriteria } from '../types'
 
 export function useTutorsExplorer() {
   const tutors = ref<TutorExplorerItem[]>([])
   const isLoading = ref(false)
+  const error = ref<string | null>(null)
   const viewMode = ref<'grid' | 'list'>('grid')
 
   const filters = reactive<TutorFilterCriteria>({
     materia: '',
     universidad: '',
-    expMinima: 0,
-    rangoEdad: 65,
+    experienciaMinima: 0,
+    edadMaxima: 65,
     genero: 'any'
   })
-
-  const filteredTutors = computed(() => {
-    return tutors.value.filter(tutor => {
-      if (
-        filters.materia &&
-        !tutor.especialidad.toLowerCase().includes(filters.materia.toLowerCase())
-      ) {
-        const matchesTag = tutor.tags.some(tag =>
-          tag.toLowerCase().includes(filters.materia.toLowerCase())
-        )
-        if (!matchesTag) return false
-      }
-
-      if (
-        filters.universidad &&
-        !tutor.universidad.toLowerCase().includes(filters.universidad.toLowerCase())
-      ) {
-        return false
-      }
-
-      if (tutor.aniosExperiencia < filters.expMinima) {
-        return false
-      }
-
-      if (tutor.edad && tutor.edad > filters.rangoEdad) {
-        return false
-      }
-
-      if (filters.genero !== 'any') {
-        const expectedGenero = filters.genero === 'female' ? 'femenino' : 'masculino'
-        if (tutor.genero !== expectedGenero) {
-          return false
-        }
-      }
-
-      return true
-    })
-  })
-
-  const totalCount = computed(() => filteredTutors.value.length)
 
   function resetFilters() {
     filters.materia = ''
     filters.universidad = ''
-    filters.expMinima = 0
-    filters.rangoEdad = 65
+    filters.experienciaMinima = 0
+    filters.edadMaxima = 65
     filters.genero = 'any'
+    fetchTutors()
   }
 
   async function fetchTutors() {
     isLoading.value = true
+    error.value = null
     try {
-      tutors.value = await tutorsExplorerService.getTutors()
+      tutors.value = await tutorsExplorerService.getTutors(filters)
+    } catch {
+      error.value = 'No se pudo cargar la lista de tutores. Intenta de nuevo.'
+      tutors.value = []
     } finally {
       isLoading.value = false
     }
   }
 
-  onMounted(() => {
-    fetchTutors()
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined
+
+  watch(filters, () => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      fetchTutors()
+    }, 400)
   })
 
   return {
     tutors,
-    filteredTutors,
     isLoading,
+    error,
     viewMode,
     filters,
-    totalCount,
+    totalCount: tutors,
     resetFilters,
     fetchTutors
   }
