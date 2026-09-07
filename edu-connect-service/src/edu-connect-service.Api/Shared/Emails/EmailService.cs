@@ -122,4 +122,57 @@ public class EmailService(
 
         await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
     }
+
+    public async Task SendBajaCuentaNotificacionAsync(
+        string toEmail,
+        string nombreUsuario,
+        string? motivo = null,
+        CancellationToken cancellationToken = default)
+    {
+        const string subject = "Notificación importante: Tu cuenta en EduConnect ha sido dada de baja";
+        const string titulo = "Baja de cuenta en EduConnect";
+        const string mensajePrincipal = "Te informamos que tu cuenta en la plataforma EduConnect ha sido dada de baja por el equipo de administración y su estado ha pasado a <strong style='color: #dc2626;'>INACTIVO</strong>.";
+
+        var motivoHtml = !string.IsNullOrWhiteSpace(motivo)
+            ? $"<p style='background-color: #fef2f2; padding: 12px; border-radius: 6px; border-left: 4px solid #ef4444;'><strong>Motivo de la baja:</strong> {WebUtility.HtmlEncode(motivo)}</p>"
+            : string.Empty;
+
+        var htmlBody = $$"""
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+                    .header { background-color: #1e3a8a; padding: 24px; text-align: center; color: white; }
+                    .content { padding: 24px; color: #374151; line-height: 1.6; }
+                    .footer { background-color: #f3f4f6; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin:0; font-size: 24px;">EduConnect</h1>
+                    </div>
+                    <div class="content">
+                        <h2>{{titulo}}</h2>
+                        <p>Estimado/a <strong>{{WebUtility.HtmlEncode(nombreUsuario)}}</strong>,</p>
+                        <p>{{mensajePrincipal}}</p>
+                        {{motivoHtml}}
+                        <p>A partir de este momento, el acceso a las funcionalidades de tu cuenta queda deshabilitado y no podrás iniciar sesión en el sistema.</p>
+                        <p>Si consideras que esto se debe a un error o necesitas más información, por favor comunícate con la administración de la plataforma.</p>
+                        <p>Atentamente,<br><strong>Equipo de Administración de EduConnect</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; {{DateTime.UtcNow.Year}} EduConnect. Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
+    }
 }
+

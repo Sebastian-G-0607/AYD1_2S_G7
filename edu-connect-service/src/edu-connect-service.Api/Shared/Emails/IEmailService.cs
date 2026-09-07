@@ -10,5 +10,11 @@ public interface IEmailService
         string nuevoEstado,
         string? motivo = null,
         CancellationToken cancellationToken = default);
+
+    Task SendBajaCuentaNotificacionAsync(
+        string toEmail,
+        string nombreUsuario,
+        string? motivo = null,
+        CancellationToken cancellationToken = default);
 }
 
