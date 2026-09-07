@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { extractApiErrorMessage } from '@/utils/apiError'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store'
 import type { LoginCredentials, StudentRegisterData, TutorRegisterData } from '../types'
@@ -65,44 +66,14 @@ export function useAuth() {
   }
 
   function extractErrorMessage(error: unknown, fallback: string): string {
-    if (axios.isAxiosError(error)) {
-      const data = error.response?.data
-      if (data && typeof data === 'object') {
-        if ('detail' in data && typeof data.detail === 'string' && data.detail.trim().length > 0) {
-          return data.detail
-        }
-        if (
-          'message' in data &&
-          typeof data.message === 'string' &&
-          data.message.trim().length > 0
-        ) {
-          return data.message
-        }
-        if ('errors' in data && data.errors && typeof data.errors === 'object') {
-          const errorList = Object.values(data.errors).flat().filter(Boolean).join('. ')
-          if (errorList.length > 0) {
-            return errorList
-          }
-        }
-        if ('title' in data && typeof data.title === 'string' && data.title.trim().length > 0) {
-          return data.title
-        }
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const url = error.config?.url || ''
+      if (url.includes('/login') && !url.includes('/admin-login')) {
+        const customMsg = extractApiErrorMessage(error, '')
+        return customMsg || 'El correo o la contraseña son incorrectos.'
       }
-      if (error.response?.status === 401) {
-        return 'El correo o la contraseña son incorrectos.'
-      }
-      if (error.response?.status === 403) {
-        return 'El usuario no puede iniciar sesión porque su estado actual no está habilitado.'
-      }
-      if (error.response?.status === 409) {
-        return 'El correo electrónico, carnet o número de identificación ya se encuentra registrado.'
-      }
-      if (error.code === 'ERR_NETWORK') {
-        return 'No se pudo conectar con el servidor. Revisa tu conexión a internet.'
-      }
-      return fallback
     }
-    return 'Ocurrió un error inesperado al procesar la solicitud.'
+    return extractApiErrorMessage(error, fallback)
   }
 
   function getRedirectPathByRole(role: string): string {
@@ -269,6 +240,37 @@ export function useAuth() {
     }
   }
 
+  async function verifyAdmin2Fa(file: File): Promise<boolean> {
+    isLoading.value = true
+    errorMessage.value = null
+
+    const qs = new URLSearchParams(window.location.search)
+    const tempToken = qs.get('tempToken') || sessionStorage.getItem('edu_temp_token') || ''
+
+    try {
+      const result = await authService.uploadAdmin2Fa(file, tempToken || undefined)
+      const token = result.token
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+      const user = {
+        id: Number(payload.sub || 0),
+        correo: String(payload.email || payload.correo || ''),
+        rol: String(payload.rol || payload.role || 'Administrador')
+      }
+      authStore.setAuth(token, user)
+      sessionStorage.removeItem('edu_temp_token')
+      await router.push('/admin/aprobaciones')
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Error al validar el archivo de llave de administrador.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     errorMessage,
@@ -280,6 +282,7 @@ export function useAuth() {
     logout,
     registerStudent,
     registerTutor,
+    verifyAdmin2Fa,
     validateCarnet,
     validateDpi,
     validateTelefono,
