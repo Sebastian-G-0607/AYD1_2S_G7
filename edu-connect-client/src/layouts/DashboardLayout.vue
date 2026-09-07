@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { useAuthStore } from '@/features/auth/store'
-import { useAuth } from '@/features/auth/composables/useAuth'
+import { BaseButton, BaseModal } from '@/components/ui'
+import { useAuth, useAuthStore } from '@/features/auth'
 
 interface NavItem {
   name: string
@@ -15,16 +15,18 @@ const authStore = useAuthStore()
 const { logout } = useAuth()
 
 const isMobileMenuOpen = ref(false)
+const isLogoutModalOpen = ref(false)
+const isLoggingOut = ref(false)
 
 const userRole = computed(() => {
   return authStore.userRole?.toLowerCase() || ''
 })
 
 const userDisplayName = computed(() => {
+  if (userRole.value.includes('admin')) return 'Admin EduConnect'
   if (authStore.user?.nombre) {
     return `${authStore.user.nombre} ${authStore.user.apellido || ''}`.trim()
   }
-  if (userRole.value.includes('admin')) return 'Admin EduConnect'
   if (userRole.value === 'tutor') return 'Prof. Tutor'
   if (userRole.value === 'estudiante') return 'Estudiante'
   return authStore.user?.correo || 'Usuario'
@@ -38,12 +40,12 @@ const userRoleDisplay = computed(() => {
 })
 
 const userInitials = computed(() => {
+  if (userRole.value.includes('admin')) return 'AD'
   if (authStore.user?.nombre) {
     const first = authStore.user.nombre.charAt(0)
     const second = authStore.user.apellido ? authStore.user.apellido.charAt(0) : ''
     return (first + second).toUpperCase()
   }
-  if (userRole.value.includes('admin')) return 'AD'
   if (userRole.value === 'tutor') return 'TU'
   if (userRole.value === 'estudiante') return 'ES'
   return 'EC'
@@ -96,8 +98,24 @@ function closeMobileMenu() {
   isMobileMenuOpen.value = false
 }
 
-async function handleLogout() {
-  await logout()
+function openLogoutModal() {
+  closeMobileMenu()
+  isLogoutModalOpen.value = true
+}
+
+function closeLogoutModal() {
+  if (isLoggingOut.value) return
+  isLogoutModalOpen.value = false
+}
+
+async function confirmLogout() {
+  try {
+    isLoggingOut.value = true
+    await logout()
+  } finally {
+    isLoggingOut.value = false
+    isLogoutModalOpen.value = false
+  }
 }
 </script>
 
@@ -167,7 +185,7 @@ async function handleLogout() {
         <button
           type="button"
           class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-error hover:bg-error-container/40 transition-colors font-medium text-sm"
-          @click="handleLogout"
+          @click="openLogoutModal"
         >
           <span class="material-symbols-outlined text-[20px]">logout</span>
           <span>Cerrar Sesión</span>
@@ -226,6 +244,16 @@ async function handleLogout() {
               />
               <span v-else>{{ userInitials }}</span>
             </div>
+
+            <button
+              type="button"
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+              class="p-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors"
+              @click="openLogoutModal"
+            >
+              <span class="material-symbols-outlined text-[20px]">logout</span>
+            </button>
           </div>
         </div>
       </header>
@@ -234,5 +262,35 @@ async function handleLogout() {
         <slot />
       </main>
     </div>
+
+    <BaseModal
+      :model-value="isLogoutModalOpen"
+      title="Cerrar Sesión"
+      max-width="md"
+      @update:model-value="closeLogoutModal"
+      @close="closeLogoutModal"
+    >
+      <div class="flex items-start gap-4">
+        <div
+          class="w-12 h-12 rounded-2xl bg-error-container/60 text-error flex items-center justify-center shrink-0"
+        >
+          <span class="material-symbols-outlined text-[28px]">logout</span>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <h4 class="text-base font-semibold text-on-surface">
+            ¿Estás seguro de que deseas cerrar sesión?
+          </h4>
+        </div>
+      </div>
+
+      <template #footer>
+        <BaseButton variant="outline" size="md" :disabled="isLoggingOut" @click="closeLogoutModal">
+          Cancelar
+        </BaseButton>
+        <BaseButton variant="danger" size="md" :loading="isLoggingOut" @click="confirmLogout">
+          Cerrar Sesión
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>

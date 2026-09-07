@@ -252,8 +252,8 @@ export function useAuth() {
       const token = result.token
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
       const user = {
-        id: Number(payload.sub || 0),
-        correo: String(payload.email || payload.correo || ''),
+        id: Number(payload.id_usuario || payload.sub || 0),
+        correo: String(payload.correo || payload.email || ''),
         rol: String(payload.rol || payload.role || 'Administrador')
       }
       authStore.setAuth(token, user)
