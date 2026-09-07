@@ -26,6 +26,44 @@ export function useAuth() {
     return passwordRegex.test(password)
   }
 
+  function validateCarnet(carnet: string): boolean {
+    return /^\d{6,10}$/.test(carnet)
+  }
+
+  function validateDpi(dpi: string): boolean {
+    return /^\d{13}$/.test(dpi)
+  }
+
+  function validateTelefono(telefono: string): boolean {
+    return /^\d{8}$/.test(telefono)
+  }
+
+  function isAtLeast16YearsOld(birthDateStr: string): boolean {
+    if (!birthDateStr) return false
+    const birthDate = new Date(birthDateStr)
+    if (isNaN(birthDate.getTime())) return false
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    return age >= 16
+  }
+
+  function isAtLeast18YearsOld(birthDateStr: string): boolean {
+    if (!birthDateStr) return false
+    const birthDate = new Date(birthDateStr)
+    if (isNaN(birthDate.getTime())) return false
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    return age >= 18
+  }
+
   function extractErrorMessage(error: unknown, fallback: string): string {
     if (axios.isAxiosError(error)) {
       const data = error.response?.data
@@ -86,10 +124,8 @@ export function useAuth() {
     errorMessage.value = null
 
     try {
-      // If admin email, attempt admin initial login (2FA flow)
       if ((credentials.correo || '').toLowerCase().includes('admin')) {
-        const res = await authService.adminInitialLogin(credentials as any)
-        // expects { tempToken }
+        const res = await authService.adminInitialLogin(credentials)
         if (res?.tempToken) {
           sessionStorage.setItem('edu_temp_token', res.tempToken)
           await router.push('/admin/2fa')
@@ -119,6 +155,21 @@ export function useAuth() {
   }
 
   async function registerStudent(studentData: StudentRegisterData): Promise<boolean> {
+    if (!validateCarnet(studentData.carnet)) {
+      errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
+      return false
+    }
+
+    if (!validateTelefono(studentData.telefono)) {
+      errorMessage.value = 'El teléfono debe ser numérico y tener exactamente 8 dígitos.'
+      return false
+    }
+
+    if (!isAtLeast16YearsOld(studentData.fechaNacimiento)) {
+      errorMessage.value = 'El estudiante debe tener al menos 16 años cumplidos.'
+      return false
+    }
+
     if (studentData.password !== studentData.confirmPassword) {
       errorMessage.value = 'Las contraseñas no coinciden.'
       return false
@@ -151,6 +202,27 @@ export function useAuth() {
   }
 
   async function registerTutor(tutorData: TutorRegisterData): Promise<boolean> {
+    if (!validateCarnet(tutorData.carnetId)) {
+      errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
+      return false
+    }
+
+    if (!validateDpi(tutorData.numeroIdentificacion)) {
+      errorMessage.value =
+        'El DPI / Documento de identificación debe ser numérico y tener exactamente 13 dígitos.'
+      return false
+    }
+
+    if (!validateTelefono(tutorData.telefono)) {
+      errorMessage.value = 'El teléfono debe ser numérico y tener exactamente 8 dígitos.'
+      return false
+    }
+
+    if (!isAtLeast18YearsOld(tutorData.fechaNacimiento)) {
+      errorMessage.value = 'El tutor debe ser mayor de 18 años.'
+      return false
+    }
+
     if (!tutorData.fotografia) {
       errorMessage.value = 'La fotografía de perfil es obligatoria para el registro de tutor.'
       return false
@@ -207,6 +279,11 @@ export function useAuth() {
     login,
     logout,
     registerStudent,
-    registerTutor
+    registerTutor,
+    validateCarnet,
+    validateDpi,
+    validateTelefono,
+    isAtLeast16YearsOld,
+    isAtLeast18YearsOld
   }
 }

@@ -8,4 +8,3 @@ import { AdminApprovalsView } from '@/features/admin'
     <AdminApprovalsView />
   </DashboardLayout>
 </template>
-

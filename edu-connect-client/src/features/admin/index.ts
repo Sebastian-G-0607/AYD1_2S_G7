@@ -5,4 +5,3 @@ export { useAdminApprovals } from './composables/useAdminApprovals'
 export { useStudentApprovals } from './composables/useStudentApprovals'
 export { adminService } from './services/admin.service'
 export * from './types'
-

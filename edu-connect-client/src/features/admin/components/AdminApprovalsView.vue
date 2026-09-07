@@ -55,13 +55,16 @@ const {
     </div>
 
     <!-- ENCABEZADO DE PÁGINA (STITCH TEMPLATE) -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-margin-desktop">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-margin-desktop"
+    >
       <div>
         <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">
           Aprobaciones Pendientes
         </h1>
         <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-          Gestión de solicitudes de nuevos usuarios en la plataforma. Revise cuidadosamente los datos antes de aceptar o rechazar.
+          Gestión de solicitudes de nuevos usuarios en la plataforma. Revise cuidadosamente los
+          datos antes de aceptar o rechazar.
         </p>
       </div>
 
@@ -72,12 +75,7 @@ const {
           :disabled="isLoading"
           @click="fetchAll"
         >
-          <span
-            :class="[
-              'material-symbols-outlined text-[20px]',
-              isLoading ? 'animate-spin' : ''
-            ]"
-          >
+          <span :class="['material-symbols-outlined text-[20px]', isLoading ? 'animate-spin' : '']">
             refresh
           </span>
           Actualizar
@@ -102,8 +100,12 @@ const {
     </div>
 
     <!-- CONTENEDOR DE PESTAÑAS Y BÚSQUEDA (STITCH TEMPLATE) -->
-    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-4 mb-margin-desktop relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
+    <div
+      class="bg-surface-container-lowest rounded-xl shadow-sm p-4 mb-margin-desktop relative overflow-hidden"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none"
+      />
 
       <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 relative z-10">
         <!-- Selector de Pestañas (HU-05 vs HU-06) -->
@@ -161,7 +163,9 @@ const {
 
         <!-- Buscador Reactivo -->
         <div class="flex-1 w-full relative">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]"
+          >
             search
           </span>
           <input
@@ -205,9 +209,13 @@ const {
       v-if="isApproveModalOpen && selectedItem"
       class="fixed inset-0 z-50 flex items-center justify-center bg-on-background/30 backdrop-blur-sm p-4"
     >
-      <div class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-in">
+      <div
+        class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-in"
+      >
         <div class="p-6">
-          <div class="w-12 h-12 rounded-full bg-[#c3e6cb] flex items-center justify-center mb-4 text-[#155724]">
+          <div
+            class="w-12 h-12 rounded-full bg-[#c3e6cb] flex items-center justify-center mb-4 text-[#155724]"
+          >
             <span class="material-symbols-outlined text-[24px]">verified</span>
           </div>
 
@@ -220,13 +228,15 @@ const {
             <strong class="text-on-surface font-semibold">
               {{ selectedItem.data.nombre }} {{ selectedItem.data.apellido }}
             </strong>
-            ({{ selectedItem.type === 'tutor' ? 'Tutor' : 'Estudiante' }})? Se activará su cuenta en el sistema y se le enviará un correo notificando la decisión.
+            ({{ selectedItem.type === 'tutor' ? 'Tutor' : 'Estudiante' }})? Se activará su cuenta en
+            el sistema y se le enviará un correo notificando la decisión.
           </p>
 
           <div class="bg-surface-container-low rounded-lg p-3 mb-6 flex gap-3 items-center">
             <span class="material-symbols-outlined text-on-surface-variant">mail</span>
             <span class="font-label-sm text-label-sm text-on-surface-variant truncate">
-              Se enviará notificación a <strong class="text-on-surface">{{ selectedItem.data.correo }}</strong>
+              Se enviará notificación a
+              <strong class="text-on-surface">{{ selectedItem.data.correo }}</strong>
             </span>
           </div>
 
@@ -246,7 +256,10 @@ const {
               class="px-5 py-2.5 rounded-lg bg-[#28a745] text-white font-label-md text-label-md hover:bg-[#218838] transition-colors shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
               @click="confirmApprove"
             >
-              <span v-if="isProcessingAction" class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              <span
+                v-if="isProcessingAction"
+                class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+              />
               <span>Aceptar {{ selectedItem.type === 'tutor' ? 'Tutor' : 'Estudiante' }}</span>
             </button>
           </div>
@@ -261,26 +274,32 @@ const {
       v-if="isRejectModalOpen && selectedItem"
       class="fixed inset-0 z-50 flex items-center justify-center bg-on-background/30 backdrop-blur-sm p-4"
     >
-      <div class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-in">
+      <div
+        class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-in"
+      >
         <div class="p-6">
-          <div class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center mb-4">
+          <div
+            class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center mb-4"
+          >
             <span class="material-symbols-outlined text-[24px]">cancel</span>
           </div>
 
-          <h2 class="font-headline-md text-headline-md text-on-surface mb-2">
-            Confirmar Rechazo
-          </h2>
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-2">Confirmar Rechazo</h2>
 
           <p class="font-body-md text-body-md text-on-surface-variant mb-4">
             ¿Estás seguro de que deseas rechazar la solicitud de
             <strong class="text-on-surface font-semibold">
               {{ selectedItem.data.nombre }} {{ selectedItem.data.apellido }}
             </strong>
-            ({{ selectedItem.type === 'tutor' ? 'Tutor' : 'Estudiante' }})? Esta acción no se puede deshacer.
+            ({{ selectedItem.type === 'tutor' ? 'Tutor' : 'Estudiante' }})? Esta acción no se puede
+            deshacer.
           </p>
 
           <div class="flex flex-col gap-1.5 mb-6">
-            <label for="reject-motivo" class="font-label-sm text-label-sm text-on-surface font-semibold">
+            <label
+              for="reject-motivo"
+              class="font-label-sm text-label-sm text-on-surface font-semibold"
+            >
               Motivo del rechazo (opcional):
             </label>
             <textarea
@@ -308,7 +327,10 @@ const {
               class="px-5 py-2.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:bg-[#93000a] transition-colors shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
               @click="confirmReject"
             >
-              <span v-if="isProcessingAction" class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              <span
+                v-if="isProcessingAction"
+                class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+              />
               <span>Confirmar Rechazo</span>
             </button>
           </div>
