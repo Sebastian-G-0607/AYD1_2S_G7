@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { BaseButton, BaseModal } from '@/components/ui'
 import { useAuth, useAuthStore } from '@/features/auth'
+import { useSidebar } from '@/composables/useSidebar'
 
 interface NavItem {
   name: string
@@ -13,8 +14,9 @@ interface NavItem {
 const route = useRoute()
 const authStore = useAuthStore()
 const { logout } = useAuth()
+const { isDesktopSidebarOpen, isMobileMenuOpen, closeMobileMenu, closeSidebar, toggleMenu } =
+  useSidebar()
 
-const isMobileMenuOpen = ref(false)
 const isLogoutModalOpen = ref(false)
 const isLoggingOut = ref(false)
 
@@ -90,14 +92,6 @@ function isRouteActive(itemPath: string): boolean {
   return false
 }
 
-function toggleMobileMenu() {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-function closeMobileMenu() {
-  isMobileMenuOpen.value = false
-}
-
 function openLogoutModal() {
   closeMobileMenu()
   isLogoutModalOpen.value = true
@@ -130,24 +124,26 @@ async function confirmLogout() {
     <aside
       :class="[
         'fixed top-0 bottom-0 left-0 w-72 bg-surface-container-lowest z-50 flex flex-col border-r border-outline-variant/30 shadow-[4px_0_12px_rgba(30,41,59,0.03)] transition-transform duration-300 ease-in-out',
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+        isDesktopSidebarOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'
       ]"
     >
       <div
-        class="px-8 py-6 flex items-center justify-between relative border-b border-surface-container/60"
+        class="px-6 py-6 flex items-center justify-between relative border-b border-surface-container/60"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 min-w-0">
           <div
-            class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm"
+            class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm shrink-0"
           >
             <span class="material-symbols-outlined text-[20px]">school</span>
           </div>
-          <div class="flex flex-col">
-            <span class="font-headline text-lg font-bold text-primary tracking-tight leading-none"
+          <div class="flex flex-col min-w-0">
+            <span
+              class="font-headline text-lg font-bold text-primary tracking-tight leading-none truncate"
               >EduConnect</span
             >
             <span
-              class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mt-1"
+              class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mt-1 truncate"
               >{{ userRoleDisplay }}</span
             >
           </div>
@@ -155,11 +151,15 @@ async function confirmLogout() {
 
         <button
           type="button"
-          aria-label="Cerrar menú"
-          class="lg:hidden text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container-low"
-          @click="closeMobileMenu"
+          :aria-label="isDesktopSidebarOpen ? 'Ocultar barra lateral' : 'Cerrar menú'"
+          :title="isDesktopSidebarOpen ? 'Ocultar barra lateral' : 'Cerrar menú'"
+          class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container-low shrink-0 flex items-center justify-center"
+          @click="closeSidebar"
         >
-          <span class="material-symbols-outlined text-[20px]">close</span>
+          <span class="material-symbols-outlined text-[20px] lg:hidden">close</span>
+          <span class="material-symbols-outlined text-[20px] hidden lg:inline-block"
+            >menu_open</span
+          >
         </button>
       </div>
 
@@ -193,16 +193,25 @@ async function confirmLogout() {
       </div>
     </aside>
 
-    <div class="lg:pl-72 flex-1 flex flex-col min-w-0">
+    <div
+      :class="[
+        'flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out',
+        isDesktopSidebarOpen ? 'lg:pl-72' : 'lg:pl-0'
+      ]"
+    >
       <header
         class="sticky top-0 z-30 h-20 bg-surface/85 backdrop-blur-xl border-b border-outline-variant/20 px-4 sm:px-8 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.03)]"
       >
         <div class="flex items-center gap-4">
           <button
             type="button"
-            aria-label="Abrir menú"
-            class="lg:hidden p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors"
-            @click="toggleMobileMenu"
+            :aria-label="isDesktopSidebarOpen ? 'Ocultar menú' : 'Mostrar menú'"
+            :title="isDesktopSidebarOpen ? 'Ocultar menú' : 'Mostrar menú'"
+            :class="[
+              'p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors flex items-center justify-center',
+              isDesktopSidebarOpen ? 'lg:hidden' : 'block'
+            ]"
+            @click="toggleMenu"
           >
             <span class="material-symbols-outlined text-[24px]">menu</span>
           </button>
