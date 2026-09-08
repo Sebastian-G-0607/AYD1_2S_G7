@@ -12,3 +12,10 @@ public record ConfigurarHorarioResponseDto(
     TimeOnly HoraFin,
     List<int> DiasAtencion
 );
+
+public record ObtenerHorarioResponseDto(
+    int TutorId,
+    TimeOnly? HoraInicio,
+    TimeOnly? HoraFin,
+    List<int> DiasAtencion
+);

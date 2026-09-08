@@ -1,11 +1,12 @@
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { tutorScheduleService } from '../services/tutorSchedule.service'
 import type {
   ApiProblemDetails,
   ScheduleDay,
   TutorScheduleRequest,
-  TutorScheduleResponse
+  TutorScheduleResponse,
+  TutorScheduleGetResponse
 } from '../types'
 
 export function useTutorSchedule() {
@@ -27,6 +28,7 @@ export function useTutorSchedule() {
   const errorMessage = ref('')
   const successMessage = ref('')
   const savedSchedule = ref<TutorScheduleResponse | null>(null)
+  const isLoading = ref(false)
 
   const canSubmit = computed(() => {
     return (
@@ -83,6 +85,37 @@ export function useTutorSchedule() {
     return time.length === 5 ? `${time}:00` : time
   }
 
+    function formatTimeForInput(time: string): string {
+    return time.length >= 5 ? time.slice(0, 5) : time
+  }
+
+  async function loadSchedule() {
+    isLoading.value = true
+    clearMessages()
+
+    try {
+      const current: TutorScheduleGetResponse = await tutorScheduleService.getSchedule()
+
+      if (current.horaInicio && current.horaFin) {
+        horaInicio.value = formatTimeForInput(current.horaInicio)
+        horaFin.value = formatTimeForInput(current.horaFin)
+      }
+
+      selectedDays.value = [...current.diasAtencion]
+    } catch (error: unknown) {
+      if (isAxiosError<ApiProblemDetails>(error)) {
+        errorMessage.value =
+          error.response?.data?.detail ??
+          error.response?.data?.title ??
+          'No fue posible cargar tu horario actual.'
+      } else {
+        errorMessage.value = 'Ocurrió un error inesperado al cargar tu horario.'
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function saveSchedule(): Promise<boolean> {
     if (!validateSchedule()) {
       return false
@@ -119,12 +152,17 @@ export function useTutorSchedule() {
     }
   }
 
+  onMounted(() => {
+    loadSchedule()
+  })
+
   return {
     days,
     selectedDays,
     horaInicio,
     horaFin,
     isSaving,
+    isLoading,
     errorMessage,
     successMessage,
     savedSchedule,
@@ -132,6 +170,7 @@ export function useTutorSchedule() {
     toggleDay,
     isDaySelected,
     clearMessages,
-    saveSchedule
+    saveSchedule,
+    loadSchedule
   }
 }

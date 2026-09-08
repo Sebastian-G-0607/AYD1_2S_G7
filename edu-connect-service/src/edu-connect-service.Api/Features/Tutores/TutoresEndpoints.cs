@@ -12,12 +12,14 @@ public static class TutoresEndpoints
         var apiGroup = app.MapGroup("/api/tutores");
         apiGroup.MapRegistrarTutor();
         apiGroup.MapConfigurarHorario();
+        apiGroup.MapObtenerHorario();
         apiGroup.MapExplorarTutores();
         apiGroup.MapConsultarDisponibilidad();
 
         var rootGroup = app.MapGroup("/tutores");
         rootGroup.MapRegistrarTutor();
         rootGroup.MapConfigurarHorario();
+        rootGroup.MapObtenerHorario();
         rootGroup.MapExplorarTutores();
         rootGroup.MapConsultarDisponibilidad();
     
