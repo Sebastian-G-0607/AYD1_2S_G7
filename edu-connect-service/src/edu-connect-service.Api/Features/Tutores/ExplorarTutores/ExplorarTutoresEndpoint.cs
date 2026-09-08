@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ public static class ExplorarTutoresEndpoint
         [AsParameters] ExplorarTutoresRequestDto filtros,
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         var idUsuarioClaim =
@@ -112,7 +114,7 @@ public static class ExplorarTutoresEndpoint
             $"{tutor.Nombre} {tutor.Apellido}",
             tutor.TutorMaterias.Select(tm => tm.Materia.Nombre).ToList(),
             tutor.DireccionTutoria,
-            tutor.FotografiaUrl,
+            s3Service.GeneratePresignedUrl(tutor.FotografiaUrl) ?? tutor.FotografiaUrl,
             tutor.Universidad,
             tutor.Genero,
             anioActual - tutor.AnioInicio,
