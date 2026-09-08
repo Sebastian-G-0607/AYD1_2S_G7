@@ -185,7 +185,7 @@ public static class AdminTwoFactorEndpoints
             );
         }
 
-        var finalToken = jwtTokenService.GenerateToken(0, adminEmail, AppRoles.Administrador);
+        var finalToken = jwtTokenService.GenerateToken(0, adminEmail ?? "admin@educonnect.com", AppRoles.Administrador);
 
         return Results.Ok(new { Token = finalToken, Role = AppRoles.Administrador });
     }

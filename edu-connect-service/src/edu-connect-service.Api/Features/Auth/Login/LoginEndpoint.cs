@@ -20,6 +20,8 @@ public static class LoginEndpoint
             var user = await dbContext.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Estado)
+                .Include(u => u.Estudiante)
+                .Include(u => u.Tutor)
                 .FirstOrDefaultAsync(u => u.Correo == request.Correo, cancellationToken);
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -43,13 +45,18 @@ public static class LoginEndpoint
             var rol = user.Rol.Nombre;
             var token = jwtTokenService.GenerateToken(user.Id, user.Correo, rol);
 
+            var nombre = user.Estudiante?.Nombre ?? user.Tutor?.Nombre;
+            var apellido = user.Estudiante?.Apellido ?? user.Tutor?.Apellido;
+
             var response = new TokenResponseDto(
                 token,
                 "Bearer",
                 jwtOptions.Value.ExpirationMinutes * 60,
                 user.Id,
                 user.Correo,
-                rol
+                rol,
+                nombre,
+                apellido
             );
 
             return Results.Ok(response);

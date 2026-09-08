@@ -1,14 +1,10 @@
 import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 import { adminService } from '../services/admin.service'
-import type {
-  StudentApprovalItem,
-  TutorApprovalItem,
-  ApprovalTabType
-} from '../types'
+import type { StudentApprovalItem, TutorApprovalItem, ApprovalTabType } from '../types'
 
 export type SelectedApprovalItem =
-  | { type: 'estudiante'; data: StudentApprovalItem }
-  | { type: 'tutor'; data: TutorApprovalItem }
+  { type: 'estudiante'; data: StudentApprovalItem } | { type: 'tutor'; data: TutorApprovalItem }
 
 export function useAdminApprovals() {
   const students = ref<StudentApprovalItem[]>([])
@@ -67,9 +63,7 @@ export function useAdminApprovals() {
 
   const pendingStudentsCount = computed(() => students.value.length)
   const pendingTutorsCount = computed(() => tutors.value.length)
-  const totalPendingCount = computed(
-    () => pendingStudentsCount.value + pendingTutorsCount.value
-  )
+  const totalPendingCount = computed(() => pendingStudentsCount.value + pendingTutorsCount.value)
 
   // ==========================================
   // CARGA DE DATOS
@@ -161,11 +155,12 @@ export function useAdminApprovals() {
         }
       }
       closeModals()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error al aprobar solicitud:', err)
+      const detail = axios.isAxiosError(err) ? err.response?.data?.detail : undefined
       feedbackMessage.value = {
         type: 'error',
-        text: err?.response?.data?.detail || 'Ocurrió un error al procesar la aprobación.'
+        text: detail || 'Ocurrió un error al procesar la aprobación.'
       }
     } finally {
       isProcessingAction.value = false
@@ -197,11 +192,12 @@ export function useAdminApprovals() {
         }
       }
       closeModals()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error al rechazar solicitud:', err)
+      const detail = axios.isAxiosError(err) ? err.response?.data?.detail : undefined
       feedbackMessage.value = {
         type: 'error',
-        text: err?.response?.data?.detail || 'Ocurrió un error al procesar el rechazo.'
+        text: detail || 'Ocurrió un error al procesar el rechazo.'
       }
     } finally {
       isProcessingAction.value = false
@@ -254,4 +250,3 @@ export function useAdminApprovals() {
     getInitials
   }
 }
-

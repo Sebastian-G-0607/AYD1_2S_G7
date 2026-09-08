@@ -54,7 +54,9 @@ function goToTutorDetail() {
 
       <div class="flex items-center gap-2 text-on-surface-variant text-xs">
         <span class="material-symbols-outlined text-[18px]">school</span>
-        <span class="truncate">{{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.</span>
+        <span class="truncate"
+          >{{ tutor.universidad }} • {{ tutor.aniosExperiencia }} años exp.</span
+        >
       </div>
     </div>
 

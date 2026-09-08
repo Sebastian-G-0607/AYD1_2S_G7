@@ -24,7 +24,12 @@ export function getEnv(key: keyof RuntimeEnv, fallback = ''): string {
   }
 
   // 2. In Production (Docker / Nginx), use window.__ENV__ generated dynamically at runtime
-  if (typeof window !== 'undefined' && window.__ENV__ && window.__ENV__[key] !== undefined && window.__ENV__[key] !== '') {
+  if (
+    typeof window !== 'undefined' &&
+    window.__ENV__ &&
+    window.__ENV__[key] !== undefined &&
+    window.__ENV__[key] !== ''
+  ) {
     return window.__ENV__[key] as string
   }
 

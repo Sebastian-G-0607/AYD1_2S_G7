@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { extractApiErrorMessage } from '@/utils/apiError'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store'
 import type { LoginCredentials, StudentRegisterData, TutorRegisterData } from '../types'
@@ -26,45 +27,53 @@ export function useAuth() {
     return passwordRegex.test(password)
   }
 
-  function extractErrorMessage(error: unknown, fallback: string): string {
-    if (axios.isAxiosError(error)) {
-      const data = error.response?.data
-      if (data && typeof data === 'object') {
-        if ('detail' in data && typeof data.detail === 'string' && data.detail.trim().length > 0) {
-          return data.detail
-        }
-        if (
-          'message' in data &&
-          typeof data.message === 'string' &&
-          data.message.trim().length > 0
-        ) {
-          return data.message
-        }
-        if ('errors' in data && data.errors && typeof data.errors === 'object') {
-          const errorList = Object.values(data.errors).flat().filter(Boolean).join('. ')
-          if (errorList.length > 0) {
-            return errorList
-          }
-        }
-        if ('title' in data && typeof data.title === 'string' && data.title.trim().length > 0) {
-          return data.title
-        }
-      }
-      if (error.response?.status === 401) {
-        return 'El correo o la contraseña son incorrectos.'
-      }
-      if (error.response?.status === 403) {
-        return 'El usuario no puede iniciar sesión porque su estado actual no está habilitado.'
-      }
-      if (error.response?.status === 409) {
-        return 'El correo electrónico, carnet o número de identificación ya se encuentra registrado.'
-      }
-      if (error.code === 'ERR_NETWORK') {
-        return 'No se pudo conectar con el servidor. Revisa tu conexión a internet.'
-      }
-      return fallback
+  function validateCarnet(carnet: string): boolean {
+    return /^\d{6,10}$/.test(carnet)
+  }
+
+  function validateDpi(dpi: string): boolean {
+    return /^\d{13}$/.test(dpi)
+  }
+
+  function validateTelefono(telefono: string): boolean {
+    return /^\d{8}$/.test(telefono)
+  }
+
+  function isAtLeast16YearsOld(birthDateStr: string): boolean {
+    if (!birthDateStr) return false
+    const birthDate = new Date(birthDateStr)
+    if (isNaN(birthDate.getTime())) return false
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
     }
-    return 'Ocurrió un error inesperado al procesar la solicitud.'
+    return age >= 16
+  }
+
+  function isAtLeast18YearsOld(birthDateStr: string): boolean {
+    if (!birthDateStr) return false
+    const birthDate = new Date(birthDateStr)
+    if (isNaN(birthDate.getTime())) return false
+    const today = new Date()
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    return age >= 18
+  }
+
+  function extractErrorMessage(error: unknown, fallback: string): string {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const url = error.config?.url || ''
+      if (url.includes('/login') && !url.includes('/admin-login')) {
+        const customMsg = extractApiErrorMessage(error, '')
+        return customMsg || 'El correo o la contraseña son incorrectos.'
+      }
+    }
+    return extractApiErrorMessage(error, fallback)
   }
 
   function getRedirectPathByRole(role: string): string {
@@ -86,10 +95,8 @@ export function useAuth() {
     errorMessage.value = null
 
     try {
-      // If admin email, attempt admin initial login (2FA flow)
       if ((credentials.correo || '').toLowerCase().includes('admin')) {
-        const res = await authService.adminInitialLogin(credentials as any)
-        // expects { tempToken }
+        const res = await authService.adminInitialLogin(credentials)
         if (res?.tempToken) {
           sessionStorage.setItem('edu_temp_token', res.tempToken)
           await router.push('/admin/2fa')
@@ -119,6 +126,21 @@ export function useAuth() {
   }
 
   async function registerStudent(studentData: StudentRegisterData): Promise<boolean> {
+    if (!validateCarnet(studentData.carnet)) {
+      errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
+      return false
+    }
+
+    if (!validateTelefono(studentData.telefono)) {
+      errorMessage.value = 'El teléfono debe ser numérico y tener exactamente 8 dígitos.'
+      return false
+    }
+
+    if (!isAtLeast16YearsOld(studentData.fechaNacimiento)) {
+      errorMessage.value = 'El estudiante debe tener al menos 16 años cumplidos.'
+      return false
+    }
+
     if (studentData.password !== studentData.confirmPassword) {
       errorMessage.value = 'Las contraseñas no coinciden.'
       return false
@@ -151,6 +173,27 @@ export function useAuth() {
   }
 
   async function registerTutor(tutorData: TutorRegisterData): Promise<boolean> {
+    if (!validateCarnet(tutorData.carnetId)) {
+      errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
+      return false
+    }
+
+    if (!validateDpi(tutorData.numeroIdentificacion)) {
+      errorMessage.value =
+        'El DPI / Documento de identificación debe ser numérico y tener exactamente 13 dígitos.'
+      return false
+    }
+
+    if (!validateTelefono(tutorData.telefono)) {
+      errorMessage.value = 'El teléfono debe ser numérico y tener exactamente 8 dígitos.'
+      return false
+    }
+
+    if (!isAtLeast18YearsOld(tutorData.fechaNacimiento)) {
+      errorMessage.value = 'El tutor debe ser mayor de 18 años.'
+      return false
+    }
+
     if (!tutorData.fotografia) {
       errorMessage.value = 'La fotografía de perfil es obligatoria para el registro de tutor.'
       return false
@@ -197,6 +240,37 @@ export function useAuth() {
     }
   }
 
+  async function verifyAdmin2Fa(file: File): Promise<boolean> {
+    isLoading.value = true
+    errorMessage.value = null
+
+    const qs = new URLSearchParams(window.location.search)
+    const tempToken = qs.get('tempToken') || sessionStorage.getItem('edu_temp_token') || ''
+
+    try {
+      const result = await authService.uploadAdmin2Fa(file, tempToken || undefined)
+      const token = result.token
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+      const user = {
+        id: Number(payload.id_usuario || payload.sub || 0),
+        correo: String(payload.correo || payload.email || ''),
+        rol: String(payload.rol || payload.role || 'Administrador')
+      }
+      authStore.setAuth(token, user)
+      sessionStorage.removeItem('edu_temp_token')
+      await router.push('/admin/aprobaciones')
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Error al validar el archivo de llave de administrador.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     errorMessage,
@@ -207,6 +281,12 @@ export function useAuth() {
     login,
     logout,
     registerStudent,
-    registerTutor
+    registerTutor,
+    verifyAdmin2Fa,
+    validateCarnet,
+    validateDpi,
+    validateTelefono,
+    isAtLeast16YearsOld,
+    isAtLeast18YearsOld
   }
 }

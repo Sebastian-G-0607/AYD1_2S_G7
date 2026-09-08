@@ -20,8 +20,7 @@ export const authService = {
     return data
   },
 
-  async uploadAdmin2Fa(file: File, tempToken?: string): Promise<{ token: string; role: string }>
-  {
+  async uploadAdmin2Fa(file: File, tempToken?: string): Promise<{ token: string; role: string }> {
     const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
     const endpoint = isApiPrefix ? '/admin-2fa' : '/auth/admin-2fa'
 
