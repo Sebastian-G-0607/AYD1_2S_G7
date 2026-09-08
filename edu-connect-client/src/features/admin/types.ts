@@ -109,3 +109,44 @@ export interface DarBajaResponse {
 export type ActiveUsersTab = 'estudiantes' | 'tutores'
 export type ActiveUsersTopTab = 'activos' | 'baja'
 
+// ==========================================
+// HU-08: REPORTES Y ESTADÍSTICAS
+// ==========================================
+export interface TutorAtencionesReporteItem {
+  tutorId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string
+  totalSesionesAtendidas: number
+  totalEstudiantesAtendidos: number
+}
+
+export interface MateriaDemandaReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesAtendidas: number
+  sesionesPendientes: number
+  sesionesCanceladas: number
+  porcentajeDemanda: number
+}
+
+export interface ReportesResumen {
+  totalSesiones: number
+  totalSesionesAtendidas: number
+  totalSesionesPendientes: number
+  totalSesionesCanceladas: number
+  tasaEfectividad: number
+  totalTutoresConAtenciones: number
+  totalMateriasConDemanda: number
+  tutorTopNombre?: string | null
+  tutorTopAtenciones: number
+  materiaTopNombre?: string | null
+  materiaTopSesiones: number
+}
+
+export type ReportsTabType = 'todos' | 'tutores' | 'materias'
+
