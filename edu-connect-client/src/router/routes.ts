@@ -6,15 +6,29 @@ export const routes: RouteRecordRaw[] = [
     name: 'root',
     redirect: () => {
       const token = localStorage.getItem('edu_auth_token')
+
       if (!token) return '/login'
+
       const rawUser = localStorage.getItem('edu_auth_user')
+
       if (!rawUser) return '/login'
+
       try {
         const user = JSON.parse(rawUser) as { rol?: string }
         const role = user.rol?.toLowerCase().trim() || ''
-        if (role.includes('admin')) return '/admin/aprobaciones'
-        if (role === 'tutor') return '/tutor/dashboard'
-        if (role === 'estudiante' || role === 'student') return '/estudiante/explorar-tutores'
+
+        if (role.includes('admin')) {
+          return '/admin/aprobaciones'
+        }
+
+        if (role === 'tutor') {
+          return '/tutor/dashboard'
+        }
+
+        if (role === 'estudiante' || role === 'student') {
+          return '/estudiante/explorar-tutores'
+        }
+
         return '/login'
       } catch {
         return '/login'
@@ -63,6 +77,18 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Administrador', 'Admin'],
       title: 'Panel de Aprobaciones - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/usuarios',
+    name: 'admin-users',
+    component: () => import('@/pages/AdminUsersPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Usuarios - EduConnect Admin',
       layout: 'dashboard'
     }
   },
@@ -122,6 +148,18 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Tutor'],
       title: 'Configuración de Horarios - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/tutor/historial',
+    name: 'tutor-history',
+    component: () => import('@/pages/TutorHistoryPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Historial de Sesiones - EduConnect',
       layout: 'dashboard'
     }
   },

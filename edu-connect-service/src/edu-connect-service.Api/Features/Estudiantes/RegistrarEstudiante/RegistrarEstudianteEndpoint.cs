@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Models;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public static class RegistrarEstudianteEndpoint
     private static async Task<IResult> HandleAsync(
         [FromForm] RegistrarEstudianteRequestDto request,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Nombre))
@@ -206,11 +208,10 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        string? fotografiaUrl = null;
+        string? fotografiaKey = null;
         if (request.Fotografia is not null && request.Fotografia.Length > 0)
         {
-            // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
-            fotografiaUrl = $"/uploads/estudiantes/{Guid.NewGuid():N}.jpg";
+            fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -237,11 +238,13 @@ public static class RegistrarEstudianteEndpoint
             Direccion = request.Direccion.Trim(),
             Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = fotografiaUrl
+            FotografiaUrl = fotografiaKey
         };
 
         dbContext.Estudiantes.Add(estudiante);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(estudiante.FotografiaUrl);
 
         var response = new EstudianteResponseDto(
             estudiante.UsuarioId,
@@ -252,7 +255,7 @@ public static class RegistrarEstudianteEndpoint
             estudiante.Direccion,
             estudiante.Telefono,
             estudiante.FechaNacimiento,
-            estudiante.FotografiaUrl,
+            fotografiaPresignedUrl,
             usuario.Correo,
             rolEstudiante.Nombre,
             estadoPendiente.Nombre,

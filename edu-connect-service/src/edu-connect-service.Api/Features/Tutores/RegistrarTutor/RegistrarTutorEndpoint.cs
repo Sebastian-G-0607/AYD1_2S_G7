@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Models;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public static class RegistrarTutorEndpoint
     private static async Task<IResult> HandleAsync(
         [FromForm] RegistrarTutorRequestDto request,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Nombre))
@@ -307,8 +309,7 @@ public static class RegistrarTutorEndpoint
         dbContext.Usuarios.Add(usuario);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
-        var fotografiaUrl = $"/uploads/tutores/{Guid.NewGuid():N}.jpg";
+        var fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia!, "tutores", cancellationToken);
 
         var tutor = new Tutor
         {
@@ -321,7 +322,7 @@ public static class RegistrarTutorEndpoint
             Direccion = request.Direccion.Trim(),
             Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = fotografiaUrl,
+            FotografiaUrl = fotografiaKey,
             DireccionTutoria = request.DireccionTutoria.Trim(),
             AnioInicio = request.AnioInicio,
             Universidad = request.Universidad.Trim(),
@@ -353,6 +354,8 @@ public static class RegistrarTutorEndpoint
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
+        var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(tutor.FotografiaUrl) ?? tutor.FotografiaUrl;
+
         var response = new TutorResponseDto(
             tutor.UsuarioId,
             tutor.Nombre,
@@ -363,7 +366,7 @@ public static class RegistrarTutorEndpoint
             tutor.Direccion,
             tutor.Telefono,
             tutor.FechaNacimiento,
-            tutor.FotografiaUrl,
+            fotografiaPresignedUrl,
             tutor.DireccionTutoria,
             tutor.AnioInicio,
             tutor.Universidad,
