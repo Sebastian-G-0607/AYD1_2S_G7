@@ -57,6 +57,17 @@ function getInitials(name: string): string {
   }
   return parts[0].substring(0, 2).toUpperCase()
 }
+
+function formatTutorName(name: string): { first: string; last: string } {
+  if (!name) return { first: 'Tutor', last: '' }
+  const clean = name.trim()
+  const parts = clean.split(' ')
+  if (parts.length === 1) return { first: parts[0], last: '' }
+  if (parts[0].includes('.') && parts.length >= 3) {
+    return { first: `${parts[0]} ${parts[1]}`, last: parts.slice(2).join(' ') }
+  }
+  return { first: parts[0], last: parts.slice(1).join(' ') }
+}
 </script>
 
 <template>
@@ -160,9 +171,9 @@ function getInitials(name: string): string {
     </div>
 
     <!-- KPI BENTO GRID (STITCH TEMPLATE) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 xl:gap-8">
       <!-- Card 1: Total Estudiantes Únicos Atendidos -->
-      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
+      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] border border-surface-container-high/40 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-primary-container opacity-20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
         <div class="flex justify-between items-start mb-4 relative z-10">
           <div class="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center">
@@ -185,7 +196,7 @@ function getInitials(name: string): string {
       </div>
 
       <!-- Card 2: Tutores Activos con Atenciones -->
-      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
+      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] border border-surface-container-high/40 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-secondary-container opacity-20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
         <div class="flex justify-between items-start mb-4 relative z-10">
           <div class="w-12 h-12 bg-secondary-container rounded-xl flex items-center justify-center">
@@ -208,7 +219,7 @@ function getInitials(name: string): string {
       </div>
 
       <!-- Card 3: Sesiones Atendidas -->
-      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
+      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] border border-surface-container-high/40 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-tertiary-container opacity-20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
         <div class="flex justify-between items-start mb-4 relative z-10">
           <div class="w-12 h-12 bg-tertiary-container rounded-xl flex items-center justify-center">
@@ -232,7 +243,7 @@ function getInitials(name: string): string {
       </div>
 
       <!-- Card 4: Tasa de Efectividad / Satisfacción Global -->
-      <div class="bg-primary rounded-2xl p-6 shadow-md hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
+      <div class="bg-primary rounded-2xl p-6 shadow-[0_8px_24px_rgba(9,20,38,0.22)] hover:shadow-[0_12px_32px_rgba(9,20,38,0.3)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
         <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-on-primary opacity-10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
         <div class="flex justify-between items-start mb-4 relative z-10">
           <div class="w-12 h-12 bg-primary-fixed/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -256,9 +267,9 @@ function getInitials(name: string): string {
     </div>
 
     <!-- CHARTS SECTION (STITCH TEMPLATE) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mt-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mt-6">
       <!-- BAR CHART: Tutores con más estudiantes -->
-      <div class="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+      <div class="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col justify-between">
         <div class="flex justify-between items-center mb-6">
           <div>
             <h2 class="font-headline-md text-headline-md text-on-surface">
@@ -281,10 +292,10 @@ function getInitials(name: string): string {
         <!-- Gráfico de Barras -->
         <div
           v-if="tutoresReport.length > 0"
-          class="w-full h-[320px] relative flex items-end justify-between px-4 pb-12 pt-4"
+          class="w-full h-[340px] relative flex items-end justify-between px-4 pb-16 pt-4"
         >
           <!-- Y-Axis Grid Lines -->
-          <div class="absolute inset-0 flex flex-col justify-between pb-12 pointer-events-none">
+          <div class="absolute inset-0 flex flex-col justify-between pb-16 pointer-events-none">
             <div class="w-full h-px bg-surface-container-high"></div>
             <div class="w-full h-px bg-surface-container-high"></div>
             <div class="w-full h-px bg-surface-container-high"></div>
@@ -308,20 +319,25 @@ function getInitials(name: string): string {
               <div class="text-[11px] text-inverse-on-surface/80">{{ tutor.totalEstudiantesAtendidos }} estudiantes</div>
             </div>
 
-            <!-- Etiqueta con nombre rotado a 45 grados (Stitch Template) -->
-            <span
-              class="absolute -bottom-10 left-1/2 -translate-x-1/2 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap -rotate-45 origin-top-left truncate max-w-[90px]"
+            <!-- Etiqueta con nombre a doble fila centrado horizontalmente -->
+            <div
+              class="absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-start text-center w-20 sm:w-24 pointer-events-none"
               :title="tutor.nombreCompleto"
             >
-              {{ tutor.nombreCompleto }}
-            </span>
+              <span class="text-[11px] font-semibold text-on-surface leading-tight truncate w-full">
+                {{ formatTutorName(tutor.nombreCompleto).first }}
+              </span>
+              <span class="text-[10px] text-on-surface-variant leading-tight truncate w-full">
+                {{ formatTutorName(tutor.nombreCompleto).last }}
+              </span>
+            </div>
           </div>
         </div>
 
         <!-- Empty state si no hay tutores con atenciones -->
         <div
           v-else
-          class="h-[320px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-surface-container-high rounded-xl"
+          class="h-[340px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-surface-container-high rounded-xl"
         >
           <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-2">person_off</span>
           <p class="font-label-md text-label-md text-on-surface">No hay registros de atenciones completadas</p>
@@ -330,7 +346,7 @@ function getInitials(name: string): string {
       </div>
 
       <!-- DONUT CHART: Materias con mayor demanda -->
-      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col">
+      <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col">
         <div class="flex justify-between items-start mb-1">
           <div>
             <h2 class="font-headline-md text-headline-md text-on-surface">
@@ -412,7 +428,7 @@ function getInitials(name: string): string {
     </div>
 
     <!-- SECCIÓN DE TABLAS DETALLADAS (Criterio de Aceptación HU-08) -->
-    <div class="bg-surface-container-lowest rounded-2xl shadow-sm p-6 mt-4">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 p-6 mt-6">
       <!-- Pestañas y Búsqueda -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-surface-container-high pb-4 mb-6">
         <div class="flex items-center gap-2">
