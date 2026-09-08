@@ -69,7 +69,7 @@ const typeClasses = computed(() => {
       <p v-if="title" class="font-semibold text-sm">
         {{ title }}
       </p>
-      <p v-if="message" class="mt-0.5 opacity-90 text-sm">
+      <p v-if="message" class="mt-0.5 opacity-90 text-sm whitespace-pre-line">
         {{ message }}
       </p>
       <slot />

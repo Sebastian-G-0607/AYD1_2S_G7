@@ -67,6 +67,17 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/2fa',
+    name: 'admin-2fa',
+    component: () => import('@/pages/AdminTwoFactorPage.vue'),
+    meta: {
+      requiresAuth: false,
+      guestOnly: true,
+      title: 'Verificación Administrador - EduConnect',
+      layout: 'auth'
+    }
+  },
+  {
     path: '/estudiante/explorar-tutores',
     name: 'student-tutors-explorer',
     component: () => import('@/pages/StudentTutorsExplorerPage.vue'),
@@ -87,6 +98,30 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Tutor'],
       title: 'Dashboard Principal - Tutor EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/tutor/horarios',
+    name: 'tutor-schedule',
+    component: () => import('@/pages/TutorSchedulePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Configuración de Horarios - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/estudiante/tutores/:tutorId',
+    name: 'student-tutor-detail',
+    component: () => import('@/pages/StudentTutorDetailPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Programar Sesión - EduConnect',
       layout: 'dashboard'
     }
   },

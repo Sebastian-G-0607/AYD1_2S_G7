@@ -30,21 +30,41 @@ public static class RegistrarTutorEndpoint
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
-        if (request.Password != request.ConfirmPassword)
+        if (string.IsNullOrWhiteSpace(request.Nombre))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Contraseñas no coinciden",
-                detail: "La contraseña y la confirmación de contraseña no coinciden."
+                title: "Nombre obligatorio",
+                detail: "El nombre es obligatorio y no puede estar vacío."
             );
         }
 
-        if (!PasswordValidator.IsValid(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Apellido))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Contraseña inválida",
-                detail: "La contraseña debe tener un mínimo de 8 caracteres, incluyendo al menos una letra minúscula, una mayúscula y un número."
+                title: "Apellido obligatorio",
+                detail: "El apellido es obligatorio y no puede estar vacío."
+            );
+        }
+
+        var carnet = !string.IsNullOrWhiteSpace(request.CarnetId) ? request.CarnetId.Trim() : (request.Carnet?.Trim() ?? string.Empty);
+        if (!CarnetValidator.IsValid(carnet))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Carnet inválido",
+                detail: "El carnet debe ser numérico y contener entre 6 y 10 dígitos."
+            );
+        }
+
+        var dpi = !string.IsNullOrWhiteSpace(request.NumeroIdentificacion) ? request.NumeroIdentificacion.Trim() : (request.Dpi?.Trim() ?? string.Empty);
+        if (!DpiValidator.IsValid(dpi))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Documento de identificación inválido",
+                detail: "El DPI / Documento de identificación debe ser numérico y contener exactamente 13 dígitos."
             );
         }
 
@@ -57,6 +77,43 @@ public static class RegistrarTutorEndpoint
             );
         }
 
+        if (!TelefonoValidator.IsValid(request.Telefono))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Teléfono inválido",
+                detail: "El teléfono debe ser numérico y contener exactamente 8 dígitos."
+            );
+        }
+
+        if (request.FechaNacimiento == default)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fecha de nacimiento obligatoria",
+                detail: "La fecha de nacimiento es obligatoria y debe tener formato YYYY-MM-DD."
+            );
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (request.FechaNacimiento > today)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fecha de nacimiento inválida",
+                detail: "La fecha de nacimiento no puede ser una fecha futura."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Direccion))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Dirección obligatoria",
+                detail: "La dirección de residencia es obligatoria y no puede estar vacía."
+            );
+        }
+
         if (request.Fotografia is null || request.Fotografia.Length == 0)
         {
             return Results.Problem(
@@ -66,33 +123,74 @@ public static class RegistrarTutorEndpoint
             );
         }
 
-        var emailExists = await dbContext.Usuarios.AnyAsync(u => u.Correo == request.Correo, cancellationToken);
-        if (emailExists)
+        if (!ImageFileValidator.IsValidImage(request.Fotografia))
         {
             return Results.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Correo duplicado",
-                detail: "El correo electrónico ya se encuentra registrado en el sistema."
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fotografía inválida",
+                detail: "El archivo de fotografía debe ser una imagen válida (.jpg, .jpeg, .png, .webp)."
             );
         }
 
-        var carnetExists = await dbContext.Tutores.AnyAsync(t => t.CarnetId == request.CarnetId, cancellationToken);
-        if (carnetExists)
+        if (string.IsNullOrWhiteSpace(request.Universidad))
         {
             return Results.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Carnet duplicado",
-                detail: "El carnet o ID ya se encuentra registrado."
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Universidad obligatoria",
+                detail: "La universidad es obligatoria y no puede estar vacía."
             );
         }
 
-        var identificationExists = await dbContext.Tutores.AnyAsync(t => t.NumeroIdentificacion == request.NumeroIdentificacion, cancellationToken);
-        if (identificationExists)
+        var currentYear = DateTime.UtcNow.Year;
+        if (request.AnioInicio < 1980 || request.AnioInicio > currentYear)
         {
             return Results.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Número de identificación duplicado",
-                detail: "El número de identificación del tutor ya se encuentra registrado."
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Año de inicio inválido",
+                detail: $"El año de inicio debe ser un año numérico de 4 dígitos entre 1980 y el año actual ({currentYear})."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.DireccionTutoria))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Dirección de tutoría obligatoria",
+                detail: "La dirección de tutoría (salón o edificio) es obligatoria y no puede estar vacía."
+            );
+        }
+
+        var materiasIds = (request.MateriasIds.Count > 0 ? request.MateriasIds : request.Materias) ?? [];
+        if (materiasIds.Count == 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Materias obligatorias",
+                detail: "Debe seleccionar al menos una materia como especialidad."
+            );
+        }
+
+        var existingMateriaIds = await dbContext.Materias
+            .Where(m => materiasIds.Contains(m.Id))
+            .Select(m => m.Id)
+            .ToListAsync(cancellationToken);
+
+        var missingMaterias = materiasIds.Except(existingMateriaIds).ToList();
+        if (missingMaterias.Count > 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Materias inexistentes",
+                detail: $"Las siguientes materias no existen en el sistema: {string.Join(", ", missingMaterias)}"
+            );
+        }
+
+        if (request.DiasAtencion is not null && request.DiasAtencion.Count > 0 && request.DiasAtencion.Any(d => d < 1 || d > 7))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Día de atención inválido",
+                detail: "Los días de atención deben estar entre 1 (Lunes) y 7 (Domingo)."
             );
         }
 
@@ -105,36 +203,71 @@ public static class RegistrarTutorEndpoint
             );
         }
 
-        if (request.MateriasIds is null || request.MateriasIds.Count == 0)
+        if (!EmailValidator.IsValid(request.Correo))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Materias requeridas",
-                detail: "Debe seleccionar al menos una materia como especialidad."
+                title: "Correo inválido",
+                detail: "El formato del correo electrónico no es válido."
             );
         }
 
-        var existingMateriaIds = await dbContext.Materias
-            .Where(m => request.MateriasIds.Contains(m.Id))
-            .Select(m => m.Id)
-            .ToListAsync(cancellationToken);
-
-        var missingMaterias = request.MateriasIds.Except(existingMateriaIds).ToList();
-        if (missingMaterias.Count > 0)
+        if (string.IsNullOrWhiteSpace(request.Password))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Materias inexistentes",
-                detail: $"Las siguientes materias no existen: {string.Join(", ", missingMaterias)}"
+                title: "Contraseña obligatoria",
+                detail: "La contraseña es obligatoria."
             );
         }
 
-        if (request.DiasAtencion is not null && request.DiasAtencion.Any(d => d < 1 || d > 7))
+        if (string.IsNullOrWhiteSpace(request.ConfirmPassword) || request.Password != request.ConfirmPassword)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Día de atención inválido",
-                detail: "Los días de atención deben estar entre 1 (Lunes) y 7 (Domingo)."
+                title: "Contraseñas no coinciden",
+                detail: "La contraseña y la confirmación de contraseña no coinciden exactamente."
+            );
+        }
+
+        if (!PasswordValidator.IsValid(request.Password))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseña inválida",
+                detail: "La contraseña debe tener un mínimo de 8 caracteres, al menos 1 letra mayúscula, 1 letra minúscula y 1 número."
+            );
+        }
+
+        var normalizedEmail = request.Correo.Trim().ToLowerInvariant();
+
+        var emailExists = await dbContext.Usuarios.AnyAsync(u => u.Correo == normalizedEmail, cancellationToken);
+        if (emailExists)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Correo duplicado",
+                detail: "El correo electrónico ya se encuentra registrado en el sistema."
+            );
+        }
+
+        var carnetExists = await dbContext.Tutores.AnyAsync(t => t.CarnetId == carnet, cancellationToken);
+        if (carnetExists)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Carnet duplicado",
+                detail: "El carnet universitario ya se encuentra registrado."
+            );
+        }
+
+        var identificationExists = await dbContext.Tutores.AnyAsync(t => t.NumeroIdentificacion == dpi, cancellationToken);
+        if (identificationExists)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Número de identificación duplicado",
+                detail: "El número de identificación del tutor ya se encuentra registrado."
             );
         }
 
@@ -164,7 +297,7 @@ public static class RegistrarTutorEndpoint
 
         var usuario = new Usuario
         {
-            Correo = request.Correo,
+            Correo = normalizedEmail,
             PasswordHash = passwordHash,
             RolId = rolTutor.Id,
             EstadoId = estadoPendiente.Id,
@@ -180,25 +313,25 @@ public static class RegistrarTutorEndpoint
         var tutor = new Tutor
         {
             UsuarioId = usuario.Id,
-            Nombre = request.Nombre,
-            Apellido = request.Apellido,
-            CarnetId = request.CarnetId,
-            NumeroIdentificacion = request.NumeroIdentificacion,
+            Nombre = request.Nombre.Trim(),
+            Apellido = request.Apellido.Trim(),
+            CarnetId = carnet,
+            NumeroIdentificacion = dpi,
             Genero = generoNormalizado,
-            Direccion = request.Direccion,
-            Telefono = request.Telefono,
+            Direccion = request.Direccion.Trim(),
+            Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
             FotografiaUrl = fotografiaUrl,
-            DireccionTutoria = request.DireccionTutoria,
+            DireccionTutoria = request.DireccionTutoria.Trim(),
             AnioInicio = request.AnioInicio,
-            Universidad = request.Universidad,
+            Universidad = request.Universidad.Trim(),
             HoraInicio = request.HoraInicio,
             HoraFin = request.HoraFin
         };
 
         dbContext.Tutores.Add(tutor);
 
-        var distinctMateriaIds = request.MateriasIds.Distinct().ToList();
+        var distinctMateriaIds = materiasIds.Distinct().ToList();
         foreach (var materiaId in distinctMateriaIds)
         {
             dbContext.TutoresMaterias.Add(new TutorMateria

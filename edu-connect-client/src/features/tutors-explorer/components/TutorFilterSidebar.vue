@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useMaterias } from '@/composables/useMaterias'
+
+const { materias } = useMaterias()
 const materia = defineModel<string>('materia', { default: '' })
 const universidad = defineModel<string>('universidad', { default: '' })
-const expMinima = defineModel<number>('expMinima', { default: 0 })
-const rangoEdad = defineModel<number>('rangoEdad', { default: 65 })
+const experienciaMinima = defineModel<number>('experienciaMinima', { default: 0 })
+const edadMaxima = defineModel<number>('edadMaxima', { default: 65 })
 const genero = defineModel<'any' | 'female' | 'male'>('genero', { default: 'any' })
 
 interface Emits {
@@ -42,10 +45,9 @@ const emit = defineEmits<Emits>()
           class="w-full appearance-none bg-surface-container-lowest text-on-surface text-sm rounded-lg py-2.5 pl-4 pr-10 border border-outline-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all cursor-pointer"
         >
           <option value="">Todas las materias</option>
-          <option value="matemáticas">Matemáticas Avanzadas</option>
-          <option value="física">Física Cuántica</option>
-          <option value="computación">Ciencias de la Computación</option>
-          <option value="literatura">Literatura Contemporánea</option>
+          <option v-for="item in materias" :key="item.id" :value="item.nombre">
+            {{ item.nombre }}
+          </option>
         </select>
         <span
           class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]"
@@ -59,23 +61,13 @@ const emit = defineEmits<Emits>()
       <label for="filter-universidad" class="text-sm font-semibold text-on-surface"
         >Universidad de Origen</label
       >
-      <div class="relative">
-        <select
-          id="filter-universidad"
-          v-model="universidad"
-          class="w-full appearance-none bg-surface-container-lowest text-on-surface text-sm rounded-lg py-2.5 pl-4 pr-10 border border-outline-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all cursor-pointer"
-        >
-          <option value="">Cualquier Universidad</option>
-          <option value="unam">UNAM</option>
-          <option value="tec">Tecnológico de Monterrey</option>
-          <option value="ibero">Universidad Iberoamericana</option>
-        </select>
-        <span
-          class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]"
-        >
-          expand_more
-        </span>
-      </div>
+      <input
+        id="filter-universidad"
+        v-model="universidad"
+        type="text"
+        placeholder="Ej. USAC, URL..."
+        class="w-full bg-surface-container-lowest text-on-surface text-sm rounded-lg py-2.5 px-4 border border-outline-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+      />
     </div>
 
     <div class="flex flex-col gap-3 pt-2">
@@ -86,12 +78,12 @@ const emit = defineEmits<Emits>()
         <span
           class="text-xs font-bold bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded-md"
         >
-          {{ expMinima }} años
+          {{ experienciaMinima }} años
         </span>
       </div>
       <input
         id="filter-exp"
-        v-model.number="expMinima"
+        v-model.number="experienciaMinima"
         type="range"
         min="0"
         max="10"
@@ -111,12 +103,12 @@ const emit = defineEmits<Emits>()
         <span
           class="text-xs font-bold bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded-md"
         >
-          {{ rangoEdad }} años
+          {{ edadMaxima }} años
         </span>
       </div>
       <input
         id="filter-edad"
-        v-model.number="rangoEdad"
+        v-model.number="edadMaxima"
         type="range"
         min="18"
         max="65"

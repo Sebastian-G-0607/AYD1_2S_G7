@@ -42,7 +42,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 5. Copy and prepare runtime entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
+
 
 # 6. Ensure proper ownership for non-root user
 RUN chown -R nginx:nginx /usr/share/nginx/html

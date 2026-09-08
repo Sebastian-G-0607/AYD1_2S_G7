@@ -1,183 +1,170 @@
 <script setup lang="ts">
-import { BaseButton, BaseModal } from '@/components/ui'
-import { useStudentApprovals } from '../composables/useStudentApprovals'
+import { ref } from 'vue'
+import type { StudentApprovalItem } from '../types'
+import { getEnv } from '@/config/env'
 
-const {
-  filteredStudents,
-  isLoading,
-  searchQuery,
-  activeTab,
-  pendingCount,
-  selectedStudent,
-  isApproveModalOpen,
-  isRejectModalOpen,
-  isProcessingAction,
-  openApproveModal,
-  openRejectModal,
-  confirmApprove,
-  confirmReject
-} = useStudentApprovals()
+interface Props {
+  students: StudentApprovalItem[]
+  isLoading?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false
+})
+
+const emit = defineEmits<{
+  (e: 'approve', student: StudentApprovalItem): void
+  (e: 'reject', student: StudentApprovalItem): void
+}>()
+
+const failedImages = ref<Record<number, boolean>>({})
+
+function handleImageError(id: number) {
+  failedImages.value[id] = true
+}
+
+function isImageValid(id: number): boolean {
+  return !failedImages.value[id]
+}
+
+function resolveImageUrl(url?: string): string {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url
+  }
+  const base = getEnv('VITE_API_URL', 'http://localhost:5000')
+  return `${base.replace(/\/+$/, '')}${url}`
+}
 
 function getInitials(nombre: string, apellido: string): string {
-  return `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase()
+  const f = nombre ? nombre.charAt(0) : ''
+  const l = apellido ? apellido.charAt(0) : ''
+  return `${f}${l}`.toUpperCase() || 'ES'
+}
+
+const avatarBgClasses = [
+  'bg-primary-container text-on-primary-container',
+  'bg-secondary-container text-on-secondary-container',
+  'bg-tertiary-container text-on-tertiary-container'
+]
+
+function getAvatarBgClass(index: number): string {
+  return avatarBgClasses[index % avatarBgClasses.length]
 }
 </script>
 
 <template>
-  <div class="flex flex-col w-full">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-      <div>
-        <h1 class="text-3xl font-bold font-headline text-on-surface tracking-tight mb-2">
-          Aprobaciones Pendientes
-        </h1>
-        <p class="text-base text-on-surface-variant max-w-2xl font-body">
-          Gestión de solicitudes de nuevos usuarios en la plataforma. Revise cuidadosamente los
-          datos antes de aceptar o rechazar.
-        </p>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <BaseButton variant="secondary" size="md">
-          <template #iconLeft>
-            <span class="material-symbols-outlined text-[20px]">filter_list</span>
-          </template>
-          Filtrar
-        </BaseButton>
-
-        <BaseButton variant="secondary" size="md">
-          <template #iconLeft>
-            <span class="material-symbols-outlined text-[20px]">download</span>
-          </template>
-          Exportar Lista
-        </BaseButton>
-      </div>
-    </div>
-
+  <div class="w-full flex flex-col">
+    <!-- ESTADO DE CARGA -->
     <div
-      class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-4 mb-8"
+      v-if="isLoading"
+      class="bg-surface-container-lowest shadow-sm rounded-xl p-12 mb-margin-desktop text-center flex flex-col items-center justify-center min-h-[300px]"
     >
-      <div class="flex flex-col md:flex-row items-center gap-4">
-        <div class="flex w-full md:w-auto bg-surface-container-low rounded-lg p-1">
-          <button
-            type="button"
-            :class="[
-              'flex-1 md:flex-none flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-semibold transition-all',
-              activeTab === 'estudiantes'
-                ? 'bg-surface-container-lowest text-on-surface shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            ]"
-            @click="activeTab = 'estudiantes'"
-          >
-            <span class="material-symbols-outlined text-[18px]">school</span>
-            <span>Estudiantes Pendientes</span>
-            <span
-              class="bg-primary text-on-primary text-xs px-2 py-0.5 rounded-full ml-1 font-bold"
-            >
-              {{ pendingCount }}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            :class="[
-              'flex-1 md:flex-none flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-semibold transition-all',
-              activeTab === 'tutores'
-                ? 'bg-surface-container-lowest text-on-surface shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            ]"
-            @click="activeTab = 'tutores'"
-          >
-            <span class="material-symbols-outlined text-[18px]">co_present</span>
-            <span>Tutores Pendientes</span>
-            <span
-              class="bg-surface-container-highest text-on-surface text-xs px-2 py-0.5 rounded-full ml-1 font-bold"
-            >
-              0
-            </span>
-          </button>
-        </div>
-
-        <div class="w-full md:flex-1 relative">
-          <span
-            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]"
-          >
-            search
-          </span>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Buscar por nombre, carnet o correo..."
-            class="w-full h-10 bg-surface-container-lowest text-on-surface text-sm pl-10 pr-4 rounded-lg border border-outline-variant focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary transition-all"
-          />
-        </div>
-      </div>
+      <div
+        class="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"
+      />
+      <p class="font-body-md text-body-md text-on-surface-variant">
+        Cargando solicitudes de estudiantes...
+      </p>
     </div>
 
+    <!-- TABLA DE ESTUDIANTES PENDIENTES (HU-05) -->
     <div
-      v-if="filteredStudents.length > 0"
-      class="bg-surface-container-lowest shadow-sm rounded-xl border border-outline-variant/20 overflow-hidden mb-8"
+      v-else-if="props.students.length > 0"
+      class="bg-surface-container-lowest shadow-sm rounded-xl overflow-hidden mb-margin-desktop"
     >
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-on-surface">
-          <thead
-            class="bg-surface-container/60 text-on-surface-variant uppercase text-xs tracking-wider border-b border-surface-container-high"
-          >
-            <tr>
-              <th class="py-3.5 px-6 font-semibold">Fotografía</th>
-              <th class="py-3.5 px-6 font-semibold">Nombre Completo</th>
-              <th class="py-3.5 px-6 font-semibold">Carnet</th>
-              <th class="py-3.5 px-6 font-semibold">Género</th>
-              <th class="py-3.5 px-6 font-semibold">Fecha de Nacimiento</th>
-              <th class="py-3.5 px-6 font-semibold">Correo Electrónico</th>
-              <th class="py-3.5 px-6 font-semibold text-center">Acciones</th>
+        <table class="w-full text-left font-body-md text-body-md text-on-surface table-auto">
+          <thead class="bg-surface-container text-on-surface-variant font-label-md text-label-md">
+            <tr
+              class="text-on-surface-variant font-label-md text-label-md border-b border-surface-container-high"
+            >
+              <th class="py-3 px-2 w-10 text-center font-semibold">Fotografía</th>
+              <th class="py-3 px-3 font-semibold">Nombre Completo</th>
+              <th class="py-3 px-3 w-40 font-semibold">Carnet</th>
+              <th class="py-3 px-2.5 w-24 font-semibold">Género</th>
+              <th class="py-3 px-2.5 w-32 font-semibold">Fecha Nacimiento</th>
+              <th class="py-3 px-2.5 w-36 font-semibold">Correo</th>
+              <th class="py-3 px-3 w-44 font-semibold text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-surface-container">
+          <tbody class="divide-y-0 text-on-surface">
             <tr
-              v-for="student in filteredStudents"
+              v-for="(student, index) in props.students"
               :key="student.id"
-              class="hover:bg-surface-container-low/60 transition-colors"
+              class="hover:bg-surface-container-low transition-colors group border-b border-surface-container/40 last:border-0"
             >
-              <td class="py-4 px-6">
+              <!-- Fotografía (ancho 10 / compacto) -->
+              <td class="py-3 px-2 w-10 text-center">
                 <div
-                  class="w-10 h-10 rounded-full overflow-hidden bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs shadow-sm"
+                  class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest flex-shrink-0 mx-auto shadow-xs border border-primary/10"
                 >
                   <img
-                    v-if="student.fotografiaUrl"
-                    :src="student.fotografiaUrl"
-                    :alt="student.nombre"
+                    v-if="student.fotografiaUrl && isImageValid(student.id)"
+                    :src="resolveImageUrl(student.fotografiaUrl)"
+                    :alt="`${student.nombre} ${student.apellido}`"
                     class="w-full h-full object-cover"
+                    @error="handleImageError(student.id)"
                   />
-                  <span v-else>{{ getInitials(student.nombre, student.apellido) }}</span>
+                  <div
+                    v-else
+                    :class="[
+                      'w-full h-full flex items-center justify-center font-label-sm text-[11px] font-bold',
+                      getAvatarBgClass(index)
+                    ]"
+                  >
+                    {{ getInitials(student.nombre, student.apellido) }}
+                  </div>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <p class="font-semibold text-on-surface">
+
+              <!-- Nombre Completo -->
+              <td class="py-3 px-3">
+                <p class="font-label-md text-label-md text-on-surface whitespace-nowrap">
                   {{ student.nombre }} {{ student.apellido }}
                 </p>
               </td>
-              <td class="py-4 px-6">
+
+              <!-- Carnet (más ancho y visible) -->
+              <td class="py-3 px-3 w-40">
                 <span
-                  class="font-mono text-xs bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md font-semibold"
+                  class="font-mono text-xs bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md font-semibold inline-block"
                 >
                   {{ student.carnet }}
                 </span>
               </td>
-              <td class="py-4 px-6 text-on-surface-variant capitalize">
+
+              <!-- Género -->
+              <td
+                class="py-3 px-2.5 w-24 text-sm capitalize text-on-surface-variant whitespace-nowrap"
+              >
                 {{ student.genero }}
               </td>
-              <td class="py-4 px-6 text-on-surface-variant">
+
+              <!-- Fecha de Nacimiento -->
+              <td class="py-3 px-2.5 w-32 text-sm text-on-surface-variant whitespace-nowrap">
                 {{ student.fechaNacimiento }}
               </td>
-              <td class="py-4 px-6 text-on-surface-variant truncate max-w-[200px]">
-                {{ student.correo }}
+
+              <!-- Correo (angosto con tooltip) -->
+              <td class="py-3 px-2.5 w-36 text-sm">
+                <a
+                  :href="`mailto:${student.correo}`"
+                  :title="student.correo"
+                  class="text-on-surface-variant hover:text-primary transition-colors truncate block max-w-[140px]"
+                >
+                  {{ student.correo }}
+                </a>
               </td>
-              <td class="py-4 px-6">
-                <div class="flex items-center justify-center gap-2">
+
+              <!-- Acciones: Aceptar / Rechazar -->
+              <td class="py-3 px-3 w-44 text-center">
+                <div class="flex gap-1.5 justify-center">
                   <button
                     type="button"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#c3e6cb] text-[#155724] hover:bg-[#218838] hover:text-white transition-all text-xs font-semibold shadow-xs"
-                    @click="openApproveModal(student)"
+                    title="Aceptar solicitud de estudiante"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#c3e6cb] text-[#155724] hover:bg-[#218838] hover:text-white transition-all font-label-sm text-label-sm cursor-pointer shadow-xs whitespace-nowrap"
+                    @click="emit('approve', student)"
                   >
                     <span class="material-symbols-outlined text-[16px]">check_circle</span>
                     <span>Aceptar</span>
@@ -185,8 +172,9 @@ function getInitials(nombre: string, apellido: string): string {
 
                   <button
                     type="button"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-white transition-all text-xs font-semibold shadow-xs"
-                    @click="openRejectModal(student)"
+                    title="Rechazar solicitud de estudiante"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-white transition-all font-label-sm text-label-sm cursor-pointer shadow-xs whitespace-nowrap"
+                    @click="emit('reject', student)"
                   >
                     <span class="material-symbols-outlined text-[16px]">cancel</span>
                     <span>Rechazar</span>
@@ -198,31 +186,33 @@ function getInitials(nombre: string, apellido: string): string {
         </table>
       </div>
 
+      <!-- Barra Inferior de Registros / Paginación -->
       <div
-        class="p-4 bg-surface-container-lowest border-t border-surface-container flex items-center justify-between"
+        class="p-3.5 bg-surface-container-lowest border-t border-surface-container-highest flex items-center justify-between"
       >
-        <span class="text-xs text-on-surface-variant">
-          Mostrando {{ filteredStudents.length }} de {{ pendingCount }} registros
+        <span class="font-label-sm text-label-sm text-on-surface-variant">
+          Mostrando {{ props.students.length }}
+          {{ props.students.length === 1 ? 'registro' : 'registros' }}
         </span>
 
-        <div class="flex items-center gap-1">
+        <div class="flex gap-1">
           <button
             type="button"
             disabled
-            class="w-8 h-8 flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+            class="w-7 h-7 flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low disabled:opacity-50"
           >
             <span class="material-symbols-outlined text-[18px]">chevron_left</span>
           </button>
           <button
             type="button"
-            class="w-8 h-8 flex items-center justify-center rounded-md bg-primary text-on-primary text-xs font-bold"
+            class="w-7 h-7 flex items-center justify-center rounded-md bg-primary text-on-primary font-label-sm text-xs"
           >
             1
           </button>
           <button
             type="button"
             disabled
-            class="w-8 h-8 flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+            class="w-7 h-7 flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low disabled:opacity-50"
           >
             <span class="material-symbols-outlined text-[18px]">chevron_right</span>
           </button>
@@ -230,95 +220,21 @@ function getInitials(nombre: string, apellido: string): string {
       </div>
     </div>
 
+    <!-- ESTADO VACÍO (TODO AL DÍA) -->
     <div
-      v-else-if="!isLoading"
-      class="bg-surface-container-lowest shadow-sm rounded-xl border border-outline-variant/20 p-12 text-center flex flex-col items-center justify-center min-h-[320px]"
+      v-else
+      class="bg-surface-container-lowest shadow-sm rounded-xl p-8 mb-margin-desktop text-center flex flex-col items-center justify-center min-h-[300px]"
     >
       <div
-        class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mb-4 text-on-surface-variant"
+        class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mb-4"
       >
-        <span class="material-symbols-outlined text-[32px]">inbox</span>
+        <span class="material-symbols-outlined text-[32px] text-on-surface-variant">inbox</span>
       </div>
-      <h3 class="text-xl font-bold font-headline text-on-surface mb-2">Todo al día</h3>
-      <p class="text-sm text-on-surface-variant max-w-md font-body">
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Todo al día</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
         No hay solicitudes de estudiantes pendientes de aprobación en este momento. Vuelve más
         tarde.
       </p>
     </div>
-
-    <BaseModal v-model="isApproveModalOpen" title="Confirmar Aprobación" max-width="md">
-      <div class="flex flex-col gap-4">
-        <div
-          class="w-12 h-12 rounded-full bg-[#c3e6cb] flex items-center justify-center text-[#155724]"
-        >
-          <span class="material-symbols-outlined text-[26px]">verified</span>
-        </div>
-
-        <p class="text-sm text-on-surface-variant font-body">
-          ¿Estás seguro de que deseas aceptar a
-          <strong class="text-on-surface font-semibold">
-            {{ selectedStudent?.nombre }} {{ selectedStudent?.apellido }} </strong
-          >? Se enviará un correo notificando la decisión con sus credenciales de acceso.
-        </p>
-
-        <div class="bg-surface-container-low rounded-lg p-3 flex gap-3 items-center">
-          <span class="material-symbols-outlined text-on-surface-variant text-[20px]">mail</span>
-          <span class="text-xs text-on-surface-variant truncate">
-            Notificación a: {{ selectedStudent?.correo }}
-          </span>
-        </div>
-      </div>
-
-      <template #footer>
-        <BaseButton
-          variant="outline"
-          size="md"
-          :disabled="isProcessingAction"
-          @click="isApproveModalOpen = false"
-        >
-          Cancelar
-        </BaseButton>
-        <BaseButton
-          variant="primary"
-          size="md"
-          :loading="isProcessingAction"
-          class="!bg-[#28a745] hover:!bg-[#218838]"
-          @click="confirmApprove"
-        >
-          Aceptar Estudiante
-        </BaseButton>
-      </template>
-    </BaseModal>
-
-    <BaseModal v-model="isRejectModalOpen" title="Confirmar Rechazo" max-width="md">
-      <div class="flex flex-col gap-4">
-        <div
-          class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center"
-        >
-          <span class="material-symbols-outlined text-[26px]">cancel</span>
-        </div>
-
-        <p class="text-sm text-on-surface-variant font-body">
-          ¿Estás seguro de que deseas rechazar la solicitud de
-          <strong class="text-on-surface font-semibold">
-            {{ selectedStudent?.nombre }} {{ selectedStudent?.apellido }} </strong
-          >? Esta acción no se puede deshacer.
-        </p>
-      </div>
-
-      <template #footer>
-        <BaseButton
-          variant="outline"
-          size="md"
-          :disabled="isProcessingAction"
-          @click="isRejectModalOpen = false"
-        >
-          Cancelar
-        </BaseButton>
-        <BaseButton variant="danger" size="md" :loading="isProcessingAction" @click="confirmReject">
-          Rechazar Solicitud
-        </BaseButton>
-      </template>
-    </BaseModal>
   </div>
 </template>

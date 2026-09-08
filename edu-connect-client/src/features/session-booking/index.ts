@@ -1,0 +1,1 @@
+export { default as SessionBookingView } from './components/SessionBookingView.vue'

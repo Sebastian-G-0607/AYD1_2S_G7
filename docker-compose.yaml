@@ -3,7 +3,7 @@ services:
     image: gvenzl/oracle-xe:latest
     container_name: oracle-db
     ports:
-      - "1521:1521"
+      - "1523:1521"
     environment:
       - ORACLE_PASSWORD=Oracle12345
       - APP_USER=api_dev
@@ -25,6 +25,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:8080"
+    environment:   # quitar esto
+      - ASPNETCORE_ENVIRONMENT=Development # quitar esto al final
     depends_on:
       oracle-db:
         condition: service_healthy

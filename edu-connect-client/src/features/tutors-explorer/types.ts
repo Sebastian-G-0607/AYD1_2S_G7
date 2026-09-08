@@ -1,24 +1,20 @@
 export interface TutorExplorerItem {
-  id: number
-  nombre: string
-  titulo: string
-  especialidad: string
-  rating: number
-  totalResenas: number
-  ubicacion: string
+  tutorId: number
+  nombreCompleto: string
+  materias: string[]
+  direccionTutoria: string
+  fotografiaUrl: string
   universidad: string
+  genero: string
   aniosExperiencia: number
-  tags: string[]
-  fotografiaUrl?: string
-  isOnline?: boolean
-  genero?: 'masculino' | 'femenino'
-  edad?: number
+  edad: number
 }
 
 export interface TutorFilterCriteria {
   materia?: string
   universidad?: string
-  expMinima: number
-  rangoEdad: number
-  genero: 'any' | 'female' | 'male'
+  experienciaMinima?: number
+  edadMinima?: number
+  edadMaxima?: number
+  genero?: 'any' | 'female' | 'male'
 }

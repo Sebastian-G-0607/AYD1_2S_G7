@@ -19,6 +19,9 @@ interface Props {
   min?: string | number
   max?: string | number
   step?: string | number
+  onlyNumbers?: boolean
+  maxlength?: number | string
+  inputmode?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -38,13 +41,17 @@ const props = withDefaults(defineProps<Props>(), {
   showPasswordToggle: false,
   min: undefined,
   max: undefined,
-  step: undefined
+  step: undefined,
+  onlyNumbers: false,
+  maxlength: undefined,
+  inputmode: undefined
 })
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'focus', event: FocusEvent): void
   (e: 'blur', event: FocusEvent): void
+  (e: 'enter', event: KeyboardEvent): void
 }>()
 
 const isPasswordVisible = ref(false)
@@ -56,13 +63,61 @@ const computedType = computed(() => {
   return props.type
 })
 
+const computedInputmode = computed(() => {
+  if (props.inputmode) return props.inputmode
+  if (props.onlyNumbers) return 'numeric'
+  return undefined
+})
+
 const togglePasswordVisibility = () => {
   isPasswordVisible.value = !isPasswordVisible.value
 }
 
+const onKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    emit('enter', event)
+    if (props.onlyNumbers) {
+      event.preventDefault()
+      ;(event.target as HTMLInputElement).blur()
+    }
+    return
+  }
+  if (!props.onlyNumbers) return
+  if (
+    event.key === 'Backspace' ||
+    event.key === 'Delete' ||
+    event.key === 'Tab' ||
+    event.key === 'Escape' ||
+    event.key === 'Enter' ||
+    event.key === 'ArrowLeft' ||
+    event.key === 'ArrowRight' ||
+    event.key === 'ArrowUp' ||
+    event.key === 'ArrowDown' ||
+    event.key === 'Home' ||
+    event.key === 'End' ||
+    event.ctrlKey ||
+    event.metaKey
+  ) {
+    return
+  }
+  if (!/^\d$/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
 const onInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:modelValue', target.value)
+  let val = target.value
+  if (props.onlyNumbers) {
+    val = val.replace(/\D/g, '')
+    if (props.maxlength !== undefined) {
+      val = val.slice(0, Number(props.maxlength))
+    }
+    if (target.value !== val) {
+      target.value = val
+    }
+  }
+  emit('update:modelValue', val)
 }
 </script>
 
@@ -98,6 +153,8 @@ const onInput = (event: Event) => {
         :required="required"
         :disabled="disabled"
         :autocomplete="autocomplete"
+        :inputmode="computedInputmode"
+        :maxlength="maxlength"
         :min="min"
         :max="max"
         :step="step"
@@ -107,6 +164,7 @@ const onInput = (event: Event) => {
           showPasswordToggle || trailingIcon ? 'pr-10' : 'pr-4',
           error ? 'border-error bg-error-container/20 focus:ring-error' : ''
         ]"
+        @keydown="onKeyDown"
         @input="onInput"
         @focus="emit('focus', $event)"
         @blur="emit('blur', $event)"

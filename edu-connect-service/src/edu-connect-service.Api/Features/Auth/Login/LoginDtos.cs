@@ -13,5 +13,7 @@ public record TokenResponseDto(
     int ExpiresIn,
     int IdUsuario,
     string Correo,
-    string Rol
+    string Rol,
+    string? Nombre,
+    string? Apellido
 );
