@@ -171,7 +171,7 @@ function formatTutorName(name: string): { first: string; last: string } {
     </div>
 
     <!-- KPI BENTO GRID (STITCH TEMPLATE) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 xl:gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-6">
       <!-- Card 1: Total Estudiantes Únicos Atendidos -->
       <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] border border-surface-container-high/40 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-primary-container opacity-20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
