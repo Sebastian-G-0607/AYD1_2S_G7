@@ -2,12 +2,13 @@ namespace edu_connect_service.Api.Features.Sesiones.GestionarPendientes;
 
 public record SesionPendienteDto(
     int Id,
-    DateOnly FechaSesion,
-    TimeOnly HoraInicio,
+    string Fecha,
+    string Hora,
     string EstudianteNombre,
-    string EstudianteCarnet,
+    string EstudianteId,
     string Materia,
-    string Motivo
+    string Motivo,
+    string Estado
 );
 
 public record AtenderSesionRequestDto(

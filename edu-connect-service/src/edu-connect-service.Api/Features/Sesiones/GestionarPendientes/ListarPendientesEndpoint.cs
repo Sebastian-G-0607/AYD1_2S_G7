@@ -58,12 +58,13 @@ public static class ListarPendientesEndpoint
             .ThenBy(sesion => sesion.HoraInicio)
             .Select(sesion => new SesionPendienteDto(
                 sesion.Id,
-                sesion.FechaSesion,
-                sesion.HoraInicio,
+                sesion.FechaSesion.ToString("dd MMM, yyyy"),
+                sesion.HoraInicio.ToString("hh:mm tt"),
                 sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
                 sesion.Estudiante.Carnet,
                 sesion.Materia.Nombre,
-                sesion.Motivo
+                sesion.Motivo,
+                sesion.Estado.Nombre
             ))
             .ToListAsync(cancellationToken);
 
