@@ -160,12 +160,319 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "administrador",
+			"item": [
+				{
+					"name": "HU-07: Listar Estudiantes Activos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/estudiantes/activos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"estudiantes",
+								"activos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-07: Dar de Baja Estudiante",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"motivo\": \"Incumplimiento de normativas de la plataforma\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/estudiantes/1/dar-baja",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"estudiantes",
+								"1",
+								"dar-baja"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-07: Listar Tutores Activos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/tutores/activos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"tutores",
+								"activos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-07: Dar de Baja Tutor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"motivo\": \"Solicitud de retiro voluntario\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/tutores/1/dar-baja",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"tutores",
+								"1",
+								"dar-baja"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-05: Listar Estudiantes Pendientes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/estudiantes/pendientes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"estudiantes",
+								"pendientes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-06: Listar Tutores Pendientes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/tutores/pendientes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"tutores",
+								"pendientes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-08: Reporte Tutores con Más Atenciones",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/tutores-mas-atendidos?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"tutores-mas-atendidos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-08: Reporte Materias con Mayor Demanda",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/materias-mayor-demanda?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"materias-mayor-demanda"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-08: Reportes Resumen Global",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/resumen",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"resumen"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:5082"
+			"value": "http://localhost:5000"
 		},
 		{
 			"key": "jwtToken",

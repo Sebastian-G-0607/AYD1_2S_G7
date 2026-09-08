@@ -2,6 +2,7 @@ using edu_connect_service.Api.Features.Tutores.ConfigurarHorario;
 using edu_connect_service.Api.Features.Tutores.RegistrarTutor;
 using edu_connect_service.Api.Features.Tutores.ExplorarTutores;
 using edu_connect_service.Api.Features.Tutores.ConsultarDisponibilidad;
+using edu_connect_service.Api.Features.Tutores.HistorialSesiones;
 
 namespace edu_connect_service.Api.Features.Tutores;
 
@@ -15,6 +16,7 @@ public static class TutoresEndpoints
         apiGroup.MapObtenerHorario();
         apiGroup.MapExplorarTutores();
         apiGroup.MapConsultarDisponibilidad();
+        apiGroup.MapHistorialSesiones();
 
         var rootGroup = app.MapGroup("/tutores");
         rootGroup.MapRegistrarTutor();
@@ -22,6 +24,6 @@ public static class TutoresEndpoints
         rootGroup.MapObtenerHorario();
         rootGroup.MapExplorarTutores();
         rootGroup.MapConsultarDisponibilidad();
-    
+        rootGroup.MapHistorialSesiones();
     }
 }

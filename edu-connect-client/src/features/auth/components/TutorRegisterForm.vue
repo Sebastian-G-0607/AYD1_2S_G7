@@ -79,12 +79,137 @@ const genderOptions: SelectOption[] = [
   { value: 'femenino', label: 'Femenino' }
 ]
 
-const { isLoading, errorMessage, clearError, registerTutor } = useAuth()
+const { isLoading, errorMessage, clearError, registerTutor, isAtLeast18YearsOld } = useAuth()
 
 const passwordMismatch = computed(() => {
   if (!formData.confirmPassword || !formData.password) return false
   return formData.password !== formData.confirmPassword
 })
+
+const emailError = computed(() => {
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('correo') || lower.includes('email')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const carnetTouchedError = ref<string | null>(null)
+const idTouchedError = ref<string | null>(null)
+const phoneTouchedError = ref<string | null>(null)
+const birthDateTouchedError = ref<string | null>(null)
+
+const carnetError = computed(() => {
+  if (carnetTouchedError.value) return carnetTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('carnet')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const idError = computed(() => {
+  if (idTouchedError.value) return idTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (
+    lower.includes('identificación') ||
+    lower.includes('identificacion') ||
+    lower.includes('dpi')
+  ) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const phoneError = computed(() => {
+  if (phoneTouchedError.value) return phoneTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('teléfono') || lower.includes('telefono')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const birthDateError = computed(() => {
+  if (birthDateTouchedError.value) return birthDateTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('18 años') || lower.includes('nacimiento')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const maxBirthDate = computed(() => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 18)
+  return date.toISOString().split('T')[0]
+})
+
+const handleCarnetInput = (val: string) => {
+  formData.carnetId = val.replace(/\D/g, '').slice(0, 10)
+  carnetTouchedError.value = null
+  if (errorMessage.value?.toLowerCase().includes('carnet')) clearError()
+}
+
+const onCarnetBlur = () => {
+  if (formData.carnetId && formData.carnetId.length < 6) {
+    carnetTouchedError.value = 'El carnet debe tener al menos 6 dígitos numéricos.'
+  } else {
+    carnetTouchedError.value = null
+  }
+}
+
+const handleIdInput = (val: string) => {
+  formData.numeroIdentificacion = val.replace(/\D/g, '').slice(0, 13)
+  idTouchedError.value = null
+  if (
+    errorMessage.value?.toLowerCase().includes('identificación') ||
+    errorMessage.value?.toLowerCase().includes('identificacion') ||
+    errorMessage.value?.toLowerCase().includes('dpi')
+  ) {
+    clearError()
+  }
+}
+
+const onIdBlur = () => {
+  if (formData.numeroIdentificacion && formData.numeroIdentificacion.length < 13) {
+    idTouchedError.value = 'El DPI debe tener exactamente 13 dígitos numéricos.'
+  } else {
+    idTouchedError.value = null
+  }
+}
+
+const handlePhoneInput = (val: string) => {
+  formData.telefono = val.replace(/\D/g, '').slice(0, 8)
+  phoneTouchedError.value = null
+  if (
+    errorMessage.value?.toLowerCase().includes('teléfono') ||
+    errorMessage.value?.toLowerCase().includes('telefono')
+  ) {
+    clearError()
+  }
+}
+
+const onPhoneBlur = () => {
+  if (formData.telefono && formData.telefono.length < 8) {
+    phoneTouchedError.value = 'El teléfono debe tener exactamente 8 dígitos numéricos.'
+  } else {
+    phoneTouchedError.value = null
+  }
+}
+
+const onBirthDateBlur = () => {
+  if (formData.fechaNacimiento && !isAtLeast18YearsOld(formData.fechaNacimiento)) {
+    birthDateTouchedError.value = 'El tutor debe ser mayor de 18 años.'
+  } else {
+    birthDateTouchedError.value = null
+  }
+}
 
 const handleSubmit = async () => {
   if (passwordMismatch.value) return
@@ -99,7 +224,10 @@ const handleSubmit = async () => {
     diasAtencion: [...selectedDays.value]
   }
 
-  await registerTutor(payload)
+  const success = await registerTutor(payload)
+  if (!success) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 </script>
 
@@ -173,20 +301,30 @@ const handleSubmit = async () => {
 
           <BaseInput
             id="carnetId"
-            v-model="formData.carnetId"
+            :model-value="formData.carnetId"
             name="carnetId"
             label="Carnet Universitario / Tutor"
             placeholder="Ej. 201800456"
+            only-numbers
+            :maxlength="10"
+            :error="carnetError"
             required
+            @update:model-value="handleCarnetInput"
+            @blur="onCarnetBlur"
           />
 
           <BaseInput
             id="numeroIdentificacion"
-            v-model="formData.numeroIdentificacion"
+            :model-value="formData.numeroIdentificacion"
             name="numeroIdentificacion"
             label="DPI / Documento de Identificación"
             placeholder="Ej. 3001123450101"
+            only-numbers
+            :maxlength="13"
+            :error="idError"
             required
+            @update:model-value="handleIdInput"
+            @blur="onIdBlur"
           />
 
           <BaseSelect
@@ -201,13 +339,18 @@ const handleSubmit = async () => {
 
           <BaseInput
             id="telefono"
-            v-model="formData.telefono"
+            :model-value="formData.telefono"
             name="telefono"
             type="tel"
             label="Teléfono"
-            placeholder="Ej. +502 5555 9876"
+            placeholder="Ej. 55559876"
+            only-numbers
+            :maxlength="8"
             autocomplete="tel"
+            :error="phoneError"
             required
+            @update:model-value="handlePhoneInput"
+            @blur="onPhoneBlur"
           />
 
           <BaseInput
@@ -217,7 +360,11 @@ const handleSubmit = async () => {
             type="date"
             label="Fecha de nacimiento"
             trailing-icon="calendar_today"
+            :max="maxBirthDate"
+            :error="birthDateError"
             required
+            @blur="onBirthDateBlur"
+            @update:model-value="birthDateError && (birthDateTouchedError = null)"
           />
 
           <BaseInput
@@ -364,7 +511,9 @@ const handleSubmit = async () => {
             placeholder="tutor@universidad.edu"
             icon="mail"
             autocomplete="email"
+            :error="emailError"
             required
+            @update:model-value="emailError && clearError()"
           />
 
           <div class="space-y-3">

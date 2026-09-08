@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Models;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,23 +29,33 @@ public static class RegistrarEstudianteEndpoint
     private static async Task<IResult> HandleAsync(
         [FromForm] RegistrarEstudianteRequestDto request,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
-        if (request.Password != request.ConfirmPassword)
+        if (string.IsNullOrWhiteSpace(request.Nombre))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Contraseñas no coinciden",
-                detail: "La contraseña y la confirmación de contraseña no coinciden."
+                title: "Nombre obligatorio",
+                detail: "El nombre es obligatorio y no puede estar vacío."
             );
         }
 
-        if (!PasswordValidator.IsValid(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Apellido))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Contraseña inválida",
-                detail: "La contraseña debe tener un mínimo de 8 caracteres, incluyendo al menos una letra minúscula, una mayúscula y un número."
+                title: "Apellido obligatorio",
+                detail: "El apellido es obligatorio y no puede estar vacío."
+            );
+        }
+
+        if (!CarnetValidator.IsValid(request.Carnet))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Carnet inválido",
+                detail: "El carnet debe ser numérico y contener entre 6 y 10 dígitos."
             );
         }
 
@@ -57,7 +68,107 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        var emailExists = await dbContext.Usuarios.AnyAsync(u => u.Correo == request.Correo, cancellationToken);
+        if (!TelefonoValidator.IsValid(request.Telefono))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Teléfono inválido",
+                detail: "El teléfono debe ser numérico y contener exactamente 8 dígitos."
+            );
+        }
+
+        if (request.FechaNacimiento == default)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fecha de nacimiento obligatoria",
+                detail: "La fecha de nacimiento es obligatoria y debe tener formato YYYY-MM-DD."
+            );
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (request.FechaNacimiento > today)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fecha de nacimiento inválida",
+                detail: "La fecha de nacimiento no puede ser una fecha futura."
+            );
+        }
+
+        var edad = today.Year - request.FechaNacimiento.Year;
+        if (request.FechaNacimiento > today.AddYears(-edad))
+        {
+            edad--;
+        }
+
+        if (edad < 16)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Edad mínima no cumplida",
+                detail: "El estudiante debe tener una edad mínima de 16 años cumplidos."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Direccion))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Dirección obligatoria",
+                detail: "La dirección de residencia es obligatoria y no puede estar vacía."
+            );
+        }
+
+        if (request.Fotografia is not null && request.Fotografia.Length > 0 && !ImageFileValidator.IsValidImage(request.Fotografia))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fotografía inválida",
+                detail: "El archivo de fotografía debe ser una imagen válida (.jpg, .jpeg, .png, .webp)."
+            );
+        }
+
+        if (!EmailValidator.IsValid(request.Correo))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Correo inválido",
+                detail: "El formato del correo electrónico no es válido."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseña obligatoria",
+                detail: "La contraseña es obligatoria."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.ConfirmPassword) || request.Password != request.ConfirmPassword)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseñas no coinciden",
+                detail: "La contraseña y la confirmación de contraseña no coinciden exactamente."
+            );
+        }
+
+        if (!PasswordValidator.IsValid(request.Password))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Contraseña inválida",
+                detail: "La contraseña debe tener un mínimo de 8 caracteres, al menos 1 letra mayúscula, 1 letra minúscula y 1 número."
+            );
+        }
+
+        var normalizedEmail = request.Correo.Trim().ToLowerInvariant();
+        var normalizedCarnet = request.Carnet.Trim();
+
+        var emailExists = await dbContext.Usuarios.AnyAsync(u => u.Correo == normalizedEmail, cancellationToken);
         if (emailExists)
         {
             return Results.Problem(
@@ -67,7 +178,7 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        var carnetExists = await dbContext.Estudiantes.AnyAsync(e => e.Carnet == request.Carnet, cancellationToken);
+        var carnetExists = await dbContext.Estudiantes.AnyAsync(e => e.Carnet == normalizedCarnet, cancellationToken);
         if (carnetExists)
         {
             return Results.Problem(
@@ -97,18 +208,17 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        string? fotografiaUrl = null;
+        string? fotografiaKey = null;
         if (request.Fotografia is not null && request.Fotografia.Length > 0)
         {
-            // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
-            fotografiaUrl = $"/uploads/estudiantes/{Guid.NewGuid():N}.jpg";
+            fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var usuario = new Usuario
         {
-            Correo = request.Correo,
+            Correo = normalizedEmail,
             PasswordHash = passwordHash,
             RolId = rolEstudiante.Id,
             EstadoId = estadoPendiente.Id,
@@ -121,18 +231,20 @@ public static class RegistrarEstudianteEndpoint
         var estudiante = new Estudiante
         {
             UsuarioId = usuario.Id,
-            Nombre = request.Nombre,
-            Apellido = request.Apellido,
-            Carnet = request.Carnet,
+            Nombre = request.Nombre.Trim(),
+            Apellido = request.Apellido.Trim(),
+            Carnet = normalizedCarnet,
             Genero = generoNormalizado,
-            Direccion = request.Direccion,
-            Telefono = request.Telefono,
+            Direccion = request.Direccion.Trim(),
+            Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = fotografiaUrl
+            FotografiaUrl = fotografiaKey
         };
 
         dbContext.Estudiantes.Add(estudiante);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(estudiante.FotografiaUrl);
 
         var response = new EstudianteResponseDto(
             estudiante.UsuarioId,
@@ -143,7 +255,7 @@ public static class RegistrarEstudianteEndpoint
             estudiante.Direccion,
             estudiante.Telefono,
             estudiante.FechaNacimiento,
-            estudiante.FotografiaUrl,
+            fotografiaPresignedUrl,
             usuario.Correo,
             rolEstudiante.Nombre,
             estadoPendiente.Nombre,

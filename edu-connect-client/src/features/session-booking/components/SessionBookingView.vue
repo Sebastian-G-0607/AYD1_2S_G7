@@ -151,7 +151,8 @@ async function handleSubmit() {
   } catch (error: unknown) {
     if (axios.isAxiosError<ApiProblemDetails>(error)) {
       if (!error.response) {
-        submitError.value = 'No fue posible conectar con el servidor. Verifica que el backend esté encendido.'
+        submitError.value =
+          'No fue posible conectar con el servidor. Verifica que el backend esté encendido.'
       } else {
         submitError.value =
           error.response.data?.detail ||
@@ -210,9 +211,7 @@ onMounted(() => {
               <span class="material-symbols-outlined text-[22px]">event</span>
             </div>
             <div>
-              <h2 class="text-lg font-bold font-headline text-on-surface">
-                Datos de la tutoría
-              </h2>
+              <h2 class="text-lg font-bold font-headline text-on-surface">Datos de la tutoría</h2>
               <p class="text-sm text-on-surface-variant mt-0.5">
                 Completa la información para solicitar tu sesión.
               </p>
@@ -246,8 +245,8 @@ onMounted(() => {
           />
 
           <BaseSelect
-            v-model="form.materiaId"
             id="materia"
+            v-model="form.materiaId"
             name="materia"
             label="Materia"
             placeholder="Selecciona una materia"
@@ -260,8 +259,8 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <BaseInput
-              v-model="form.fechaSesion"
               id="fechaSesion"
+              v-model="form.fechaSesion"
               name="fechaSesion"
               label="Fecha"
               type="date"
@@ -271,8 +270,8 @@ onMounted(() => {
             />
 
             <BaseInput
-              v-model="form.horaInicio"
               id="horaInicio"
+              v-model="form.horaInicio"
               name="horaInicio"
               label="Hora de inicio"
               type="time"
@@ -302,7 +301,10 @@ onMounted(() => {
               required
             />
             <div class="flex items-center justify-between gap-3">
-              <p v-if="errors.motivo" class="text-xs text-error font-medium flex items-center gap-1">
+              <p
+                v-if="errors.motivo"
+                class="text-xs text-error font-medium flex items-center gap-1"
+              >
                 <span class="material-symbols-outlined text-[16px]">info</span>
                 {{ errors.motivo }}
               </p>
@@ -319,9 +321,7 @@ onMounted(() => {
             class="rounded-xl bg-surface-container-low px-4 py-3 flex items-start gap-3 text-sm text-on-surface-variant"
           >
             <span class="material-symbols-outlined text-[20px] text-primary mt-0.5">info</span>
-            <p>
-              La disponibilidad definitiva será validada al momento de programar la sesión.
-            </p>
+            <p>La disponibilidad definitiva será validada al momento de programar la sesión.</p>
           </div>
 
           <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
@@ -350,7 +350,9 @@ onMounted(() => {
       <div class="flex flex-col gap-4 lg:sticky lg:top-28">
         <BaseCard padding="md">
           <div v-if="isLoadingTutor" class="flex items-center gap-3 py-4">
-            <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+            <span class="material-symbols-outlined animate-spin text-primary"
+              >progress_activity</span
+            >
             <span class="text-sm text-on-surface-variant">Cargando tutor...</span>
           </div>
 
@@ -388,7 +390,9 @@ onMounted(() => {
                 <span>{{ tutor.universidad }}</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-on-surface-variant">
-                <span class="material-symbols-outlined text-[19px] text-primary">workspace_premium</span>
+                <span class="material-symbols-outlined text-[19px] text-primary"
+                  >workspace_premium</span
+                >
                 <span>{{ tutor.aniosExperiencia }} años de experiencia</span>
               </div>
             </div>

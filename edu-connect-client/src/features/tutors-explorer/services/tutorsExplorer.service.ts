@@ -9,7 +9,7 @@ function buildParams(filters?: Partial<TutorFilterCriteria>) {
     universidad: filters.universidad || undefined,
     experienciaMinima: filters.experienciaMinima || undefined,
     edadMinima: filters.edadMinima || undefined,
-    edadMaxima: filters.edadMaxima || undefined,
+    edadMaxima: filters.edadMaxima && filters.edadMaxima < 65 ? filters.edadMaxima : undefined,
     genero:
       filters.genero === 'female' ? 'Femenino' : filters.genero === 'male' ? 'Masculino' : undefined
   }
