@@ -132,3 +132,5 @@ coverage/
 .claude/
 .gemini/
 context/
+auth2-ayd1.txt
+edu-connect-service/src/edu-connect-service.Api/postman_collection.json
