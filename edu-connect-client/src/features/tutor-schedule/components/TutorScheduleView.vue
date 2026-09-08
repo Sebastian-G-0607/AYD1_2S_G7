@@ -9,6 +9,7 @@ const {
   horaInicio,
   horaFin,
   isSaving,
+  isLoading,
   errorMessage,
   successMessage,
   canSubmit,
@@ -39,6 +40,22 @@ function handleTimeChange() {
         Define los días y el horario en los que estarás disponible para brindar tutorías.
       </p>
     </div>
+
+    <!-- Estado de carga -->
+    <div
+      v-if="isLoading"
+      class="flex items-center justify-center gap-3 py-16 text-on-surface-variant"
+    >
+      <span class="material-symbols-outlined animate-spin text-[22px]">
+        progress_activity
+      </span>
+
+      <p class="text-sm font-medium">
+        Cargando tu horario actual...
+      </p>
+    </div>
+
+  <template v-else>
 
     <!-- Mensaje de éxito -->
     <div
@@ -260,6 +277,7 @@ function handleTimeChange() {
           </div>
         </div>
       </aside>
-    </form>
+     </form>
+    </template>
   </div>
 </template>
