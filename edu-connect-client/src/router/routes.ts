@@ -67,6 +67,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/usuarios',
+    name: 'admin-users',
+    component: () => import('@/pages/AdminUsersPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Usuarios - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/2fa',
     name: 'admin-2fa',
     component: () => import('@/pages/AdminTwoFactorPage.vue'),
