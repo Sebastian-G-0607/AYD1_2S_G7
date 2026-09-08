@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   BaseButton,
@@ -32,16 +32,109 @@ const genderOptions: SelectOption[] = [
   { value: 'femenino', label: 'Femenino' }
 ]
 
-const { isLoading, errorMessage, clearError, registerStudent } = useAuth()
+const { isLoading, errorMessage, clearError, registerStudent, isAtLeast16YearsOld } = useAuth()
 
 const passwordMismatch = computed(() => {
   if (!formData.confirmPassword || !formData.password) return false
   return formData.password !== formData.confirmPassword
 })
 
+const emailError = computed(() => {
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('correo') || lower.includes('email')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const carnetTouchedError = ref<string | null>(null)
+const phoneTouchedError = ref<string | null>(null)
+const birthDateTouchedError = ref<string | null>(null)
+
+const carnetError = computed(() => {
+  if (carnetTouchedError.value) return carnetTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('carnet')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const phoneError = computed(() => {
+  if (phoneTouchedError.value) return phoneTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('teléfono') || lower.includes('telefono')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const birthDateError = computed(() => {
+  if (birthDateTouchedError.value) return birthDateTouchedError.value
+  if (!errorMessage.value) return undefined
+  const lower = errorMessage.value.toLowerCase()
+  if (lower.includes('16 años') || lower.includes('nacimiento')) {
+    return errorMessage.value
+  }
+  return undefined
+})
+
+const maxBirthDate = computed(() => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 16)
+  return date.toISOString().split('T')[0]
+})
+
+const handleCarnetInput = (val: string) => {
+  formData.carnet = val.replace(/\D/g, '').slice(0, 10)
+  carnetTouchedError.value = null
+  if (errorMessage.value?.toLowerCase().includes('carnet')) clearError()
+}
+
+const onCarnetBlur = () => {
+  if (formData.carnet && formData.carnet.length < 6) {
+    carnetTouchedError.value = 'El carnet debe tener al menos 6 dígitos numéricos.'
+  } else {
+    carnetTouchedError.value = null
+  }
+}
+
+const handlePhoneInput = (val: string) => {
+  formData.telefono = val.replace(/\D/g, '').slice(0, 8)
+  phoneTouchedError.value = null
+  if (
+    errorMessage.value?.toLowerCase().includes('teléfono') ||
+    errorMessage.value?.toLowerCase().includes('telefono')
+  ) {
+    clearError()
+  }
+}
+
+const onPhoneBlur = () => {
+  if (formData.telefono && formData.telefono.length < 8) {
+    phoneTouchedError.value = 'El teléfono debe tener exactamente 8 dígitos numéricos.'
+  } else {
+    phoneTouchedError.value = null
+  }
+}
+
+const onBirthDateBlur = () => {
+  if (formData.fechaNacimiento && !isAtLeast16YearsOld(formData.fechaNacimiento)) {
+    birthDateTouchedError.value = 'El estudiante debe tener al menos 16 años cumplidos.'
+  } else {
+    birthDateTouchedError.value = null
+  }
+}
+
 const handleSubmit = async () => {
   if (passwordMismatch.value) return
-  await registerStudent({ ...formData })
+  const success = await registerStudent({ ...formData })
+  if (!success) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 </script>
 
@@ -114,11 +207,16 @@ const handleSubmit = async () => {
 
           <BaseInput
             id="carnet"
-            v-model="formData.carnet"
+            :model-value="formData.carnet"
             name="carnet"
             label="Carnet Universitario"
             placeholder="Ej. 202010123"
+            only-numbers
+            :maxlength="10"
+            :error="carnetError"
             required
+            @update:model-value="handleCarnetInput"
+            @blur="onCarnetBlur"
           />
 
           <BaseSelect
@@ -133,13 +231,18 @@ const handleSubmit = async () => {
 
           <BaseInput
             id="telefono"
-            v-model="formData.telefono"
+            :model-value="formData.telefono"
             name="telefono"
             type="tel"
             label="Teléfono"
-            placeholder="Ej. +502 5555 1234"
+            placeholder="Ej. 55551234"
+            only-numbers
+            :maxlength="8"
             autocomplete="tel"
+            :error="phoneError"
             required
+            @update:model-value="handlePhoneInput"
+            @blur="onPhoneBlur"
           />
 
           <BaseInput
@@ -149,7 +252,11 @@ const handleSubmit = async () => {
             type="date"
             label="Fecha de nacimiento"
             trailing-icon="calendar_today"
+            :max="maxBirthDate"
+            :error="birthDateError"
             required
+            @update:model-value="birthDateError && clearError()"
+            @blur="onBirthDateBlur"
           />
 
           <div class="md:col-span-2">
@@ -182,7 +289,9 @@ const handleSubmit = async () => {
             placeholder="estudiante@universidad.edu"
             icon="mail"
             autocomplete="email"
+            :error="emailError"
             required
+            @update:model-value="emailError && clearError()"
           />
 
           <div class="space-y-3">

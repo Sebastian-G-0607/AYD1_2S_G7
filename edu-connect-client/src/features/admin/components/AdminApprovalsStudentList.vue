@@ -60,8 +60,12 @@ function getAvatarBgClass(index: number): string {
       v-if="isLoading"
       class="bg-surface-container-lowest shadow-sm rounded-xl p-12 mb-margin-desktop text-center flex flex-col items-center justify-center min-h-[300px]"
     >
-      <div class="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-      <p class="font-body-md text-body-md text-on-surface-variant">Cargando solicitudes de estudiantes...</p>
+      <div
+        class="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"
+      />
+      <p class="font-body-md text-body-md text-on-surface-variant">
+        Cargando solicitudes de estudiantes...
+      </p>
     </div>
 
     <!-- TABLA DE ESTUDIANTES PENDIENTES (HU-05) -->
@@ -72,7 +76,9 @@ function getAvatarBgClass(index: number): string {
       <div class="overflow-x-auto">
         <table class="w-full text-left font-body-md text-body-md text-on-surface table-auto">
           <thead class="bg-surface-container text-on-surface-variant font-label-md text-label-md">
-            <tr class="text-on-surface-variant font-label-md text-label-md border-b border-surface-container-high">
+            <tr
+              class="text-on-surface-variant font-label-md text-label-md border-b border-surface-container-high"
+            >
               <th class="py-3 px-2 w-10 text-center font-semibold">Fotografía</th>
               <th class="py-3 px-3 font-semibold">Nombre Completo</th>
               <th class="py-3 px-3 w-40 font-semibold">Carnet</th>
@@ -90,7 +96,9 @@ function getAvatarBgClass(index: number): string {
             >
               <!-- Fotografía (ancho 10 / compacto) -->
               <td class="py-3 px-2 w-10 text-center">
-                <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest flex-shrink-0 mx-auto shadow-xs border border-primary/10">
+                <div
+                  class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest flex-shrink-0 mx-auto shadow-xs border border-primary/10"
+                >
                   <img
                     v-if="student.fotografiaUrl && isImageValid(student.id)"
                     :src="resolveImageUrl(student.fotografiaUrl)"
@@ -100,7 +108,10 @@ function getAvatarBgClass(index: number): string {
                   />
                   <div
                     v-else
-                    :class="['w-full h-full flex items-center justify-center font-label-sm text-[11px] font-bold', getAvatarBgClass(index)]"
+                    :class="[
+                      'w-full h-full flex items-center justify-center font-label-sm text-[11px] font-bold',
+                      getAvatarBgClass(index)
+                    ]"
                   >
                     {{ getInitials(student.nombre, student.apellido) }}
                   </div>
@@ -116,13 +127,17 @@ function getAvatarBgClass(index: number): string {
 
               <!-- Carnet (más ancho y visible) -->
               <td class="py-3 px-3 w-40">
-                <span class="font-mono text-xs bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md font-semibold inline-block">
+                <span
+                  class="font-mono text-xs bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md font-semibold inline-block"
+                >
                   {{ student.carnet }}
                 </span>
               </td>
 
               <!-- Género -->
-              <td class="py-3 px-2.5 w-24 text-sm capitalize text-on-surface-variant whitespace-nowrap">
+              <td
+                class="py-3 px-2.5 w-24 text-sm capitalize text-on-surface-variant whitespace-nowrap"
+              >
                 {{ student.genero }}
               </td>
 
@@ -172,9 +187,12 @@ function getAvatarBgClass(index: number): string {
       </div>
 
       <!-- Barra Inferior de Registros / Paginación -->
-      <div class="p-3.5 bg-surface-container-lowest border-t border-surface-container-highest flex items-center justify-between">
+      <div
+        class="p-3.5 bg-surface-container-lowest border-t border-surface-container-highest flex items-center justify-between"
+      >
         <span class="font-label-sm text-label-sm text-on-surface-variant">
-          Mostrando {{ props.students.length }} {{ props.students.length === 1 ? 'registro' : 'registros' }}
+          Mostrando {{ props.students.length }}
+          {{ props.students.length === 1 ? 'registro' : 'registros' }}
         </span>
 
         <div class="flex gap-1">
@@ -207,12 +225,15 @@ function getAvatarBgClass(index: number): string {
       v-else
       class="bg-surface-container-lowest shadow-sm rounded-xl p-8 mb-margin-desktop text-center flex flex-col items-center justify-center min-h-[300px]"
     >
-      <div class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mb-4">
+      <div
+        class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mb-4"
+      >
         <span class="material-symbols-outlined text-[32px] text-on-surface-variant">inbox</span>
       </div>
       <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Todo al día</h3>
       <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
-        No hay solicitudes de estudiantes pendientes de aprobación en este momento. Vuelve más tarde.
+        No hay solicitudes de estudiantes pendientes de aprobación en este momento. Vuelve más
+        tarde.
       </p>
     </div>
   </div>

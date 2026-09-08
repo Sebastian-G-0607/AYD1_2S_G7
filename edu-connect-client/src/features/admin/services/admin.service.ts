@@ -23,7 +23,9 @@ export const adminService = {
     } catch {
       // Fallback a ruta alternativa
       try {
-        const { data } = await api.get<StudentApprovalItem[]>('/administrador/estudiantes/pendientes')
+        const { data } = await api.get<StudentApprovalItem[]>(
+          '/administrador/estudiantes/pendientes'
+        )
         return data
       } catch {
         return [
@@ -35,7 +37,8 @@ export const adminService = {
             genero: 'Masculino',
             fechaNacimiento: '2002-05-14',
             correo: 'carlos.mendoza@edu.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=256',
             direccion: 'Av. Las Palmeras #123, San Salvador',
             telefono: '+503 7123-4567',
             fechaRegistro: '2026-08-28T10:30:00Z',
@@ -49,7 +52,8 @@ export const adminService = {
             genero: 'Femenino',
             fechaNacimiento: '2004-08-22',
             correo: 'lucia.pineda@edu.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=256',
             direccion: 'Calle Los Robles #45, Santa Tecla',
             telefono: '+503 7234-5678',
             fechaRegistro: '2026-08-29T14:15:00Z',
@@ -63,7 +67,8 @@ export const adminService = {
             genero: 'Femenino',
             fechaNacimiento: '2001-11-05',
             correo: 'ana.rivas@edu.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=256',
             direccion: 'Residencial San Luis #12, Antiguo Cuscatlán',
             telefono: '+503 7345-6789',
             fechaRegistro: '2026-08-30T09:00:00Z',
@@ -96,7 +101,10 @@ export const adminService = {
     }
   },
 
-  async rejectStudent(estudianteId: number, motivo?: string): Promise<ApprovalActionResponse | boolean> {
+  async rejectStudent(
+    estudianteId: number,
+    motivo?: string
+  ): Promise<ApprovalActionResponse | boolean> {
     const basePath = getAdminBasePath()
     const payload: ApprovalActionPayload = {
       estado: 'RECHAZADO',
@@ -144,7 +152,8 @@ export const adminService = {
             genero: 'Masculino',
             fechaNacimiento: '1995-03-20',
             correo: 'roberto.gomez@tutor.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256',
             especialidad: 'Cálculo Avanzado, Álgebra Lineal',
             materias: ['Cálculo I', 'Cálculo II', 'Álgebra Lineal'],
             direccionTutoria: 'Edificio B, Laboratorio 3 / Online',
@@ -164,7 +173,8 @@ export const adminService = {
             genero: 'Femenino',
             fechaNacimiento: '1992-07-14',
             correo: 'elena.valdez@tutor.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256',
             especialidad: 'Física Clásica, Mecánica de Fluidos',
             materias: ['Física I', 'Física II', 'Mecánica'],
             direccionTutoria: '100% Online vía Google Meet',
@@ -184,7 +194,8 @@ export const adminService = {
             genero: 'Masculino',
             fechaNacimiento: '1998-11-30',
             correo: 'guillermo.montalvo@tutor.edu.sv',
-            fotografiaUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=256',
+            fotografiaUrl:
+              'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=256',
             especialidad: 'Estructuras de Datos, Algoritmos en C#',
             materias: ['Programación I', 'Estructuras de Datos', 'Bases de Datos'],
             direccionTutoria: 'Biblioteca Central, Cubículo 4',
@@ -247,4 +258,3 @@ export const adminService = {
     }
   }
 }
-

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 interface Props {
   type?: 'button' | 'submit' | 'reset'
-  variant?: 'primary' | 'secondary' | 'surface' | 'outline' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'surface' | 'outline' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
   disabled?: boolean
@@ -31,6 +31,8 @@ const variantClasses = computed(() => {
       return 'bg-primary text-on-primary shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 relative overflow-hidden group'
     case 'secondary':
       return 'bg-secondary text-on-secondary shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 relative overflow-hidden group'
+    case 'danger':
+      return 'bg-error text-on-error shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 relative overflow-hidden group'
     case 'surface':
       return 'bg-surface-container-low hover:bg-surface-container-high text-primary'
     case 'outline':
@@ -68,7 +70,7 @@ const sizeClasses = computed(() => {
     @click="$emit('click', $event)"
   >
     <span
-      v-if="variant === 'primary' || variant === 'secondary'"
+      v-if="variant === 'primary' || variant === 'secondary' || variant === 'danger'"
       class="absolute inset-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
     />
 

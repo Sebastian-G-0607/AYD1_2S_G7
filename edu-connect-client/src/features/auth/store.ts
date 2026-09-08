@@ -30,7 +30,9 @@ export const useAuthStore = defineStore('auth', () => {
     const authUser: AuthUser = {
       id: response.idUsuario,
       correo: response.correo,
-      rol: response.rol
+      rol: response.rol,
+      nombre: response.nombre || undefined,
+      apellido: response.apellido || undefined
     }
     setAuth(response.token, authUser)
   }

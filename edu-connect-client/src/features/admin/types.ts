@@ -53,4 +53,3 @@ export interface ApprovalStats {
   pendingTutors: number
   totalPending: number
 }
-

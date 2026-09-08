@@ -45,8 +45,8 @@ const emit = defineEmits<Emits>()
           class="w-full appearance-none bg-surface-container-lowest text-on-surface text-sm rounded-lg py-2.5 pl-4 pr-10 border border-outline-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all cursor-pointer"
         >
           <option value="">Todas las materias</option>
-          <option v-for="materia in materias" :key="materia.id" :value="materia.nombre">
-            {{ materia.nombre }}
+          <option v-for="item in materias" :key="item.id" :value="item.nombre">
+            {{ item.nombre }}
           </option>
         </select>
         <span
@@ -78,12 +78,12 @@ const emit = defineEmits<Emits>()
         <span
           class="text-xs font-bold bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded-md"
         >
-          {{ expMinima }} años
+          {{ experienciaMinima }} años
         </span>
       </div>
       <input
         id="filter-exp"
-        v-model.number="expMinima"
+        v-model.number="experienciaMinima"
         type="range"
         min="0"
         max="10"
@@ -103,12 +103,12 @@ const emit = defineEmits<Emits>()
         <span
           class="text-xs font-bold bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded-md"
         >
-          {{ rangoEdad }} años
+          {{ edadMaxima }} años
         </span>
       </div>
       <input
         id="filter-edad"
-        v-model.number="rangoEdad"
+        v-model.number="edadMaxima"
         type="range"
         min="18"
         max="65"

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Tutores.ExplorarTutores;
@@ -63,18 +64,24 @@ public static class ExplorarTutoresEndpoint
 
         if (!string.IsNullOrWhiteSpace(filtros.Materia))
         {
+            var materiaFiltro = filtros.Materia.Trim().ToLower();
             query = query.Where(tutor => tutor.TutorMaterias
-                .Any(tutorMateria => tutorMateria.Materia.Nombre.Contains(filtros.Materia)));
+                .Any(tutorMateria => EF.Functions.Like(tutorMateria.Materia.Nombre.ToLower(), $"%{materiaFiltro}%")));
         }
 
         if (!string.IsNullOrWhiteSpace(filtros.Universidad))
         {
-            query = query.Where(tutor => tutor.Universidad.Contains(filtros.Universidad));
+            var universidadFiltro = filtros.Universidad.Trim().ToLower();
+            query = query.Where(tutor => EF.Functions.Like(tutor.Universidad.ToLower(), $"%{universidadFiltro}%"));
         }
 
         if (!string.IsNullOrWhiteSpace(filtros.Genero))
         {
-            query = query.Where(tutor => tutor.Genero == filtros.Genero);
+            var generoFiltro = GeneroValidator.TryNormalize(filtros.Genero, out var generoNormalizado)
+                ? generoNormalizado
+                : filtros.Genero.Trim().ToLower();
+
+            query = query.Where(tutor => tutor.Genero == generoFiltro);
         }
 
         var anioActual = DateTime.UtcNow.Year;
