@@ -44,12 +44,26 @@ const errors = reactive({
 
 const tutorId = computed(() => Number(route.params.tutorId))
 
-const materiaOptions = computed<SelectOption[]>(() =>
-  materias.value.map(materia => ({
-    value: materia.id,
-    label: materia.nombre
-  }))
-)
+const materiaOptions = computed<SelectOption[]>(() => {
+  if (!tutor.value) {
+    return []
+  }
+
+  const materiasDelTutor = new Set(
+    tutor.value.materias.map(nombre =>
+      nombre.trim().toLowerCase()
+    )
+  )
+
+  return materias.value
+    .filter(materia =>
+      materiasDelTutor.has(materia.nombre.trim().toLowerCase())
+    )
+    .map(materia => ({
+      value: materia.id,
+      label: materia.nombre
+    }))
+})
 
 const today = computed(() => {
   const now = new Date()
@@ -254,7 +268,7 @@ onMounted(() => {
             placeholder="Selecciona una materia"
             icon="menu_book"
             :options="materiaOptions"
-            :disabled="isLoadingMaterias"
+            :disabled="isLoadingMaterias || isLoadingTutor || !tutor"
             :error="errors.materiaId"
             required
           />

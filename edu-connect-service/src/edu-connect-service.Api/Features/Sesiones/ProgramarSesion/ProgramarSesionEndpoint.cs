@@ -7,6 +7,8 @@ namespace edu_connect_service.Api.Features.Sesiones.ProgramarSesion;
 
 public static class ProgramarSesionEndpoint
 {
+    private static readonly TimeSpan DuracionSesion = TimeSpan.FromHours(1);
+
     public static void MapProgramarSesion(this IEndpointRouteBuilder app)
     {
         app.MapPost("/", HandleAsync)
@@ -151,6 +153,9 @@ public static class ProgramarSesionEndpoint
             );
         }
 
+        // La duración utilizada por los bloques de disponibilidad del sistema es de 1 hora.
+        var horaFinSesion = request.HoraInicio.Add(DuracionSesion);
+
         if (request.HoraInicio < tutor.HoraInicio.Value ||
             request.HoraInicio >= tutor.HoraFin.Value)
         {
@@ -158,6 +163,16 @@ public static class ProgramarSesionEndpoint
                 statusCode: StatusCodes.Status409Conflict,
                 title: "Horario fuera del rango de atención",
                 detail: "La hora seleccionada se encuentra fuera del horario de atención del tutor."
+            );
+        }
+
+        // También se valida que la sesión completa termine dentro del horario del tutor.
+        if (horaFinSesion > tutor.HoraFin.Value)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Horario fuera del rango de atención",
+                detail: "La sesión debe finalizar dentro del horario de atención del tutor."
             );
         }
 
@@ -176,6 +191,7 @@ public static class ProgramarSesionEndpoint
             );
         }
 
+        // El enunciado no permite más de una sesión activa con el mismo tutor.
         var sesionActivaMismoTutor = await dbContext.Sesiones
             .AsNoTracking()
             .AnyAsync(
@@ -195,43 +211,67 @@ public static class ProgramarSesionEndpoint
             );
         }
 
-        var tutorOcupado = await dbContext.Sesiones
+        /*
+         * Validamos traslapes con las sesiones del tutor.
+         *
+         * Algunas sesiones antiguas pueden tener HoraFin = null porque fueron
+         * creadas antes de esta corrección. Para no dejar esos horarios libres
+         * incorrectamente, se consideran también como sesiones de una hora.
+         */
+        var sesionesTutor = await dbContext.Sesiones
             .AsNoTracking()
-            .AnyAsync(
-                sesion =>
-                    sesion.TutorId == request.TutorId &&
-                    sesion.FechaSesion == request.FechaSesion &&
-                    sesion.HoraInicio == request.HoraInicio &&
-                    sesion.EstadoId == estadoPendiente.Id,
-                cancellationToken
-            );
+            .Where(sesion =>
+                sesion.TutorId == request.TutorId &&
+                sesion.FechaSesion == request.FechaSesion &&
+                sesion.EstadoId == estadoPendiente.Id)
+            .ToListAsync(cancellationToken);
+
+        var tutorOcupado = sesionesTutor.Any(sesion =>
+        {
+            var horaFinExistente =
+                sesion.HoraFin ?? sesion.HoraInicio.Add(DuracionSesion);
+
+            return request.HoraInicio < horaFinExistente &&
+                   horaFinSesion > sesion.HoraInicio;
+        });
 
         if (tutorOcupado)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status409Conflict,
                 title: "Horario no disponible",
-                detail: "El tutor ya tiene una sesión programada en la fecha y hora seleccionadas."
+                detail: "El tutor ya tiene una sesión programada que se traslapa con el horario seleccionado."
             );
         }
 
-        var estudianteOcupado = await dbContext.Sesiones
+        /*
+         * Validamos también traslapes del estudiante con cualquier otro tutor.
+         * El estudiante sí puede tener varias sesiones activas con tutores distintos,
+         * pero nunca en horarios que se traslapen.
+         */
+        var sesionesEstudiante = await dbContext.Sesiones
             .AsNoTracking()
-            .AnyAsync(
-                sesion =>
-                    sesion.EstudianteId == idUsuario &&
-                    sesion.FechaSesion == request.FechaSesion &&
-                    sesion.HoraInicio == request.HoraInicio &&
-                    sesion.EstadoId == estadoPendiente.Id,
-                cancellationToken
-            );
+            .Where(sesion =>
+                sesion.EstudianteId == idUsuario &&
+                sesion.FechaSesion == request.FechaSesion &&
+                sesion.EstadoId == estadoPendiente.Id)
+            .ToListAsync(cancellationToken);
+
+        var estudianteOcupado = sesionesEstudiante.Any(sesion =>
+        {
+            var horaFinExistente =
+                sesion.HoraFin ?? sesion.HoraInicio.Add(DuracionSesion);
+
+            return request.HoraInicio < horaFinExistente &&
+                   horaFinSesion > sesion.HoraInicio;
+        });
 
         if (estudianteOcupado)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status409Conflict,
                 title: "Conflicto de horario",
-                detail: "Ya tiene otra sesión programada en la misma fecha y hora."
+                detail: "Ya tiene otra sesión programada que se traslapa con el horario seleccionado."
             );
         }
 
@@ -259,7 +299,10 @@ public static class ProgramarSesionEndpoint
             EstadoId = estadoPendiente.Id,
             FechaSesion = request.FechaSesion,
             HoraInicio = request.HoraInicio,
-            HoraFin = null,
+
+            // Antes se guardaba null. Ahora la sesión completa dura 1 hora.
+            HoraFin = horaFinSesion,
+
             Motivo = request.Motivo.Trim(),
             FechaCreacion = DateTime.UtcNow
         };
