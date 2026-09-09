@@ -106,6 +106,19 @@ export interface DarBajaResponse {
   mensaje: string
 }
 
+export interface InactiveUserItem {
+  id: number
+  correo: string
+  rol: string
+  estado: string
+  tipoUsuario: 'Estudiante' | 'Tutor' | 'Administrador'
+  nombreCompleto?: string | null
+  identificador?: string | null
+  fechaRegistro?: string | null
+  fechaBaja?: string | null
+  motivoBaja?: string | null
+}
+
 export type ActiveUsersTab = 'estudiantes' | 'tutores'
 export type ActiveUsersTopTab = 'activos' | 'baja'
 

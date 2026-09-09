@@ -10,7 +10,8 @@ import type {
   DarBajaResponse,
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
-  ReportesResumen
+  ReportesResumen,
+  InactiveUserItem
 } from '../types'
 
 function getAdminBasePath(): string {
@@ -135,6 +136,17 @@ export const adminService = {
       return data
     } catch {
       const { data } = await api.get<ActiveStudentItem[]>('/administrador/estudiantes/activos')
+      return data
+    }
+  },
+
+  async getInactiveUsers(): Promise<InactiveUserItem[]> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.get<InactiveUserItem[]>(`${basePath}/usuarios/dados-de-baja`)
+      return data
+    } catch {
+      const { data } = await api.get<InactiveUserItem[]>('/administrador/usuarios/dados-de-baja')
       return data
     }
   },

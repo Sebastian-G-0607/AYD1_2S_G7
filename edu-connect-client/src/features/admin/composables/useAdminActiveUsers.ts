@@ -5,7 +5,8 @@ import type {
   ActiveStudentItem,
   ActiveTutorItem,
   ActiveUsersTab,
-  ActiveUsersTopTab
+  ActiveUsersTopTab,
+  InactiveUserItem
 } from '../types'
 
 export interface SelectedBajaUser {
@@ -18,6 +19,7 @@ export interface SelectedBajaUser {
 export function useAdminActiveUsers() {
   const students = ref<ActiveStudentItem[]>([])
   const tutors = ref<ActiveTutorItem[]>([])
+  const inactiveUsers = ref<InactiveUserItem[]>([])
   const isLoading = ref(false)
   const searchQuery = ref('')
   const activeTopTab = ref<ActiveUsersTopTab>('activos')
@@ -70,9 +72,38 @@ export function useAdminActiveUsers() {
     })
   })
 
+  const filteredInactiveUsers = computed(() => {
+    const query = searchQuery.value.toLowerCase().trim()
+    if (!query) return inactiveUsers.value
+
+    return inactiveUsers.value.filter(user => {
+      const fullName = (user.nombreCompleto || '').toLowerCase()
+      const email = (user.correo || '').toLowerCase()
+      const role = (user.rol || '').toLowerCase()
+      const motivo = (user.motivoBaja || '').toLowerCase()
+      return fullName.includes(query) || email.includes(query) || role.includes(query) || motivo.includes(query)
+    })
+  })
+
+  const filteredInactiveStudents = computed(() =>
+    filteredInactiveUsers.value.filter(user => user.tipoUsuario === 'Estudiante')
+  )
+
+  const filteredInactiveTutors = computed(() =>
+    filteredInactiveUsers.value.filter(user => user.tipoUsuario === 'Tutor')
+  )
+
   const activeStudentsCount = computed(() => students.value.length)
   const activeTutorsCount = computed(() => tutors.value.length)
   const totalActiveCount = computed(() => activeStudentsCount.value + activeTutorsCount.value)
+
+  const inactiveStudentsCount = computed(() =>
+    inactiveUsers.value.filter(user => user.tipoUsuario === 'Estudiante').length
+  )
+  const inactiveTutorsCount = computed(() =>
+    inactiveUsers.value.filter(user => user.tipoUsuario === 'Tutor').length
+  )
+  const totalInactiveCount = computed(() => inactiveUsers.value.length)
 
   // ==========================================
   // CARGA DE DATOS
@@ -93,10 +124,18 @@ export function useAdminActiveUsers() {
     }
   }
 
+  async function fetchInactiveUsers() {
+    try {
+      inactiveUsers.value = await adminService.getInactiveUsers()
+    } catch (error) {
+      console.error('Error al cargar usuarios dados de baja:', error)
+    }
+  }
+
   async function fetchAll() {
     isLoading.value = true
     try {
-      await Promise.all([fetchStudents(), fetchTutors()])
+      await Promise.all([fetchStudents(), fetchTutors(), fetchInactiveUsers()])
     } finally {
       isLoading.value = false
     }
@@ -205,13 +244,21 @@ export function useAdminActiveUsers() {
     bajaMotivo,
     isProcessingAction,
     feedbackMessage,
+    inactiveUsers,
+    filteredInactiveUsers,
+    filteredInactiveStudents,
+    filteredInactiveTutors,
     activeStudentsCount,
     activeTutorsCount,
     totalActiveCount,
+    inactiveStudentsCount,
+    inactiveTutorsCount,
+    totalInactiveCount,
 
     // Methods
     fetchStudents,
     fetchTutors,
+    fetchInactiveUsers,
     fetchAll,
     openBajaModal,
     closeBajaModal,
