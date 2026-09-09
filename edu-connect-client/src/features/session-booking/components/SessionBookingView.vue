@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AvailabilityModal } from '@/features/tutor-availability'
 import axios from 'axios'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
@@ -25,6 +26,7 @@ const tutorLoadError = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 const submitError = ref<string | null>(null)
 const isSubmitting = ref(false)
+const showAvailability = ref(false)
 
 const form = reactive({
   materiaId: '',
@@ -402,16 +404,26 @@ onMounted(() => {
         <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low p-5">
           <div class="flex items-start gap-3">
             <span class="material-symbols-outlined text-primary text-[22px]">schedule</span>
-            <div>
+            <div class="flex-1">
               <h3 class="text-sm font-bold text-on-surface">Antes de programar</h3>
               <p class="text-sm text-on-surface-variant mt-1 leading-relaxed">
                 El sistema verificará que el tutor atienda el día y hora elegidos y que no exista
                 otro compromiso en ese horario.
               </p>
+              <BaseButton
+                variant="outline"
+                size="sm"
+                class="mt-3"
+                @click="showAvailability = true"
+              >
+                Ver horarios disponibles
+              </BaseButton>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div> 
+    </div> 
+
+        <AvailabilityModal v-model="showAvailability" :tutor-id="tutorId" />
   </div>
 </template>
