@@ -211,7 +211,18 @@ public static class RegistrarEstudianteEndpoint
         string? fotografiaKey = null;
         if (request.Fotografia is not null && request.Fotografia.Length > 0)
         {
-            fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
+            try
+            {
+                fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
+            }
+            catch (Exception)
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Error al almacenar fotografía",
+                    detail: "No se pudo subir la fotografía de perfil al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
+                );
+            }
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -225,12 +236,9 @@ public static class RegistrarEstudianteEndpoint
             FechaRegistro = DateTime.UtcNow
         };
 
-        dbContext.Usuarios.Add(usuario);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
         var estudiante = new Estudiante
         {
-            UsuarioId = usuario.Id,
+            UsuarioId = 0,
             Nombre = request.Nombre.Trim(),
             Apellido = request.Apellido.Trim(),
             Carnet = normalizedCarnet,
@@ -241,8 +249,32 @@ public static class RegistrarEstudianteEndpoint
             FotografiaUrl = fotografiaKey
         };
 
-        dbContext.Estudiantes.Add(estudiante);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            dbContext.Usuarios.Add(usuario);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            estudiante.UsuarioId = usuario.Id;
+            dbContext.Estudiantes.Add(estudiante);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            if (!string.IsNullOrWhiteSpace(fotografiaKey))
+            {
+                await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            }
+
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al registrar estudiante",
+                detail: "Ocurrió un error al registrar los datos del estudiante en el sistema. La transacción fue revertida y no se guardó ningún cambio."
+            );
+        }
 
         var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(estudiante.FotografiaUrl);
 

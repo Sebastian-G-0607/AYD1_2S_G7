@@ -18,18 +18,18 @@ function goToTutorDetail() {
 
 <template>
   <article
-    class="bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col gap-4 relative overflow-hidden transform hover:-translate-y-1 border border-outline-variant/20"
+    class="bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between gap-4 relative overflow-hidden transform hover:-translate-y-1 border border-outline-variant/20 h-full"
   >
     <div class="flex gap-4 items-start relative z-10">
       <img
         v-if="tutor.fotografiaUrl"
         :src="tutor.fotografiaUrl"
         :alt="tutor.nombreCompleto"
-        class="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest flex-shrink-0"
+        class="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest shrink-0"
       />
       <div
         v-else
-        class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-lg flex-shrink-0"
+        class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-lg shrink-0"
       >
         {{ tutor.nombreCompleto.charAt(0) }}
       </div>
@@ -60,7 +60,7 @@ function goToTutorDetail() {
       </div>
     </div>
 
-    <BaseButton variant="primary" size="md" block class="mt-2" @click="goToTutorDetail">
+    <BaseButton variant="primary" size="md" block class="mt-auto" @click="goToTutorDetail">
       <span>Ver Perfil y Horarios</span>
       <template #iconRight>
         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
