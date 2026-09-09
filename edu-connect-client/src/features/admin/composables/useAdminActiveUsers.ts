@@ -188,6 +188,8 @@ export function useAdminActiveUsers() {
           text: `El tutor ${target.nombre} ha sido dado de baja exitosamente. Se envió la notificación por correo.`
         }
       }
+
+      await fetchInactiveUsers()
       closeBajaModal()
     } catch (err: unknown) {
       console.error('Error al dar de baja al usuario:', err)
