@@ -366,5 +366,3 @@ export const adminService = {
     }
   }
 }
-
-

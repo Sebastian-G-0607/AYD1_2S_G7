@@ -1,4 +1,5 @@
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { extractApiErrorMessage } from '@/utils/apiError'
 import { tutorDashboardService } from '../services/tutorDashboard.service'
 import type {
   TutorSession,
@@ -17,10 +18,18 @@ export function useTutorDashboard() {
   })
   const isLoading = ref(false)
   const isProcessingAction = ref(false)
+  const actionError = ref<string | null>(null)
+  const actionSuccess = ref<string | null>(null)
 
   const selectedSession = ref<TutorSession | null>(null)
   const isCompleteModalOpen = ref(false)
   const isCancelModalOpen = ref(false)
+
+  watch(isCancelModalOpen, isOpen => {
+    if (!isOpen) {
+      actionError.value = null
+    }
+  })
 
   async function fetchDashboardData() {
     isLoading.value = true
@@ -38,17 +47,28 @@ export function useTutorDashboard() {
 
   function openCompleteModal(session: TutorSession) {
     selectedSession.value = session
+    actionError.value = null
     isCompleteModalOpen.value = true
   }
 
   function openCancelModal(session: TutorSession) {
     selectedSession.value = session
+    actionError.value = null
     isCancelModalOpen.value = true
+  }
+
+  function dismissActionSuccess() {
+    actionSuccess.value = null
+  }
+
+  function dismissActionError() {
+    actionError.value = null
   }
 
   async function handleCompleteSession(payload: Omit<CompleteSessionPayload, 'sesionId'>) {
     if (!selectedSession.value) return
     isProcessingAction.value = true
+    actionError.value = null
     try {
       await tutorDashboardService.completeSession({
         sesionId: selectedSession.value.id,
@@ -57,8 +77,11 @@ export function useTutorDashboard() {
       sessions.value = sessions.value.filter(s => s.id !== selectedSession.value?.id)
       stats.value.sesionesPendientes = Math.max(0, stats.value.sesionesPendientes - 1)
       stats.value.sesionesAtendidasMes += 1
+      actionSuccess.value = 'La sesión ha sido completada exitosamente.'
       isCompleteModalOpen.value = false
       selectedSession.value = null
+    } catch (error: unknown) {
+      actionError.value = extractApiErrorMessage(error, 'Error al completar la sesión.')
     } finally {
       isProcessingAction.value = false
     }
@@ -67,16 +90,26 @@ export function useTutorDashboard() {
   async function handleCancelSession(payload: Omit<CancelSessionPayload, 'sesionId'>) {
     if (!selectedSession.value) return
     isProcessingAction.value = true
+    actionError.value = null
     try {
-      await tutorDashboardService.cancelSession({
+      const response = await tutorDashboardService.cancelSession({
         sesionId: selectedSession.value.id,
-        ...payload
+        motivo: payload.motivo,
+        mensajeDisculpa: payload.mensajeDisculpa
       })
       sessions.value = sessions.value.filter(s => s.id !== selectedSession.value?.id)
       stats.value.sesionesPendientes = Math.max(0, stats.value.sesionesPendientes - 1)
       stats.value.sesionesCanceladas += 1
+      actionSuccess.value =
+        response.mensaje ||
+        'La sesión ha sido cancelada exitosamente y el estudiante ha sido notificado por correo electrónico.'
       isCancelModalOpen.value = false
       selectedSession.value = null
+    } catch (error: unknown) {
+      actionError.value = extractApiErrorMessage(
+        error,
+        'Ocurrió un error inesperado al cancelar la sesión.'
+      )
     } finally {
       isProcessingAction.value = false
     }
@@ -91,6 +124,8 @@ export function useTutorDashboard() {
     stats,
     isLoading,
     isProcessingAction,
+    actionError,
+    actionSuccess,
     selectedSession,
     isCompleteModalOpen,
     isCancelModalOpen,
@@ -98,6 +133,8 @@ export function useTutorDashboard() {
     openCompleteModal,
     openCancelModal,
     handleCompleteSession,
-    handleCancelSession
+    handleCancelSession,
+    dismissActionSuccess,
+    dismissActionError
   }
 }

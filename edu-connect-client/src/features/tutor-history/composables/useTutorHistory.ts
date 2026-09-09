@@ -22,8 +22,7 @@ export function useTutorHistory() {
       })
     } catch {
       sessions.value = []
-      errorMessage.value =
-        'No fue posible cargar el historial de sesiones.'
+      errorMessage.value = 'No fue posible cargar el historial de sesiones.'
     } finally {
       isLoading.value = false
     }

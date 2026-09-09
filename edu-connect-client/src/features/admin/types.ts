@@ -162,4 +162,3 @@ export interface ReportesResumen {
 }
 
 export type ReportsTabType = 'todos' | 'tutores' | 'materias'
-

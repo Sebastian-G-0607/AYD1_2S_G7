@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using edu_connect_service.Api.Data;
@@ -11,9 +12,11 @@ using edu_connect_service.Api.Data;
 namespace educonnectservice.Api.Data.Migrations
 {
     [DbContext(typeof(edu_connect_serviceContext))]
-    partial class edu_connect_serviceContextModelSnapshot : ModelSnapshot
+    [Migration("20260909032846_AddMotivoCancelacionToSesion")]
+    partial class AddMotivoCancelacionToSesion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

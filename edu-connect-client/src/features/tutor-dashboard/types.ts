@@ -7,7 +7,7 @@ export interface TutorSession {
   estudianteAvatarUrl?: string
   materia: string
   motivo: string
-  estado: 'PENDIENTE' | 'ATENDIDA' | 'CANCELADA'
+  estado: 'PENDIENTE' | 'ATENDIDA' | 'CANCELADA' | 'CANCELADA_TUTOR'
 }
 
 export interface TutorDashboardStats {
@@ -24,7 +24,24 @@ export interface CompleteSessionPayload {
   enviarCopiaCorreo?: boolean
 }
 
+export interface CancelSessionRequest {
+  motivo: string
+  mensajeDisculpa?: string
+}
+
 export interface CancelSessionPayload {
   sesionId: number
-  motivo?: string
+  motivo: string
+  mensajeDisculpa?: string
+}
+
+export interface CancelarSesionResponseDto {
+  id: number
+  estado: string
+  motivoCancelacion: string
+  fechaSesion: string
+  horaInicio: string
+  materia: string
+  estudianteNombre: string
+  mensaje: string
 }

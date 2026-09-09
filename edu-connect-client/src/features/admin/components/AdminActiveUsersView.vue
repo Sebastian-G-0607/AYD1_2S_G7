@@ -56,7 +56,14 @@ const {
       <div>
         <h1
           class="mb-2"
-          style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: rgb(30, 41, 59);"
+          style="
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            color: rgb(30, 41, 59);
+          "
         >
           Gestión de Usuarios
         </h1>
@@ -66,7 +73,9 @@ const {
       </div>
 
       <div class="relative w-full sm:w-80">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant z-10 pointer-events-none text-[20px]">
+        <span
+          class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant z-10 pointer-events-none text-[20px]"
+        >
           search
         </span>
         <input
@@ -87,18 +96,26 @@ const {
     </div>
 
     <!-- CONTENEDOR PRINCIPAL (STITCH TEMPLATE) -->
-    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(30,41,59,0.05)] overflow-hidden flex flex-col min-h-[550px]">
+    <div
+      class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(30,41,59,0.05)] overflow-hidden flex flex-col min-h-[550px]"
+    >
       <!-- Pestañas Superiores -->
       <div class="flex px-6 pt-4 bg-surface-container-lowest border-b border-surface-container-high relative z-10 gap-2">
         <button
           type="button"
           class="font-label-md text-label-md pb-4 px-4 border-b-2 relative transition-colors cursor-pointer"
-          :class="activeTopTab === 'activos' ? 'text-primary border-primary font-semibold' : 'text-on-surface-variant border-transparent hover:text-on-surface'"
+          :class="
+            activeTopTab === 'activos'
+              ? 'text-primary border-primary font-semibold'
+              : 'text-on-surface-variant border-transparent hover:text-on-surface'
+          "
           @click="activeTopTab = 'activos'"
         >
           Usuarios Activos
           <span class="absolute right-0 top-0 -mt-1 -mr-2 flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-fixed opacity-75"></span>
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-fixed opacity-75"
+            ></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
           </span>
         </button>
@@ -174,26 +191,40 @@ const {
           v-if="isLoading"
           class="absolute inset-0 bg-surface-container-lowest/70 backdrop-blur-xs flex flex-col items-center justify-center z-20"
         >
-          <span class="material-symbols-outlined text-primary text-[36px] animate-spin">progress_activity</span>
-          <p class="font-label-md text-label-md text-on-surface-variant mt-2">Cargando usuarios activos...</p>
+          <span class="material-symbols-outlined text-primary text-[36px] animate-spin"
+            >progress_activity</span
+          >
+          <p class="font-label-md text-label-md text-on-surface-variant mt-2">
+            Cargando usuarios activos...
+          </p>
         </div>
 
         <table v-if="activeTopTab === 'activos'" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-surface-bright sticky top-0 z-10 border-b border-surface-container-high">
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-16">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-16"
+              >
                 Perfil
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[200px]">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[200px]"
+              >
                 Nombre &amp; Correo
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+              >
                 {{ activeSubTab === 'estudiantes' ? 'Carnet / Rol' : 'Especialidad / Materias' }}
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+              >
                 Fecha Ingreso
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap text-right">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap text-right"
+              >
                 Acciones
               </th>
             </tr>
@@ -208,7 +239,9 @@ const {
             >
               <!-- Avatar -->
               <td class="py-4 px-6">
-                <div class="h-10 w-10 rounded-full overflow-hidden bg-primary-fixed shadow-sm flex items-center justify-center">
+                <div
+                  class="h-10 w-10 rounded-full overflow-hidden bg-primary-fixed shadow-sm flex items-center justify-center"
+                >
                   <img
                     v-if="student.fotografiaUrl"
                     class="w-full h-full object-cover"
@@ -216,7 +249,10 @@ const {
                     :alt="`${student.nombre} ${student.apellido}`"
                     @error="student.fotografiaUrl = undefined"
                   />
-                  <span v-else class="font-label-md text-on-primary-fixed-variant text-xs font-bold">
+                  <span
+                    v-else
+                    class="font-label-md text-on-primary-fixed-variant text-xs font-bold"
+                  >
                     {{ getInitials(student.nombre, student.apellido) }}
                   </span>
                 </div>
@@ -236,7 +272,9 @@ const {
 
               <!-- Rol / Carnet -->
               <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary-fixed text-on-primary-fixed-variant font-mono">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary-fixed text-on-primary-fixed-variant font-mono"
+                >
                   {{ student.carnet || 'Estudiante Activo' }}
                 </span>
               </td>
@@ -263,10 +301,16 @@ const {
             <tr v-if="!isLoading && filteredStudents.length === 0">
               <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="material-symbols-outlined text-[36px] text-outline-variant">group_off</span>
+                  <span class="material-symbols-outlined text-[36px] text-outline-variant"
+                    >group_off</span
+                  >
                   <p class="font-label-md text-label-md">No se encontraron estudiantes activos.</p>
                   <p class="text-xs text-on-surface-variant">
-                    {{ searchQuery ? 'Intenta con otro término de búsqueda.' : 'Actualmente no hay estudiantes aprobados en el sistema.' }}
+                    {{
+                      searchQuery
+                        ? 'Intenta con otro término de búsqueda.'
+                        : 'Actualmente no hay estudiantes aprobados en el sistema.'
+                    }}
                   </p>
                 </div>
               </td>
@@ -282,7 +326,9 @@ const {
             >
               <!-- Avatar -->
               <td class="py-4 px-6">
-                <div class="h-10 w-10 rounded-full overflow-hidden bg-secondary-fixed shadow-sm flex items-center justify-center text-on-secondary-fixed-variant font-label-md">
+                <div
+                  class="h-10 w-10 rounded-full overflow-hidden bg-secondary-fixed shadow-sm flex items-center justify-center text-on-secondary-fixed-variant font-label-md"
+                >
                   <img
                     v-if="tutor.fotografiaUrl"
                     class="w-full h-full object-cover"
@@ -290,7 +336,10 @@ const {
                     :alt="`${tutor.nombre} ${tutor.apellido}`"
                     @error="tutor.fotografiaUrl = undefined"
                   />
-                  <span v-else class="font-label-md text-on-secondary-fixed-variant text-xs font-bold">
+                  <span
+                    v-else
+                    class="font-label-md text-on-secondary-fixed-variant text-xs font-bold"
+                  >
                     {{ getInitials(tutor.nombre, tutor.apellido) }}
                   </span>
                 </div>
@@ -310,8 +359,14 @@ const {
 
               <!-- Especialidad / Materias -->
               <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-secondary-fixed text-on-secondary-fixed-variant max-w-[260px] truncate" :title="tutor.especialidad">
-                  {{ tutor.especialidad || (tutor.materias?.length ? tutor.materias.join(', ') : 'Tutor Académico') }}
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-secondary-fixed text-on-secondary-fixed-variant max-w-[260px] truncate"
+                  :title="tutor.especialidad"
+                >
+                  {{
+                    tutor.especialidad ||
+                    (tutor.materias?.length ? tutor.materias.join(', ') : 'Tutor Académico')
+                  }}
                 </span>
               </td>
 
@@ -337,10 +392,16 @@ const {
             <tr v-if="!isLoading && filteredTutors.length === 0">
               <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="material-symbols-outlined text-[36px] text-outline-variant">school</span>
+                  <span class="material-symbols-outlined text-[36px] text-outline-variant"
+                    >school</span
+                  >
                   <p class="font-label-md text-label-md">No se encontraron tutores activos.</p>
                   <p class="text-xs text-on-surface-variant">
-                    {{ searchQuery ? 'Intenta con otro término de búsqueda.' : 'Actualmente no hay tutores aprobados en el sistema.' }}
+                    {{
+                      searchQuery
+                        ? 'Intenta con otro término de búsqueda.'
+                        : 'Actualmente no hay tutores aprobados en el sistema.'
+                    }}
                   </p>
                 </div>
               </td>
@@ -469,8 +530,21 @@ const {
 
         <!-- Elemento geométrico decorativo (Stitch Template) -->
         <div class="absolute bottom-4 right-4 pointer-events-none opacity-5">
-          <svg fill="none" height="120" viewBox="0 0 120 120" width="120" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-dasharray="4 8" stroke-width="2"></circle>
+          <svg
+            fill="none"
+            height="120"
+            viewBox="0 0 120 120"
+            width="120"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              stroke="currentColor"
+              stroke-dasharray="4 8"
+              stroke-width="2"
+            ></circle>
             <path d="M60 20V100M20 60H100" stroke="currentColor" stroke-width="2"></path>
           </svg>
         </div>
@@ -488,7 +562,9 @@ const {
       >
         <!-- Modal Header -->
         <div class="bg-error-container/30 px-6 py-4 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-error text-on-error flex items-center justify-center shadow-sm">
+          <div
+            class="w-10 h-10 rounded-full bg-error text-on-error flex items-center justify-center shadow-sm"
+          >
             <span class="material-symbols-outlined">warning</span>
           </div>
           <div>
@@ -496,7 +572,8 @@ const {
               Confirmar Baja
             </h3>
             <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
-              {{ selectedUser?.tipo === 'estudiante' ? 'Estudiante' : 'Tutor' }}: {{ selectedUser?.nombre }}
+              {{ selectedUser?.tipo === 'estudiante' ? 'Estudiante' : 'Tutor' }}:
+              {{ selectedUser?.nombre }}
             </p>
           </div>
         </div>
@@ -504,7 +581,8 @@ const {
         <!-- Modal Body -->
         <div class="p-6 flex flex-col gap-4 bg-surface-container-lowest">
           <p class="font-body-sm text-body-sm text-on-surface">
-            Esta acción revocará el acceso de este usuario a la plataforma de manera inmediata. Se enviará un correo electrónico notificándole la baja de su cuenta.
+            Esta acción revocará el acceso de este usuario a la plataforma de manera inmediata. Se
+            enviará un correo electrónico notificándole la baja de su cuenta.
           </p>
 
           <div class="flex flex-col gap-1.5 mt-2">
@@ -522,7 +600,9 @@ const {
         </div>
 
         <!-- Modal Footer -->
-        <div class="p-4 bg-surface-bright flex justify-end gap-3 border-t border-surface-container-high">
+        <div
+          class="p-4 bg-surface-bright flex justify-end gap-3 border-t border-surface-container-high"
+        >
           <button
             type="button"
             class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-4 py-2 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
@@ -537,7 +617,11 @@ const {
             :disabled="isProcessingAction"
             @click="confirmBaja"
           >
-            <span v-if="isProcessingAction" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+            <span
+              v-if="isProcessingAction"
+              class="material-symbols-outlined animate-spin text-[18px]"
+              >progress_activity</span
+            >
             <span v-else class="material-symbols-outlined text-[18px]">check</span>
             Confirmar Baja
           </button>
@@ -546,4 +630,3 @@ const {
     </div>
   </div>
 </template>
-

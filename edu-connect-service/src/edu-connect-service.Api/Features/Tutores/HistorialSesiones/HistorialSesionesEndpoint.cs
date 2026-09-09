@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Tutores.HistorialSesiones;
@@ -19,6 +20,7 @@ public static class HistorialSesionesEndpoint
     private static async Task<IResult> HandleAsync(
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         DateOnly? fecha,
         string? estudiante,
         CancellationToken cancellationToken)
@@ -89,17 +91,30 @@ public static class HistorialSesionesEndpoint
             );
         }
 
-        var historial = await query
+        var sesiones = await query
             .OrderByDescending(sesion => sesion.FechaSesion)
             .ThenByDescending(sesion => sesion.HoraInicio)
+            .Select(sesion => new
+            {
+                sesion.Id,
+                sesion.FechaSesion,
+                sesion.HoraInicio,
+                Estudiante = sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
+                Estado = sesion.Estado.Nombre,
+                FotografiaUrl = sesion.Estudiante.FotografiaUrl
+            })
+            .ToListAsync(cancellationToken);
+
+        var historial = sesiones
             .Select(sesion => new HistorialSesionResponseDto(
                 sesion.Id,
                 sesion.FechaSesion,
                 sesion.HoraInicio,
-                sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
-                sesion.Estado.Nombre
+                sesion.Estudiante,
+                sesion.Estado,
+                s3Service.GeneratePresignedUrl(sesion.FotografiaUrl)
             ))
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         return Results.Ok(historial);
     }

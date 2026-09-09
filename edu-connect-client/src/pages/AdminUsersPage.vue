@@ -8,4 +8,3 @@ import { AdminActiveUsersView } from '@/features/admin'
     <AdminActiveUsersView />
   </DashboardLayout>
 </template>
-

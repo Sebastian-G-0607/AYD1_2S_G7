@@ -5,5 +5,6 @@ public record HistorialSesionResponseDto(
     DateOnly FechaSesion,
     TimeOnly HoraInicio,
     string Estudiante,
-    string Estado
+    string Estado,
+    string? EstudianteAvatarUrl
 );

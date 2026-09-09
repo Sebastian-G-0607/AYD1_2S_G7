@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Shared.Authentication;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ public static class LoginEndpoint
             [FromBody] LoginRequestDto request,
             edu_connect_serviceContext dbContext,
             IJwtTokenService jwtTokenService,
+            IS3Service s3Service,
             IOptions<JwtOptions> jwtOptions,
             CancellationToken cancellationToken) =>
         {
@@ -47,6 +49,10 @@ public static class LoginEndpoint
 
             var nombre = user.Estudiante?.Nombre ?? user.Tutor?.Nombre;
             var apellido = user.Estudiante?.Apellido ?? user.Tutor?.Apellido;
+            var fotografiaKey = user.Estudiante?.FotografiaUrl ?? user.Tutor?.FotografiaUrl;
+            var fotografiaUrl = !string.IsNullOrWhiteSpace(fotografiaKey)
+                ? s3Service.GeneratePresignedUrl(fotografiaKey)
+                : null;
 
             var response = new TokenResponseDto(
                 token,
@@ -56,7 +62,8 @@ public static class LoginEndpoint
                 user.Correo,
                 rol,
                 nombre,
-                apellido
+                apellido,
+                fotografiaUrl
             );
 
             return Results.Ok(response);

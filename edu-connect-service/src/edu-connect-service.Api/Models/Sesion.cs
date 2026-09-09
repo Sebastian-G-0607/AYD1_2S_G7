@@ -30,5 +30,7 @@ public class Sesion
 
     public string? Resumen { get; set; }
 
+    public string? MotivoCancelacion { get; set; }
+
     public DateTime FechaCreacion { get; set; }
 }

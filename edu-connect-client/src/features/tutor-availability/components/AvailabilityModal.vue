@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { BaseModal, BaseInput, BaseBadge } from '@/components/ui'
+import { BaseModal, BaseInput } from '@/components/ui'
 import { useAvailability } from '../composables/useAvailability'
 
 interface Props {
