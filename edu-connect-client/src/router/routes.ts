@@ -164,6 +164,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/tutor/perfil',
+    name: 'tutor-profile',
+    component: () => import('@/pages/TutorProfilePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Mi Perfil - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/estudiante/tutores/:tutorId',
     name: 'student-tutor-detail',
     component: () => import('@/pages/StudentTutorDetailPage.vue'),

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Models;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,8 @@ public static class PerfilTutorEndpoint
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         app.MapPut("/perfil/password", CambiarPasswordAsync)
             .RequireAuthorization()
@@ -42,6 +44,7 @@ public static class PerfilTutorEndpoint
     private static async Task<IResult> ObtenerPerfilAsync(
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         var authError = ValidarTutorAutenticado(user, out var idUsuario);
@@ -68,13 +71,14 @@ public static class PerfilTutorEndpoint
             );
         }
 
-        return Results.Ok(CrearResponse(tutor));
+        return Results.Ok(CrearResponse(tutor, s3Service));
     }
 
     private static async Task<IResult> ActualizarPerfilAsync(
         [FromForm] ActualizarPerfilTutorRequestDto request,
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         var authError = ValidarTutorAutenticado(user, out var idUsuario);
@@ -238,7 +242,8 @@ public static class PerfilTutorEndpoint
         var identificacionExiste = await dbContext.Tutores
             .AnyAsync(
                 t =>
-                    t.NumeroIdentificacion == request.NumeroIdentificacion.Trim() &&
+                    t.NumeroIdentificacion ==
+                    request.NumeroIdentificacion.Trim() &&
                     t.UsuarioId != idUsuario,
                 cancellationToken
             );
@@ -252,10 +257,41 @@ public static class PerfilTutorEndpoint
             );
         }
 
+        /*
+         * La BD almacena únicamente la KEY de S3.
+         * Para mostrarla al frontend se genera posteriormente
+         * una URL prefirmada.
+         */
+        var fotografiaAnterior = tutor.FotografiaUrl;
+        string? nuevaFotografiaKey = null;
+
+        if (request.Fotografia is not null &&
+            request.Fotografia.Length > 0)
+        {
+            try
+            {
+                nuevaFotografiaKey = await s3Service.UploadImageAsync(
+                    request.Fotografia,
+                    "tutores",
+                    cancellationToken
+                );
+            }
+            catch (Exception)
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Error al almacenar fotografía",
+                    detail:
+                        "No fue posible guardar la nueva fotografía de perfil."
+                );
+            }
+        }
+
         tutor.Nombre = request.Nombre.Trim();
         tutor.Apellido = request.Apellido.Trim();
         tutor.CarnetId = request.CarnetId.Trim();
-        tutor.NumeroIdentificacion = request.NumeroIdentificacion.Trim();
+        tutor.NumeroIdentificacion =
+            request.NumeroIdentificacion.Trim();
         tutor.Genero = generoNormalizado;
         tutor.Direccion = request.Direccion.Trim();
         tutor.Telefono = request.Telefono.Trim();
@@ -264,20 +300,72 @@ public static class PerfilTutorEndpoint
         tutor.AnioInicio = request.AnioInicio;
         tutor.Universidad = request.Universidad.Trim();
 
-        if (request.Fotografia is not null &&
-            request.Fotografia.Length > 0)
+        if (nuevaFotografiaKey is not null)
         {
-            var extension = Path
-                .GetExtension(request.Fotografia.FileName)
-                .ToLowerInvariant();
-
-            tutor.FotografiaUrl =
-                $"/uploads/tutores/{Guid.NewGuid():N}{extension}";
+            tutor.FotografiaUrl = nuevaFotografiaKey;
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            /*
+             * Si la imagen nueva se subió pero la actualización
+             * de la BD falló, eliminamos la imagen nueva para
+             * no dejar archivos huérfanos en S3.
+             */
+            if (nuevaFotografiaKey is not null)
+            {
+                await s3Service.DeleteImageAsync(
+                    nuevaFotografiaKey,
+                    CancellationToken.None
+                );
+            }
 
-        return Results.Ok(CrearResponse(tutor));
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al actualizar perfil",
+                detail:
+                    "No fue posible guardar los cambios del perfil."
+            );
+        }
+
+        /*
+         * La BD ya apunta correctamente a la imagen nueva.
+         * Ahora podemos intentar eliminar la anterior.
+         *
+         * Si era una ruta antigua como /uploads/... tampoco
+         * afecta el perfil si la eliminación no encuentra nada.
+         */
+        if (nuevaFotografiaKey is not null &&
+            !string.IsNullOrWhiteSpace(fotografiaAnterior) &&
+            !string.Equals(
+                fotografiaAnterior,
+                nuevaFotografiaKey,
+                StringComparison.Ordinal))
+        {
+            /*
+             * No intentamos eliminar URLs completas por si existe
+             * algún registro antiguo que haya guardado una URL
+             * en vez de una key de S3.
+             */
+            if (!fotografiaAnterior.StartsWith(
+                    "http://",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !fotografiaAnterior.StartsWith(
+                    "https://",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                await s3Service.DeleteImageAsync(
+                    fotografiaAnterior,
+                    CancellationToken.None
+                );
+            }
+        }
+
+        return Results.Ok(CrearResponse(tutor, s3Service));
     }
 
     private static async Task<IResult> CambiarPasswordAsync(
@@ -286,7 +374,10 @@ public static class PerfilTutorEndpoint
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {
-        var authError = ValidarTutorAutenticado(user, out var idUsuario);
+        var authError = ValidarTutorAutenticado(
+            user,
+            out var idUsuario
+        );
 
         if (authError is not null)
         {
@@ -298,7 +389,8 @@ public static class PerfilTutorEndpoint
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Contraseña actual requerida",
-                detail: "Debe ingresar la contraseña actual para continuar."
+                detail:
+                    "Debe ingresar la contraseña actual para continuar."
             );
         }
 
@@ -311,12 +403,14 @@ public static class PerfilTutorEndpoint
             );
         }
 
-        if (request.NuevaPassword != request.ConfirmarNuevaPassword)
+        if (request.NuevaPassword !=
+            request.ConfirmarNuevaPassword)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Contraseñas no coinciden",
-                detail: "La nueva contraseña y su confirmación no coinciden."
+                detail:
+                    "La nueva contraseña y su confirmación no coinciden."
             );
         }
 
@@ -356,13 +450,15 @@ public static class PerfilTutorEndpoint
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Contraseña actual incorrecta",
-                detail: "La contraseña actual ingresada no es correcta."
+                detail:
+                    "La contraseña actual ingresada no es correcta."
             );
         }
 
-        usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(
-            request.NuevaPassword
-        );
+        usuario.PasswordHash =
+            BCrypt.Net.BCrypt.HashPassword(
+                request.NuevaPassword
+            );
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -380,14 +476,17 @@ public static class PerfilTutorEndpoint
 
         var idUsuarioClaim =
             user.FindFirstValue("id_usuario")
-            ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
+            ?? user.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
 
         if (!int.TryParse(idUsuarioClaim, out idUsuario))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "Usuario no autenticado",
-                detail: "No fue posible identificar al usuario autenticado."
+                detail:
+                    "No fue posible identificar al usuario autenticado."
             );
         }
 
@@ -403,15 +502,31 @@ public static class PerfilTutorEndpoint
             return Results.Problem(
                 statusCode: StatusCodes.Status403Forbidden,
                 title: "Acceso denegado",
-                detail: "Solo los tutores pueden administrar su perfil."
+                detail:
+                    "Solo los tutores pueden administrar su perfil."
             );
         }
 
         return null;
     }
 
-    private static PerfilTutorResponseDto CrearResponse(Tutor tutor)
+    private static PerfilTutorResponseDto CrearResponse(
+        Tutor tutor,
+        IS3Service s3Service)
     {
+        /*
+         * En Oracle se conserva la key:
+         *
+         * tutores/abc123.jpg
+         *
+         * Al frontend se le entrega una URL prefirmada
+         * temporal para poder visualizar la imagen.
+         */
+        var fotografiaUrl =
+            s3Service.GeneratePresignedUrl(
+                tutor.FotografiaUrl
+            ) ?? tutor.FotografiaUrl;
+
         return new PerfilTutorResponseDto(
             tutor.UsuarioId,
             tutor.Nombre,
@@ -422,7 +537,7 @@ public static class PerfilTutorEndpoint
             tutor.Direccion,
             tutor.Telefono,
             tutor.FechaNacimiento,
-            tutor.FotografiaUrl,
+            fotografiaUrl,
             tutor.DireccionTutoria,
             tutor.AnioInicio,
             tutor.Universidad,
