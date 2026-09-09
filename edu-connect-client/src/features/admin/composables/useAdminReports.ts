@@ -33,7 +33,7 @@ export function useAdminReports() {
   // Máximo valor de atenciones para escalar las barras verticalmente (con mínimo de 1 para evitar división por cero)
   const maxAtencionesTutor = computed(() => {
     if (tutoresReport.value.length === 0) return 1
-    return Math.max(...tutoresReport.value.map((t) => t.totalSesionesAtendidas), 1)
+    return Math.max(...tutoresReport.value.map(t => t.totalSesionesAtendidas), 1)
   })
 
   // Total acumulado de estudiantes atendidos
@@ -44,11 +44,36 @@ export function useAdminReports() {
 
   // Paleta de colores para el gráfico Donut y Barras (Tokens de Stitch)
   const donutPalette = [
-    { name: 'primary', strokeClass: 'stroke-primary hover:stroke-tertiary', bgClass: 'bg-primary', hex: '#091426' },
-    { name: 'secondary', strokeClass: 'stroke-secondary hover:stroke-secondary-container', bgClass: 'bg-secondary', hex: '#0058be' },
-    { name: 'primary-fixed-dim', strokeClass: 'stroke-primary-fixed-dim hover:stroke-primary', bgClass: 'bg-primary-fixed-dim', hex: '#bcc7de' },
-    { name: 'outline', strokeClass: 'stroke-surface-dim hover:stroke-outline', bgClass: 'bg-outline', hex: '#75777d' },
-    { name: 'secondary-container', strokeClass: 'stroke-secondary-container hover:stroke-secondary', bgClass: 'bg-secondary-container', hex: '#2170e4' }
+    {
+      name: 'primary',
+      strokeClass: 'stroke-primary hover:stroke-tertiary',
+      bgClass: 'bg-primary',
+      hex: '#091426'
+    },
+    {
+      name: 'secondary',
+      strokeClass: 'stroke-secondary hover:stroke-secondary-container',
+      bgClass: 'bg-secondary',
+      hex: '#0058be'
+    },
+    {
+      name: 'primary-fixed-dim',
+      strokeClass: 'stroke-primary-fixed-dim hover:stroke-primary',
+      bgClass: 'bg-primary-fixed-dim',
+      hex: '#bcc7de'
+    },
+    {
+      name: 'outline',
+      strokeClass: 'stroke-surface-dim hover:stroke-outline',
+      bgClass: 'bg-outline',
+      hex: '#75777d'
+    },
+    {
+      name: 'secondary-container',
+      strokeClass: 'stroke-secondary-container hover:stroke-secondary',
+      bgClass: 'bg-secondary-container',
+      hex: '#2170e4'
+    }
   ]
 
   // Cálculo geométrico de los arcos del gráfico SVG Donut
@@ -78,7 +103,7 @@ export function useAdminReports() {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return tutoresReport.value
     return tutoresReport.value.filter(
-      (t) =>
+      t =>
         t.nombreCompleto.toLowerCase().includes(q) ||
         t.carnet.toLowerCase().includes(q) ||
         t.correo.toLowerCase().includes(q)
@@ -88,9 +113,7 @@ export function useAdminReports() {
   const filteredMaterias = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return materiasReport.value
-    return materiasReport.value.filter((m) =>
-      m.nombreMateria.toLowerCase().includes(q)
-    )
+    return materiasReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
   // Carga de datos
@@ -126,7 +149,7 @@ export function useAdminReports() {
       [''],
       ['=== TUTORES CON MÁS ESTUDIANTES ATENDIDOS ==='],
       ['Tutor', 'Carnet', 'Correo', 'Sesiones Atendidas', 'Estudiantes Únicos'],
-      ...tutoresReport.value.map((t) => [
+      ...tutoresReport.value.map(t => [
         t.nombreCompleto,
         t.carnet,
         t.correo,
@@ -136,7 +159,7 @@ export function useAdminReports() {
       [''],
       ['=== MATERIAS CON MAYOR DEMANDA ==='],
       ['Materia', 'Total Sesiones', 'Atendidas', 'Pendientes', 'Canceladas', '% Demanda'],
-      ...materiasReport.value.map((m) => [
+      ...materiasReport.value.map(m => [
         m.nombreMateria,
         m.totalSesiones.toString(),
         m.sesionesAtendidas.toString(),
@@ -148,7 +171,7 @@ export function useAdminReports() {
 
     const csvContent =
       'data:text/csv;charset=utf-8,\uFEFF' +
-      rows.map((e) => e.map((val) => `"${val.replace(/"/g, '""')}"`).join(',')).join('\n')
+      rows.map(e => e.map(val => `"${val.replace(/"/g, '""')}"`).join(',')).join('\n')
 
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')

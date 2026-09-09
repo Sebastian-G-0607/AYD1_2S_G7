@@ -1,4 +1,5 @@
 import { ref, computed, onMounted } from 'vue'
+import { extractApiErrorMessage } from '@/utils/apiError'
 import { adminService } from '../services/admin.service'
 import type {
   ActiveStudentItem,
@@ -71,9 +72,7 @@ export function useAdminActiveUsers() {
 
   const activeStudentsCount = computed(() => students.value.length)
   const activeTutorsCount = computed(() => tutors.value.length)
-  const totalActiveCount = computed(
-    () => activeStudentsCount.value + activeTutorsCount.value
-  )
+  const totalActiveCount = computed(() => activeStudentsCount.value + activeTutorsCount.value)
 
   // ==========================================
   // CARGA DE DATOS
@@ -106,10 +105,7 @@ export function useAdminActiveUsers() {
   // ==========================================
   // GESTIÓN DE MODAL DE BAJA
   // ==========================================
-  function openBajaModal(
-    user: ActiveStudentItem | ActiveTutorItem,
-    tipo: 'estudiante' | 'tutor'
-  ) {
+  function openBajaModal(user: ActiveStudentItem | ActiveTutorItem, tipo: 'estudiante' | 'tutor') {
     selectedUser.value = {
       id: user.id,
       nombre: `${user.nombre} ${user.apellido}`.trim(),
@@ -154,11 +150,11 @@ export function useAdminActiveUsers() {
         }
       }
       closeBajaModal()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error al dar de baja al usuario:', err)
       feedbackMessage.value = {
         type: 'error',
-        text: err?.response?.data?.detail || 'Ocurrió un error al procesar la baja del usuario.'
+        text: extractApiErrorMessage(err, 'Ocurrió un error al procesar la baja del usuario.')
       }
     } finally {
       isProcessingAction.value = false
@@ -225,4 +221,3 @@ export function useAdminActiveUsers() {
     formatFecha
   }
 }
-

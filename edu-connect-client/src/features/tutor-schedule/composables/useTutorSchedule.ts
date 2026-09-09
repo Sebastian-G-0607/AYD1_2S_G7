@@ -85,7 +85,7 @@ export function useTutorSchedule() {
     return time.length === 5 ? `${time}:00` : time
   }
 
-    function formatTimeForInput(time: string): string {
+  function formatTimeForInput(time: string): string {
     return time.length >= 5 ? time.slice(0, 5) : time
   }
 

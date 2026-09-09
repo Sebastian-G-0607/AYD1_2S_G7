@@ -354,5 +354,3 @@ export const adminService = {
     }
   }
 }
-
-
