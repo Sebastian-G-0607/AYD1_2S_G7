@@ -103,7 +103,9 @@ const {
       class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(30,41,59,0.05)] overflow-hidden flex flex-col min-h-[550px]"
     >
       <!-- Pestañas Superiores -->
-      <div class="flex px-6 pt-4 bg-surface-container-lowest border-b border-surface-container-high relative z-10 gap-2">
+      <div
+        class="flex px-6 pt-4 bg-surface-container-lowest border-b border-surface-container-high relative z-10 gap-2"
+      >
         <button
           type="button"
           class="font-label-md text-label-md pb-4 px-4 border-b-2 relative transition-colors cursor-pointer"
@@ -125,23 +127,36 @@ const {
         <button
           type="button"
           class="font-label-md text-label-md pb-4 px-4 border-b-2 relative transition-colors cursor-pointer"
-          :class="activeTopTab === 'baja' ? 'text-primary border-primary font-semibold' : 'text-on-surface-variant border-transparent hover:text-on-surface'"
+          :class="
+            activeTopTab === 'baja'
+              ? 'text-primary border-primary font-semibold'
+              : 'text-on-surface-variant border-transparent hover:text-on-surface'
+          "
           @click="activeTopTab = 'baja'"
         >
           Usuarios Dados de Baja
           <span class="absolute right-0 top-0 -mt-1 -mr-2 flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error/30 opacity-75"></span>
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error/30 opacity-75"
+            ></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
           </span>
         </button>
       </div>
 
       <!-- Sub Pestañas (Estudiantes vs Tutores) -->
-      <div v-if="activeTopTab === 'activos'" class="flex items-center px-6 py-4 bg-surface-bright border-b border-surface-container-high gap-4 flex-wrap">
+      <div
+        v-if="activeTopTab === 'activos'"
+        class="flex items-center px-6 py-4 bg-surface-bright border-b border-surface-container-high gap-4 flex-wrap"
+      >
         <button
           type="button"
           class="font-label-sm text-label-sm px-4 py-2 rounded-full shadow-sm transition-colors cursor-pointer"
-          :class="activeSubTab === 'estudiantes' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'"
+          :class="
+            activeSubTab === 'estudiantes'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+          "
           @click="activeSubTab = 'estudiantes'"
         >
           Estudiantes
@@ -149,24 +164,37 @@ const {
         <button
           type="button"
           class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-colors cursor-pointer"
-          :class="activeSubTab === 'tutores' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'"
+          :class="
+            activeSubTab === 'tutores'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+          "
           @click="activeSubTab = 'tutores'"
         >
           Tutores
         </button>
 
         <div class="ml-auto flex items-center gap-2">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+          <span
+            class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"
+          >
             Total Activos: {{ totalActiveCount }}
           </span>
         </div>
       </div>
 
-      <div v-else class="flex items-center px-6 py-4 bg-surface-bright border-b border-surface-container-high gap-4 flex-wrap">
+      <div
+        v-else
+        class="flex items-center px-6 py-4 bg-surface-bright border-b border-surface-container-high gap-4 flex-wrap"
+      >
         <button
           type="button"
           class="font-label-sm text-label-sm px-4 py-2 rounded-full shadow-sm transition-colors cursor-pointer"
-          :class="activeSubTab === 'estudiantes' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'"
+          :class="
+            activeSubTab === 'estudiantes'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+          "
           @click="activeSubTab = 'estudiantes'"
         >
           Estudiantes
@@ -174,14 +202,20 @@ const {
         <button
           type="button"
           class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-colors cursor-pointer"
-          :class="activeSubTab === 'tutores' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'"
+          :class="
+            activeSubTab === 'tutores'
+              ? 'bg-primary text-on-primary shadow-sm'
+              : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+          "
           @click="activeSubTab = 'tutores'"
         >
           Tutores
         </button>
 
         <div class="ml-auto flex items-center gap-2">
-          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+          <span
+            class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"
+          >
             Total Dados de Baja: {{ totalInactiveCount }}
           </span>
         </div>
@@ -415,19 +449,27 @@ const {
         <table v-else class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-surface-bright sticky top-0 z-10 border-b border-surface-container-high">
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-16">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-16"
+              >
                 Perfil
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[220px]">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[220px]"
+              >
                 Nombre &amp; Correo
               </th>
               <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                 Fecha Registro
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+              >
                 Fecha Baja
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[220px]">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[220px]"
+              >
                 Motivo de Baja
               </th>
             </tr>
@@ -440,8 +482,19 @@ const {
               class="border-b border-surface-container hover:bg-surface-container-low/50 transition-colors group"
             >
               <td class="py-4 px-6">
-                <div class="h-10 w-10 rounded-full overflow-hidden bg-error-container shadow-sm flex items-center justify-center text-on-error-container font-label-md">
-                  <span class="font-label-md text-xs font-bold">{{ user.nombreCompleto ? user.nombreCompleto.split(' ').map(part => part[0]).slice(0,2).join('').toUpperCase() : 'U' }}</span>
+                <div
+                  class="h-10 w-10 rounded-full overflow-hidden bg-error-container shadow-sm flex items-center justify-center text-on-error-container font-label-md"
+                >
+                  <span class="font-label-md text-xs font-bold">{{
+                    user.nombreCompleto
+                      ? user.nombreCompleto
+                          .split(' ')
+                          .map(part => part[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                      : 'U'
+                  }}</span>
                 </div>
               </td>
               <td class="py-4 px-6">
@@ -468,8 +521,12 @@ const {
             <tr v-if="!isLoading && filteredInactiveStudents.length === 0">
               <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="material-symbols-outlined text-[36px] text-outline-variant">person_off</span>
-                  <p class="font-label-md text-label-md">No se encontraron estudiantes dados de baja.</p>
+                  <span class="material-symbols-outlined text-[36px] text-outline-variant"
+                    >person_off</span
+                  >
+                  <p class="font-label-md text-label-md">
+                    No se encontraron estudiantes dados de baja.
+                  </p>
                 </div>
               </td>
             </tr>
@@ -482,8 +539,19 @@ const {
               class="border-b border-surface-container hover:bg-surface-container-low/50 transition-colors group"
             >
               <td class="py-4 px-6">
-                <div class="h-10 w-10 rounded-full overflow-hidden bg-error-container shadow-sm flex items-center justify-center text-on-error-container font-label-md">
-                  <span class="font-label-md text-xs font-bold">{{ user.nombreCompleto ? user.nombreCompleto.split(' ').map(part => part[0]).slice(0,2).join('').toUpperCase() : 'U' }}</span>
+                <div
+                  class="h-10 w-10 rounded-full overflow-hidden bg-error-container shadow-sm flex items-center justify-center text-on-error-container font-label-md"
+                >
+                  <span class="font-label-md text-xs font-bold">{{
+                    user.nombreCompleto
+                      ? user.nombreCompleto
+                          .split(' ')
+                          .map(part => part[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                      : 'U'
+                  }}</span>
                 </div>
               </td>
               <td class="py-4 px-6">
@@ -510,8 +578,12 @@ const {
             <tr v-if="!isLoading && filteredInactiveTutors.length === 0">
               <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <span class="material-symbols-outlined text-[36px] text-outline-variant">school_off</span>
-                  <p class="font-label-md text-label-md">No se encontraron tutores dados de baja.</p>
+                  <span class="material-symbols-outlined text-[36px] text-outline-variant"
+                    >school_off</span
+                  >
+                  <p class="font-label-md text-label-md">
+                    No se encontraron tutores dados de baja.
+                  </p>
                 </div>
               </td>
             </tr>

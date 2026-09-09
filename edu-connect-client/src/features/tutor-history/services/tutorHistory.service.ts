@@ -5,8 +5,8 @@ export const tutorHistoryService = {
   async getHistory(filters: TutorHistoryFilters = {}): Promise<TutorHistorySession[]> {
     const params: Record<string, string> = {}
 
-    if (filters.fecha) {
-      params.fecha = filters.fecha
+    if (filters.fecha?.trim()) {
+      params.fecha = filters.fecha.trim()
     }
 
     if (filters.estudiante?.trim()) {
