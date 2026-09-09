@@ -8,7 +8,8 @@ public record SesionPendienteDto(
     string EstudianteId,
     string Materia,
     string Motivo,
-    string Estado
+    string Estado,
+    string? EstudianteAvatarUrl
 );
 
 public record AtenderSesionRequestDto(

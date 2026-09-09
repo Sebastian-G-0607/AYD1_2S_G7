@@ -171,8 +171,18 @@ function getStatusVariant(
 
               <td class="px-6 py-5">
                 <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-[20px]"> person </span>
+                  <div
+                    class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0"
+                  >
+                    <img
+                      v-if="session.estudianteAvatarUrl"
+                      :src="session.estudianteAvatarUrl"
+                      :alt="session.estudiante"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else class="material-symbols-outlined text-primary text-[20px]">
+                      person
+                    </span>
                   </div>
 
                   <span class="text-sm font-medium text-on-surface">

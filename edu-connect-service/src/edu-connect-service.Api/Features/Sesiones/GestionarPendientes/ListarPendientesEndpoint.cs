@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Sesiones.GestionarPendientes;
@@ -18,6 +19,7 @@ public static class ListarPendientesEndpoint
     private static async Task<IResult> HandleAsync(
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         var idUsuarioClaim =
@@ -56,18 +58,32 @@ public static class ListarPendientesEndpoint
                 sesion.Estado.Nombre == "PENDIENTE")
             .OrderBy(sesion => sesion.FechaSesion)
             .ThenBy(sesion => sesion.HoraInicio)
-            .Select(sesion => new SesionPendienteDto(
+            .Select(sesion => new
+            {
                 sesion.Id,
-                sesion.FechaSesion.ToString("dd MMM, yyyy"),
-                sesion.HoraInicio.ToString("hh:mm tt"),
-                sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
-                sesion.Estudiante.Carnet,
-                sesion.Materia.Nombre,
+                sesion.FechaSesion,
+                sesion.HoraInicio,
+                EstudianteNombre = sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
+                EstudianteId = sesion.Estudiante.Carnet,
+                Materia = sesion.Materia.Nombre,
                 sesion.Motivo,
-                sesion.Estado.Nombre
-            ))
+                Estado = sesion.Estado.Nombre,
+                FotografiaUrl = sesion.Estudiante.FotografiaUrl
+            })
             .ToListAsync(cancellationToken);
 
-        return Results.Ok(sesiones);
+        var response = sesiones.Select(sesion => new SesionPendienteDto(
+            sesion.Id,
+            sesion.FechaSesion.ToString("dd MMM, yyyy"),
+            sesion.HoraInicio.ToString("hh:mm tt"),
+            sesion.EstudianteNombre,
+            sesion.EstudianteId,
+            sesion.Materia,
+            sesion.Motivo,
+            sesion.Estado,
+            s3Service.GeneratePresignedUrl(sesion.FotografiaUrl)
+        )).ToList();
+
+        return Results.Ok(response);
     }
 }

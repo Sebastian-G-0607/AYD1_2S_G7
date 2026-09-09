@@ -3,6 +3,7 @@ export interface TutorHistorySession {
   fechaSesion: string
   horaInicio: string
   estudiante: string
+  estudianteAvatarUrl?: string
   estado: string
 }
 

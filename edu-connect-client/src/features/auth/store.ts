@@ -32,7 +32,8 @@ export const useAuthStore = defineStore('auth', () => {
       correo: response.correo,
       rol: response.rol,
       nombre: response.nombre || undefined,
-      apellido: response.apellido || undefined
+      apellido: response.apellido || undefined,
+      fotografiaUrl: response.fotografiaUrl || undefined
     }
     setAuth(response.token, authUser)
   }
