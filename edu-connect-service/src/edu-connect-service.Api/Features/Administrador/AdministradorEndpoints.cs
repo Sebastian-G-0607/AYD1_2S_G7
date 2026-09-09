@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Features.Administrador.GestionEstudiantes;
 using edu_connect_service.Api.Features.Administrador.GestionTutores;
+using edu_connect_service.Api.Features.Administrador.GestionUsuarios;
 using edu_connect_service.Api.Features.Administrador.Reportes;
 using edu_connect_service.Api.Shared.Authorization;
 
@@ -28,6 +29,9 @@ public static class AdministradorEndpoints
         apiGroup.MapListarTutoresActivos();
         apiGroup.MapDarBajaTutor();
 
+        // Gestión de usuarios dados de baja
+        apiGroup.MapGestionUsuarios();
+
         // Reportes del Sistema (HU-08)
         apiGroup.MapReportes();
 
@@ -43,6 +47,8 @@ public static class AdministradorEndpoints
         rootGroup.MapActualizarEstadoTutor();
         rootGroup.MapListarTutoresActivos();
         rootGroup.MapDarBajaTutor();
+
+        rootGroup.MapGestionUsuarios();
 
         // Reportes del Sistema (HU-08)
         rootGroup.MapReportes();
