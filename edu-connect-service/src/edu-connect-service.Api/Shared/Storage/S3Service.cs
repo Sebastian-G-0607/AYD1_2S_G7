@@ -101,4 +101,36 @@ public class S3Service(
             return key;
         }
     }
+
+    public async Task DeleteImageAsync(string? key, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_bucketName))
+        {
+            logger.LogWarning("S3_BUCKET_NAME no está configurado al intentar eliminar la imagen con key '{Key}'", key);
+            return;
+        }
+
+        try
+        {
+            var cleanKey = key.TrimStart('/');
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = cleanKey
+            };
+
+            logger.LogInformation("Eliminando archivo de S3 bucket '{Bucket}' con key '{Key}'", _bucketName, cleanKey);
+            await s3Client.DeleteObjectAsync(deleteRequest, cancellationToken);
+            logger.LogInformation("Archivo eliminado exitosamente de S3 con key '{Key}'", cleanKey);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al eliminar archivo de S3 con key '{Key}'", key);
+        }
+    }
 }

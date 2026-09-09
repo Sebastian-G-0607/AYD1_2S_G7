@@ -295,6 +295,20 @@ public static class RegistrarTutorEndpoint
             );
         }
 
+        string fotografiaKey;
+        try
+        {
+            fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia!, "tutores", cancellationToken);
+        }
+        catch (Exception)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al almacenar fotografía",
+                detail: "No se pudo subir la fotografía de perfil al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
+            );
+        }
+
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var usuario = new Usuario
@@ -306,14 +320,9 @@ public static class RegistrarTutorEndpoint
             FechaRegistro = DateTime.UtcNow
         };
 
-        dbContext.Usuarios.Add(usuario);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        var fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia!, "tutores", cancellationToken);
-
         var tutor = new Tutor
         {
-            UsuarioId = usuario.Id,
+            UsuarioId = 0,
             Nombre = request.Nombre.Trim(),
             Apellido = request.Apellido.Trim(),
             CarnetId = carnet,
@@ -330,29 +339,50 @@ public static class RegistrarTutorEndpoint
             HoraFin = request.HoraFin
         };
 
-        dbContext.Tutores.Add(tutor);
-
         var distinctMateriaIds = materiasIds.Distinct().ToList();
-        foreach (var materiaId in distinctMateriaIds)
-        {
-            dbContext.TutoresMaterias.Add(new TutorMateria
-            {
-                TutorId = tutor.UsuarioId,
-                MateriaId = materiaId
-            });
-        }
-
         var distinctDias = request.DiasAtencion?.Distinct().ToList() ?? [];
-        foreach (var dia in distinctDias)
-        {
-            dbContext.TutoresDiasAtencion.Add(new TutorDiaAtencion
-            {
-                TutorId = tutor.UsuarioId,
-                DiaSemana = dia
-            });
-        }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            dbContext.Usuarios.Add(usuario);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            tutor.UsuarioId = usuario.Id;
+            dbContext.Tutores.Add(tutor);
+
+            foreach (var materiaId in distinctMateriaIds)
+            {
+                dbContext.TutoresMaterias.Add(new TutorMateria
+                {
+                    TutorId = tutor.UsuarioId,
+                    MateriaId = materiaId
+                });
+            }
+
+            foreach (var dia in distinctDias)
+            {
+                dbContext.TutoresDiasAtencion.Add(new TutorDiaAtencion
+                {
+                    TutorId = tutor.UsuarioId,
+                    DiaSemana = dia
+                });
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al registrar tutor",
+                detail: "Ocurrió un error al registrar los datos del tutor en el sistema. La transacción fue revertida y no se guardó ningún cambio."
+            );
+        }
 
         var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(tutor.FotografiaUrl) ?? tutor.FotografiaUrl;
 
