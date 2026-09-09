@@ -175,6 +175,19 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
+
+  {
+  path: '/estudiante/historial',
+  name: 'student-history',
+  component: () => import('@/pages/StudentHistoryPage.vue'),
+  meta: {
+    requiresAuth: true,
+    guestOnly: false,
+    roles: ['Estudiante', 'Student'],
+    title: 'Historial de Sesiones - EduConnect',
+    layout: 'dashboard'
+  }
+},
   {
     path: '/:pathMatch(.*)*',
     redirect: '/'
