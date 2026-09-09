@@ -4,6 +4,8 @@ import { useAdminActiveUsers } from '../composables/useAdminActiveUsers'
 const {
   filteredStudents,
   filteredTutors,
+  filteredInactiveStudents,
+  filteredInactiveTutors,
   isLoading,
   searchQuery,
   activeTopTab,
@@ -14,6 +16,7 @@ const {
   isProcessingAction,
   feedbackMessage,
   totalActiveCount,
+  totalInactiveCount,
   openBajaModal,
   closeBajaModal,
   confirmBaja,
@@ -358,9 +361,6 @@ const {
                 Nombre &amp; Correo
               </th>
               <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
-                Tipo de Usuario
-              </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
                 Fecha Registro
               </th>
               <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
@@ -393,11 +393,6 @@ const {
                   </span>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-error-container text-on-error-container">
-                  {{ user.tipoUsuario }}
-                </span>
-              </td>
               <td class="py-4 px-6 text-on-surface-variant">
                 {{ formatFecha(user.fechaRegistro) }}
               </td>
@@ -410,7 +405,7 @@ const {
             </tr>
 
             <tr v-if="!isLoading && filteredInactiveStudents.length === 0">
-              <td colspan="6" class="py-12 text-center text-on-surface-variant">
+              <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
                   <span class="material-symbols-outlined text-[36px] text-outline-variant">person_off</span>
                   <p class="font-label-md text-label-md">No se encontraron estudiantes dados de baja.</p>
@@ -440,11 +435,6 @@ const {
                   </span>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-error-container text-on-error-container">
-                  {{ user.tipoUsuario }}
-                </span>
-              </td>
               <td class="py-4 px-6 text-on-surface-variant">
                 {{ formatFecha(user.fechaRegistro) }}
               </td>
@@ -457,7 +447,7 @@ const {
             </tr>
 
             <tr v-if="!isLoading && filteredInactiveTutors.length === 0">
-              <td colspan="6" class="py-12 text-center text-on-surface-variant">
+              <td colspan="5" class="py-12 text-center text-on-surface-variant">
                 <div class="flex flex-col items-center justify-center gap-2">
                   <span class="material-symbols-outlined text-[36px] text-outline-variant">school_off</span>
                   <p class="font-label-md text-label-md">No se encontraron tutores dados de baja.</p>
