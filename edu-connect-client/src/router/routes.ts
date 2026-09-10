@@ -188,6 +188,19 @@ export const routes: RouteRecordRaw[] = [
     layout: 'dashboard'
   }
 },
+
+{
+  path: '/estudiante/mi-perfil',
+  name: 'student-profile',
+  component: () => import('@/pages/StudentProfilePage.vue'),
+  meta: {
+    requiresAuth: true,
+    guestOnly: false,
+    roles: ['Estudiante', 'Student'],
+    title: 'Mi Perfil - EduConnect Estudiante',
+    layout: 'dashboard'
+  }
+},
   {
     path: '/:pathMatch(.*)*',
     redirect: '/'
