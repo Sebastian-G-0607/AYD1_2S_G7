@@ -18,11 +18,10 @@ public static class HistorialSesionesEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
+        [AsParameters] HistorialSesionesRequestDto filtros,
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
         IS3Service s3Service,
-        DateOnly? fecha,
-        string? estudiante,
         CancellationToken cancellationToken)
     {
         var idUsuarioClaim =
@@ -74,20 +73,29 @@ public static class HistorialSesionesEndpoint
                 sesion.Estado.Nombre != "PENDIENTE"
             );
 
-        if (fecha.HasValue)
+        if (filtros.Fecha.HasValue)
         {
             query = query.Where(
-                sesion => sesion.FechaSesion == fecha.Value
+                sesion => sesion.FechaSesion == filtros.Fecha.Value
             );
         }
 
-        if (!string.IsNullOrWhiteSpace(estudiante))
+        if (!string.IsNullOrWhiteSpace(filtros.Estudiante))
         {
-            var filtroEstudiante = estudiante.Trim().ToLower();
+            var filtroEstudiante = $"%{filtros.Estudiante.Trim().ToLower()}%";
 
             query = query.Where(sesion =>
-                sesion.Estudiante.Nombre.ToLower().Contains(filtroEstudiante) ||
-                sesion.Estudiante.Apellido.ToLower().Contains(filtroEstudiante)
+                EF.Functions.Like((sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido).ToLower(), filtroEstudiante) ||
+                EF.Functions.Like(sesion.Estudiante.Usuario.Correo.ToLower(), filtroEstudiante)
+            );
+        }
+
+        if (!string.IsNullOrWhiteSpace(filtros.Correo))
+        {
+            var filtroCorreo = $"%{filtros.Correo.Trim().ToLower()}%";
+
+            query = query.Where(sesion =>
+                EF.Functions.Like(sesion.Estudiante.Usuario.Correo.ToLower(), filtroCorreo)
             );
         }
 
@@ -100,6 +108,7 @@ public static class HistorialSesionesEndpoint
                 sesion.FechaSesion,
                 sesion.HoraInicio,
                 Estudiante = sesion.Estudiante.Nombre + " " + sesion.Estudiante.Apellido,
+                EstudianteEmail = sesion.Estudiante.Usuario.Correo,
                 Estado = sesion.Estado.Nombre,
                 FotografiaUrl = sesion.Estudiante.FotografiaUrl
             })
@@ -111,6 +120,7 @@ public static class HistorialSesionesEndpoint
                 sesion.FechaSesion,
                 sesion.HoraInicio,
                 sesion.Estudiante,
+                sesion.EstudianteEmail,
                 sesion.Estado,
                 s3Service.GeneratePresignedUrl(sesion.FotografiaUrl)
             ))

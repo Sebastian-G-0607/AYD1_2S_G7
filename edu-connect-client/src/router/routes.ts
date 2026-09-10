@@ -128,6 +128,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/estudiante/mis-sesiones',
+    name: 'student-sessions',
+    component: () => import('@/pages/StudentSessionsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Mis Sesiones - EduConnect Estudiante',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/tutor/dashboard',
     name: 'tutor-dashboard',
     component: () => import('@/pages/TutorDashboardPage.vue'),
@@ -160,6 +172,18 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Tutor'],
       title: 'Historial de Sesiones - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/tutor/perfil',
+    name: 'tutor-profile',
+    component: () => import('@/pages/TutorProfilePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Mi Perfil - EduConnect',
       layout: 'dashboard'
     }
   },

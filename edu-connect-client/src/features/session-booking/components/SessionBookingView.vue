@@ -424,20 +424,15 @@ onMounted(() => {
                 El sistema verificará que el tutor atienda el día y hora elegidos y que no exista
                 otro compromiso en ese horario.
               </p>
-              <BaseButton
-                variant="outline"
-                size="sm"
-                class="mt-3"
-                @click="showAvailability = true"
-              >
+              <BaseButton variant="outline" size="sm" class="mt-3" @click="showAvailability = true">
                 Ver horarios disponibles
               </BaseButton>
             </div>
           </div>
         </div>
-      </div> 
-    </div> 
+      </div>
+    </div>
 
-        <AvailabilityModal v-model="showAvailability" :tutor-id="tutorId" />
+    <AvailabilityModal v-model="showAvailability" :tutor-id="tutorId" />
   </div>
 </template>

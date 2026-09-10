@@ -81,7 +81,12 @@ export function useAdminActiveUsers() {
       const email = (user.correo || '').toLowerCase()
       const role = (user.rol || '').toLowerCase()
       const motivo = (user.motivoBaja || '').toLowerCase()
-      return fullName.includes(query) || email.includes(query) || role.includes(query) || motivo.includes(query)
+      return (
+        fullName.includes(query) ||
+        email.includes(query) ||
+        role.includes(query) ||
+        motivo.includes(query)
+      )
     })
   })
 
@@ -97,11 +102,11 @@ export function useAdminActiveUsers() {
   const activeTutorsCount = computed(() => tutors.value.length)
   const totalActiveCount = computed(() => activeStudentsCount.value + activeTutorsCount.value)
 
-  const inactiveStudentsCount = computed(() =>
-    inactiveUsers.value.filter(user => user.tipoUsuario === 'Estudiante').length
+  const inactiveStudentsCount = computed(
+    () => inactiveUsers.value.filter(user => user.tipoUsuario === 'Estudiante').length
   )
-  const inactiveTutorsCount = computed(() =>
-    inactiveUsers.value.filter(user => user.tipoUsuario === 'Tutor').length
+  const inactiveTutorsCount = computed(
+    () => inactiveUsers.value.filter(user => user.tipoUsuario === 'Tutor').length
   )
   const totalInactiveCount = computed(() => inactiveUsers.value.length)
 
@@ -188,6 +193,8 @@ export function useAdminActiveUsers() {
           text: `El tutor ${target.nombre} ha sido dado de baja exitosamente. Se envió la notificación por correo.`
         }
       }
+
+      await fetchInactiveUsers()
       closeBajaModal()
     } catch (err: unknown) {
       console.error('Error al dar de baja al usuario:', err)

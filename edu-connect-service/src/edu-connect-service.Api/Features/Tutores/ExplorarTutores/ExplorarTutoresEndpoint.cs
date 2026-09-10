@@ -50,19 +50,12 @@ public static class ExplorarTutoresEndpoint
             );
         }
 
-        // Tutores con los que el estudiante ya tiene una sesión (en cualquier estado)
-        // se excluyen de la exploración, según HU-16.
-        var tutoresConSesionExistente = dbContext.Sesiones
-            .Where(sesion => sesion.EstudianteId == idEstudiante)
-            .Select(sesion => sesion.TutorId);
-
         var query = dbContext.Tutores
             .AsNoTracking()
             .Include(tutor => tutor.Usuario)
             .Include(tutor => tutor.TutorMaterias)
                 .ThenInclude(tutorMateria => tutorMateria.Materia)
-            .Where(tutor => tutor.Usuario.Estado.Nombre == "APROBADO")
-            .Where(tutor => !tutoresConSesionExistente.Contains(tutor.UsuarioId));
+            .Where(tutor => tutor.Usuario.Estado.Nombre == "APROBADO");
 
         if (!string.IsNullOrWhiteSpace(filtros.Materia))
         {
