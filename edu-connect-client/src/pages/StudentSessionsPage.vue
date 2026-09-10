@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
-import { TutorProfileView } from '@/features/tutor-profile'
+import { StudentSessionsView } from '@/features/student-sessions'
 </script>
 
 <template>
   <DashboardLayout>
-    <TutorProfileView />
+    <StudentSessionsView />
   </DashboardLayout>
 </template>

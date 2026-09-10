@@ -42,9 +42,7 @@ function handleCarnetInput(value: string) {
 }
 
 function handleIdentificationInput(value: string) {
-  formData.numeroIdentificacion = value
-    .replace(/\D/g, '')
-    .slice(0, 13)
+  formData.numeroIdentificacion = value.replace(/\D/g, '').slice(0, 13)
 
   clearProfileMessages()
 }
@@ -58,9 +56,7 @@ function handlePhoneInput(value: string) {
 <template>
   <div class="flex flex-col w-full max-w-5xl mx-auto">
     <div class="mb-8">
-      <h1
-        class="text-3xl font-bold font-headline text-on-surface tracking-tight mb-2"
-      >
+      <h1 class="text-3xl font-bold font-headline text-on-surface tracking-tight mb-2">
         Mi Perfil
       </h1>
 
@@ -73,15 +69,9 @@ function handlePhoneInput(value: string) {
       v-if="isLoading"
       class="flex items-center justify-center gap-3 py-16 text-on-surface-variant"
     >
-      <span
-        class="material-symbols-outlined animate-spin text-[22px]"
-      >
-        progress_activity
-      </span>
+      <span class="material-symbols-outlined animate-spin text-[22px]"> progress_activity </span>
 
-      <p class="text-sm font-medium">
-        Cargando información de tu perfil...
-      </p>
+      <p class="text-sm font-medium">Cargando información de tu perfil...</p>
     </div>
 
     <template v-else>
@@ -111,52 +101,29 @@ function handlePhoneInput(value: string) {
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8 pb-6 border-b border-outline-variant/30"
         >
           <div>
-            <h2
-              class="text-xl font-bold text-on-surface font-headline"
-            >
-              Información del Tutor
-            </h2>
+            <h2 class="text-xl font-bold text-on-surface font-headline">Información del Tutor</h2>
 
-            <p
-              class="text-sm text-on-surface-variant mt-1"
-            >
+            <p class="text-sm text-on-surface-variant mt-1">
               Mantén actualizados tus datos personales.
             </p>
           </div>
 
           <div class="flex flex-col items-center gap-2">
-            <BaseAvatarUpload
-              v-model="formData.fotografia"
-              alt="Fotografía del tutor"
-            />
+            <BaseAvatarUpload v-model="formData.fotografia" alt="Fotografía del tutor" />
 
-            <span
-              class="text-xs text-on-surface-variant"
-            >
-              Cambiar fotografía
-            </span>
+            <span class="text-xs text-on-surface-variant"> Cambiar fotografía </span>
           </div>
         </div>
 
         <div class="space-y-8">
           <section>
             <div class="flex items-center gap-3 mb-5">
-              <span
-                class="material-symbols-outlined text-primary"
-              >
-                person
-              </span>
+              <span class="material-symbols-outlined text-primary"> person </span>
 
-              <h3
-                class="text-lg font-bold text-on-surface"
-              >
-                Información personal
-              </h3>
+              <h3 class="text-lg font-bold text-on-surface">Información personal</h3>
             </div>
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <BaseInput
                 v-model="formData.nombre"
                 label="Nombre"
@@ -213,37 +180,19 @@ function handlePhoneInput(value: string) {
                 required
               />
 
-              <BaseInput
-                v-model="formData.direccion"
-                label="Dirección de residencia"
-                required
-              />
+              <BaseInput v-model="formData.direccion" label="Dirección de residencia" required />
             </div>
           </section>
 
           <section>
             <div class="flex items-center gap-3 mb-5">
-              <span
-                class="material-symbols-outlined text-secondary"
-              >
-                school
-              </span>
+              <span class="material-symbols-outlined text-secondary"> school </span>
 
-              <h3
-                class="text-lg font-bold text-on-surface"
-              >
-                Información profesional
-              </h3>
+              <h3 class="text-lg font-bold text-on-surface">Información profesional</h3>
             </div>
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              <BaseInput
-                v-model="formData.universidad"
-                label="Universidad"
-                required
-              />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <BaseInput v-model="formData.universidad" label="Universidad" required />
 
               <BaseInput
                 v-model="formData.anioInicio"
@@ -266,37 +215,20 @@ function handlePhoneInput(value: string) {
 
           <section>
             <div class="flex items-center gap-3 mb-5">
-              <span
-                class="material-symbols-outlined text-primary"
-              >
-                mail
-              </span>
+              <span class="material-symbols-outlined text-primary"> mail </span>
 
-              <h3
-                class="text-lg font-bold text-on-surface"
-              >
-                Cuenta
-              </h3>
+              <h3 class="text-lg font-bold text-on-surface">Cuenta</h3>
             </div>
 
-            <BaseInput
-              v-model="formData.correo"
-              type="email"
-              label="Correo electrónico"
-              disabled
-            />
+            <BaseInput v-model="formData.correo" type="email" label="Correo electrónico" disabled />
 
-            <p
-              class="text-xs text-on-surface-variant mt-2"
-            >
+            <p class="text-xs text-on-surface-variant mt-2">
               El correo electrónico no puede modificarse.
             </p>
           </section>
         </div>
 
-        <div
-          class="flex justify-end mt-8 pt-6 border-t border-outline-variant/20"
-        >
+        <div class="flex justify-end mt-8 pt-6 border-t border-outline-variant/20">
           <BaseButton
             type="submit"
             variant="primary"
@@ -304,9 +236,7 @@ function handlePhoneInput(value: string) {
             :loading="isSaving"
             :disabled="!canSaveProfile"
           >
-            <template #loading>
-              Guardando...
-            </template>
+            <template #loading> Guardando... </template>
 
             Guardar cambios
           </BaseButton>
@@ -322,21 +252,13 @@ function handlePhoneInput(value: string) {
           <div
             class="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center"
           >
-            <span class="material-symbols-outlined">
-              lock
-            </span>
+            <span class="material-symbols-outlined"> lock </span>
           </div>
 
           <div>
-            <h2
-              class="text-xl font-bold text-on-surface font-headline"
-            >
-              Cambiar contraseña
-            </h2>
+            <h2 class="text-xl font-bold text-on-surface font-headline">Cambiar contraseña</h2>
 
-            <p
-              class="text-sm text-on-surface-variant mt-1"
-            >
+            <p class="text-sm text-on-surface-variant mt-1">
               Confirma primero tu contraseña actual.
             </p>
           </div>
@@ -380,9 +302,7 @@ function handlePhoneInput(value: string) {
               @update:model-value="clearPasswordMessages"
             />
 
-            <PasswordRequirements
-              :password="passwordData.nuevaPassword"
-            />
+            <PasswordRequirements :password="passwordData.nuevaPassword" />
           </div>
 
           <BaseInput
@@ -391,18 +311,12 @@ function handlePhoneInput(value: string) {
             label="Confirmar nueva contraseña"
             show-password-toggle
             autocomplete="new-password"
-            :error="
-              passwordMismatch
-                ? 'Las contraseñas no coinciden.'
-                : undefined
-            "
+            :error="passwordMismatch ? 'Las contraseñas no coinciden.' : undefined"
             @update:model-value="clearPasswordMessages"
           />
         </div>
 
-        <div
-          class="flex justify-end mt-8 pt-6 border-t border-outline-variant/20"
-        >
+        <div class="flex justify-end mt-8 pt-6 border-t border-outline-variant/20">
           <BaseButton
             type="submit"
             variant="primary"
@@ -410,9 +324,7 @@ function handlePhoneInput(value: string) {
             :loading="isChangingPassword"
             :disabled="!canChangePassword"
           >
-            <template #loading>
-              Actualizando...
-            </template>
+            <template #loading> Actualizando... </template>
 
             Cambiar contraseña
           </BaseButton>

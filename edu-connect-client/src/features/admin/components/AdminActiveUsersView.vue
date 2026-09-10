@@ -459,7 +459,9 @@ const {
               >
                 Nombre &amp; Correo
               </th>
-              <th class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
+              <th
+                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+              >
                 Fecha Registro
               </th>
               <th
