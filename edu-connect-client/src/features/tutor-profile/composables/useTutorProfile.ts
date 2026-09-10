@@ -1,11 +1,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { tutorProfileService } from '../services/tutorProfile.service'
-import type {
-  ApiProblemDetails,
-  ChangePasswordRequest,
-  TutorProfileForm
-} from '../types'
+import type { ApiProblemDetails, ChangePasswordRequest, TutorProfileForm } from '../types'
 
 export function useTutorProfile() {
   const formData = reactive<TutorProfileForm>({
@@ -43,23 +39,15 @@ export function useTutorProfile() {
   const currentYear = new Date().getFullYear()
 
   const passwordMismatch = computed(() => {
-    if (
-      !passwordData.nuevaPassword ||
-      !passwordData.confirmarNuevaPassword
-    ) {
+    if (!passwordData.nuevaPassword || !passwordData.confirmarNuevaPassword) {
       return false
     }
 
-    return (
-      passwordData.nuevaPassword !==
-      passwordData.confirmarNuevaPassword
-    )
+    return passwordData.nuevaPassword !== passwordData.confirmarNuevaPassword
   })
 
   const isNewPasswordValid = computed(() => {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(
-      passwordData.nuevaPassword
-    )
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passwordData.nuevaPassword)
   })
 
   const canSaveProfile = computed(() => {
@@ -91,16 +79,9 @@ export function useTutorProfile() {
     )
   })
 
-  function getErrorMessage(
-    error: unknown,
-    fallback: string
-  ): string {
+  function getErrorMessage(error: unknown, fallback: string): string {
     if (isAxiosError<ApiProblemDetails>(error)) {
-      return (
-        error.response?.data?.detail ??
-        error.response?.data?.title ??
-        fallback
-      )
+      return error.response?.data?.detail ?? error.response?.data?.title ?? fallback
     }
 
     return fallback
@@ -121,23 +102,18 @@ export function useTutorProfile() {
     clearProfileMessages()
 
     try {
-      const profile =
-        await tutorProfileService.getProfile()
+      const profile = await tutorProfileService.getProfile()
 
       formData.nombre = profile.nombre
       formData.apellido = profile.apellido
       formData.carnetId = profile.carnetId
-      formData.numeroIdentificacion =
-        profile.numeroIdentificacion
+      formData.numeroIdentificacion = profile.numeroIdentificacion
       formData.genero = profile.genero.toLowerCase()
       formData.direccion = profile.direccion
       formData.telefono = profile.telefono
-      formData.fechaNacimiento =
-        profile.fechaNacimiento
-      formData.fotografia =
-        profile.fotografiaUrl || null
-      formData.direccionTutoria =
-        profile.direccionTutoria
+      formData.fechaNacimiento = profile.fechaNacimiento
+      formData.fotografia = profile.fotografiaUrl || null
+      formData.direccionTutoria = profile.direccionTutoria
       formData.anioInicio = profile.anioInicio
       formData.universidad = profile.universidad
       formData.correo = profile.correo
@@ -155,52 +131,39 @@ export function useTutorProfile() {
     clearProfileMessages()
 
     if (!canSaveProfile.value) {
-      errorMessage.value =
-        'Revisa que todos los campos del perfil sean válidos.'
+      errorMessage.value = 'Revisa que todos los campos del perfil sean válidos.'
       return false
     }
 
     isSaving.value = true
 
     try {
-      const updated =
-        await tutorProfileService.updateProfile(
-          formData
-        )
+      const updated = await tutorProfileService.updateProfile(formData)
 
       formData.nombre = updated.nombre
       formData.apellido = updated.apellido
       formData.carnetId = updated.carnetId
-      formData.numeroIdentificacion =
-        updated.numeroIdentificacion
-      formData.genero =
-        updated.genero.toLowerCase()
+      formData.numeroIdentificacion = updated.numeroIdentificacion
+      formData.genero = updated.genero.toLowerCase()
       formData.direccion = updated.direccion
       formData.telefono = updated.telefono
-      formData.fechaNacimiento =
-        updated.fechaNacimiento
+      formData.fechaNacimiento = updated.fechaNacimiento
 
       // IMPORTANTE:
       // sustituimos el File local por la URL de S3
       // devuelta por el backend.
-      formData.fotografia =
-        updated.fotografiaUrl || null
+      formData.fotografia = updated.fotografiaUrl || null
 
-      formData.direccionTutoria =
-        updated.direccionTutoria
+      formData.direccionTutoria = updated.direccionTutoria
       formData.anioInicio = updated.anioInicio
       formData.universidad = updated.universidad
       formData.correo = updated.correo
 
-      successMessage.value =
-        'Tu perfil fue actualizado correctamente.'
+      successMessage.value = 'Tu perfil fue actualizado correctamente.'
 
       return true
     } catch (error: unknown) {
-      errorMessage.value = getErrorMessage(
-        error,
-        'No fue posible actualizar tu perfil.'
-      )
+      errorMessage.value = getErrorMessage(error, 'No fue posible actualizar tu perfil.')
 
       return false
     } finally {
@@ -212,8 +175,7 @@ export function useTutorProfile() {
     clearPasswordMessages()
 
     if (passwordMismatch.value) {
-      passwordErrorMessage.value =
-        'La nueva contraseña y su confirmación no coinciden.'
+      passwordErrorMessage.value = 'La nueva contraseña y su confirmación no coinciden.'
       return false
     }
 
@@ -238,8 +200,7 @@ export function useTutorProfile() {
       passwordData.nuevaPassword = ''
       passwordData.confirmarNuevaPassword = ''
 
-      passwordSuccessMessage.value =
-        'Contraseña actualizada correctamente.'
+      passwordSuccessMessage.value = 'Contraseña actualizada correctamente.'
 
       return true
     } catch (error: unknown) {

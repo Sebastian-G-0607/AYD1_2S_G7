@@ -15,13 +15,8 @@ const route = useRoute()
 const authStore = useAuthStore()
 const { logout } = useAuth()
 
-const {
-  isDesktopSidebarOpen,
-  isMobileMenuOpen,
-  closeMobileMenu,
-  closeSidebar,
-  toggleMenu
-} = useSidebar()
+const { isDesktopSidebarOpen, isMobileMenuOpen, closeMobileMenu, closeSidebar, toggleMenu } =
+  useSidebar()
 
 const isLogoutModalOpen = ref(false)
 const isLoggingOut = ref(false)
@@ -56,9 +51,7 @@ const userInitials = computed(() => {
 
   if (authStore.user?.nombre) {
     const first = authStore.user.nombre.charAt(0)
-    const second = authStore.user.apellido
-      ? authStore.user.apellido.charAt(0)
-      : ''
+    const second = authStore.user.apellido ? authStore.user.apellido.charAt(0) : ''
 
     return (first + second).toUpperCase()
   }
@@ -158,10 +151,7 @@ const navItems = computed<NavItem[]>(() => {
 function isRouteActive(itemPath: string): boolean {
   if (itemPath === route.path) return true
 
-  if (
-    itemPath !== '/' &&
-    route.path.startsWith(itemPath)
-  ) {
+  if (itemPath !== '/' && route.path.startsWith(itemPath)) {
     return true
   }
 
@@ -191,9 +181,7 @@ async function confirmLogout() {
 </script>
 
 <template>
-  <div
-    class="min-h-screen bg-surface font-body text-on-surface flex flex-col"
-  >
+  <div class="min-h-screen bg-surface font-body text-on-surface flex flex-col">
     <!-- Overlay móvil -->
     <div
       v-if="isMobileMenuOpen"
@@ -205,12 +193,8 @@ async function confirmLogout() {
     <aside
       :class="[
         'fixed top-0 bottom-0 left-0 w-72 bg-surface-container-lowest z-50 flex flex-col border-r border-outline-variant/30 shadow-[4px_0_12px_rgba(30,41,59,0.03)] transition-transform duration-300 ease-in-out',
-        isMobileMenuOpen
-          ? 'translate-x-0'
-          : '-translate-x-full',
-        isDesktopSidebarOpen
-          ? 'lg:translate-x-0'
-          : 'lg:-translate-x-full'
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+        isDesktopSidebarOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'
       ]"
     >
       <!-- Logo -->
@@ -221,11 +205,7 @@ async function confirmLogout() {
           <div
             class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm shrink-0"
           >
-            <span
-              class="material-symbols-outlined text-[20px]"
-            >
-              school
-            </span>
+            <span class="material-symbols-outlined text-[20px]"> school </span>
           </div>
 
           <div class="flex flex-col min-w-0">
@@ -245,37 +225,21 @@ async function confirmLogout() {
 
         <button
           type="button"
-          :aria-label="
-            isDesktopSidebarOpen
-              ? 'Ocultar barra lateral'
-              : 'Cerrar menú'
-          "
-          :title="
-            isDesktopSidebarOpen
-              ? 'Ocultar barra lateral'
-              : 'Cerrar menú'
-          "
+          :aria-label="isDesktopSidebarOpen ? 'Ocultar barra lateral' : 'Cerrar menú'"
+          :title="isDesktopSidebarOpen ? 'Ocultar barra lateral' : 'Cerrar menú'"
           class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container-low shrink-0 flex items-center justify-center"
           @click="closeSidebar"
         >
-          <span
-            class="material-symbols-outlined text-[20px] lg:hidden"
-          >
-            close
-          </span>
+          <span class="material-symbols-outlined text-[20px] lg:hidden"> close </span>
 
-          <span
-            class="material-symbols-outlined text-[20px] hidden lg:inline-block"
-          >
+          <span class="material-symbols-outlined text-[20px] hidden lg:inline-block">
             menu_open
           </span>
         </button>
       </div>
 
       <!-- Navegación -->
-      <nav
-        class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto"
-      >
+      <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         <RouterLink
           v-for="item in navItems"
           :key="item.to"
@@ -288,9 +252,7 @@ async function confirmLogout() {
           ]"
           @click="closeMobileMenu"
         >
-          <span
-            class="material-symbols-outlined text-[22px]"
-          >
+          <span class="material-symbols-outlined text-[22px]">
             {{ item.icon }}
           </span>
 
@@ -301,23 +263,15 @@ async function confirmLogout() {
       </nav>
 
       <!-- Cerrar sesión -->
-      <div
-        class="p-4 border-t border-surface-container/60 flex flex-col gap-2"
-      >
+      <div class="p-4 border-t border-surface-container/60 flex flex-col gap-2">
         <button
           type="button"
           class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-error hover:bg-error-container/40 transition-colors font-medium text-sm"
           @click="openLogoutModal"
         >
-          <span
-            class="material-symbols-outlined text-[20px]"
-          >
-            logout
-          </span>
+          <span class="material-symbols-outlined text-[20px]"> logout </span>
 
-          <span>
-            Cerrar Sesión
-          </span>
+          <span> Cerrar Sesión </span>
         </button>
       </div>
     </aside>
@@ -326,9 +280,7 @@ async function confirmLogout() {
     <div
       :class="[
         'flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out',
-        isDesktopSidebarOpen
-          ? 'lg:pl-72'
-          : 'lg:pl-0'
+        isDesktopSidebarOpen ? 'lg:pl-72' : 'lg:pl-0'
       ]"
     >
       <!-- Header -->
@@ -338,43 +290,21 @@ async function confirmLogout() {
         <div class="flex items-center gap-4">
           <button
             type="button"
-            :aria-label="
-              isDesktopSidebarOpen
-                ? 'Ocultar menú'
-                : 'Mostrar menú'
-            "
-            :title="
-              isDesktopSidebarOpen
-                ? 'Ocultar menú'
-                : 'Mostrar menú'
-            "
+            :aria-label="isDesktopSidebarOpen ? 'Ocultar menú' : 'Mostrar menú'"
+            :title="isDesktopSidebarOpen ? 'Ocultar menú' : 'Mostrar menú'"
             :class="[
               'p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors flex items-center justify-center',
-              isDesktopSidebarOpen
-                ? 'lg:hidden'
-                : 'block'
+              isDesktopSidebarOpen ? 'lg:hidden' : 'block'
             ]"
             @click="toggleMenu"
           >
-            <span
-              class="material-symbols-outlined text-[24px]"
-            >
-              menu
-            </span>
+            <span class="material-symbols-outlined text-[24px]"> menu </span>
           </button>
 
-          <div
-            class="flex items-center gap-2 text-on-surface-variant"
-          >
-            <span
-              class="material-symbols-outlined text-[20px]"
-            >
-              school
-            </span>
+          <div class="flex items-center gap-2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-[20px]"> school </span>
 
-            <span
-              class="text-sm font-semibold text-on-surface tracking-tight"
-            >
+            <span class="text-sm font-semibold text-on-surface tracking-tight">
               {{ portalSubtitle }}
             </span>
           </div>
@@ -387,33 +317,19 @@ async function confirmLogout() {
             aria-label="Notificaciones"
             class="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors relative"
           >
-            <span
-              class="material-symbols-outlined text-[22px]"
-            >
-              notifications
-            </span>
+            <span class="material-symbols-outlined text-[22px]"> notifications </span>
 
-            <span
-              class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"
-            />
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
           </button>
 
           <!-- Usuario -->
-          <div
-            class="flex items-center gap-3 pl-4 border-l border-surface-container-high"
-          >
-            <div
-              class="hidden sm:flex flex-col text-right"
-            >
-              <span
-                class="text-sm font-semibold text-on-surface leading-tight"
-              >
+          <div class="flex items-center gap-3 pl-4 border-l border-surface-container-high">
+            <div class="hidden sm:flex flex-col text-right">
+              <span class="text-sm font-semibold text-on-surface leading-tight">
                 {{ userDisplayName }}
               </span>
 
-              <span
-                class="text-xs text-on-surface-variant"
-              >
+              <span class="text-xs text-on-surface-variant">
                 {{ userRoleDisplay }}
               </span>
             </div>
@@ -440,11 +356,7 @@ async function confirmLogout() {
               class="p-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors"
               @click="openLogoutModal"
             >
-              <span
-                class="material-symbols-outlined text-[20px]"
-              >
-                logout
-              </span>
+              <span class="material-symbols-outlined text-[20px]"> logout </span>
             </button>
           </div>
         </div>
@@ -468,38 +380,22 @@ async function confirmLogout() {
         <div
           class="w-12 h-12 rounded-2xl bg-error-container/60 text-error flex items-center justify-center shrink-0"
         >
-          <span
-            class="material-symbols-outlined text-[28px]"
-          >
-            logout
-          </span>
+          <span class="material-symbols-outlined text-[28px]"> logout </span>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <h4
-            class="text-base font-semibold text-on-surface"
-          >
+          <h4 class="text-base font-semibold text-on-surface">
             ¿Estás seguro de que deseas cerrar sesión?
           </h4>
         </div>
       </div>
 
       <template #footer>
-        <BaseButton
-          variant="outline"
-          size="md"
-          :disabled="isLoggingOut"
-          @click="closeLogoutModal"
-        >
+        <BaseButton variant="outline" size="md" :disabled="isLoggingOut" @click="closeLogoutModal">
           Cancelar
         </BaseButton>
 
-        <BaseButton
-          variant="danger"
-          size="md"
-          :loading="isLoggingOut"
-          @click="confirmLogout"
-        >
+        <BaseButton variant="danger" size="md" :loading="isLoggingOut" @click="confirmLogout">
           Cerrar Sesión
         </BaseButton>
       </template>
