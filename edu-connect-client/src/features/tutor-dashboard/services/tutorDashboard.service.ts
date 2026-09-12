@@ -9,17 +9,8 @@ import type {
 
 export const tutorDashboardService = {
   async getStats(): Promise<TutorDashboardStats> {
-    try {
-      const { data } = await api.get<TutorDashboardStats>('/tutor/dashboard/estadisticas')
-      return data
-    } catch {
-      return {
-        sesionesPendientes: 12,
-        pendientesHoy: 4,
-        sesionesAtendidasMes: 48,
-        sesionesCanceladas: 2
-      }
-    }
+    const { data } = await api.get<TutorDashboardStats>('/tutores/dashboard/estadisticas')
+    return data
   },
 
   async getPendingSessions(): Promise<TutorSession[]> {
