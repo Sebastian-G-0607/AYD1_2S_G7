@@ -1,248 +1,421 @@
-# EduConnect
+# Product Backlog & Estimaciones (Jira) — EduConnect
 
-## Product Backlog
+**Universidad de San Carlos de Guatemala (USAC)**  
+**Facultad de Ingeniería — Escuela de Ciencias y Sistemas**  
+**Análisis y Diseño de Sistemas 1 (AYD1) — Segundo Semestre 2026**  
+**Grupo 7**
 
-### Módulo 1: Registro y Autenticación
+---
+
+### Gestión del Proyecto
+* **Herramienta de Gestión:** Jira Software Cloud
+* **URL del Tablero en Jira:** [EduConnect G7 Jira Workspace](https://edu-connect-g7.atlassian.net/jira/software/projects/ED/summary)
+* **Product Owner:** Eduardo Sebastián Gutiérrez Felipe (202300694)
+* **Scrum Master:** Carlos Eduardo Lau López (202202812)
+* **Equipo de Desarrollo:** Carlos Lau, Eduardo Gutiérrez, Christian Chinchilla, Josue Revolorio, Sebastian Romero, Keitlyn Tunchez.
+
+---
+
+## 1. Metodología de Estimación (Planning Poker / Story Points)
+
+Para la estimación del esfuerzo de cada Historia de Usuario en Jira se utilizó la técnica de **Planning Poker** basada en la **secuencia de Fibonacci modificada (1, 2, 3, 5, 8, 13)**:
+
+* **1 - 2 Puntos (Baja Complejidad / Esfuerzo Reducido):** Tareas puntuales, consultas sencillas o interfaces de solo lectura con poca lógica (ej. listados básicos o consultas de catálogo).
+* **3 Puntos (Complejidad Media-Baja):** Formularios estándar con validaciones comunes en frontend y backend, o endpoints CRUD directos con actualización de estado.
+* **5 Puntos (Complejidad Media-Alta):** Flujos completos que integran validaciones de negocio cruzadas (ej. validaciones de traslapes de horario, envío de correos asíncronos o autenticación 2FA con descifrado criptográfico).
+* **8 Puntos (Alta Complejidad):** Flujos críticos con alta interacción entre múltiples entidades, filtros multidimensionales, subida de archivos binarios a la nube (AWS S3) o generación de reportes analíticos con agregación en base de datos.
+* **13 Puntos (Complejidad Muy Alta / Épicas desglosadas):** Si una historia llegaba a este puntaje, fue desglosada en historias más atómicas para cumplir con la definición de preparado (*Definition of Ready*).
+
+---
+
+## 2. Resumen General del Product Backlog
+
+A continuación se presenta la tabla consolidada del Product Backlog priorizado, con su asignación a Sprint y la estimación en **Story Points (SP)** tal como debe reflejarse en Jira:
+
+| Código | Épica / Módulo | Título de la Historia de Usuario | Prioridad | Dependencias | Story Points | Sprint |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| **HU-01** | Registro y Autenticación | Registro de Estudiante | Alta | Ninguna | **5** | Sprint 1 |
+| **HU-02** | Registro y Autenticación | Registro de Tutor | Alta | Ninguna | **5** | Sprint 1 |
+| **HU-03** | Registro y Autenticación | Inicio de Sesión (Estudiantes y Tutores) | Alta | HU-01, HU-02, HU-05, HU-06 | **3** | Sprint 1 |
+| **HU-04** | Registro y Autenticación | Inicio de Sesión de Administrador con Segundo Factor (2FA) | Alta | Ninguna | **5** | Sprint 1 |
+| **HU-05** | Administrador | Aprobación de Registro de Estudiantes | Alta | HU-01 | **3** | Sprint 1 |
+| **HU-06** | Administrador | Aprobación de Registro de Tutores | Alta | HU-02 | **3** | Sprint 1 |
+| **HU-10** | Tutor | Establecer Horarios de Atención | Alta | HU-03 | **5** | Sprint 1 |
+| **HU-16** | Estudiante | Exploración y Búsqueda de Tutores | Alta | HU-02, HU-06 | **5** | Sprint 1 |
+| **HU-17** | Estudiante | Consulta de Horarios y Disponibilidad | Alta | HU-10, HU-16 | **5** | Sprint 1 |
+| **HU-18** | Estudiante | Programar Sesión de Tutoría | Alta | HU-17 | **8** | Sprint 1 |
+| **HU-07** | Administrador | Gestión de Usuarios Activos | Media | HU-05, HU-06 | **5** | Sprint 2 |
+| **HU-08** | Administrador | Generación de Reportes | Media | HU-12, HU-18 | **8** | Sprint 2 |
+| **HU-09** | Administrador | Visualización de usuarios dados de baja | Media | HU-05, HU-06, HU-07 | **3** | Sprint 2 |
+| **HU-11** | Tutor | Actualizar Horarios de Atención | Media | HU-10 | **5** | Sprint 2 |
+| **HU-12** | Tutor | Gestión y Atención de Sesiones Pendientes | Alta | HU-18 | **5** | Sprint 2 |
+| **HU-13** | Tutor | Cancelación de Sesión por el Tutor | Alta | HU-12 | **5** | Sprint 2 |
+| **HU-14** | Tutor | Historial de Sesiones | Alta | HU-12, HU-13 | **3** | Sprint 2 |
+| **HU-15** | Tutor | Ver y actualizar perfil | Alta | HU-02 | **5** | Sprint 2 |
+| **HU-19** | Estudiante | Gestión de Sesiones Activas (Cancelaciones) | Media | HU-18 | **5** | Sprint 2 |
+| **HU-20** | Estudiante | Visualización de Historial de Sesiones | Baja | HU-12, HU-13, HU-19 | **3** | Sprint 2 |
+| **HU-21** | Estudiante | Gestión de Perfil | Baja | HU-01 | **5** | Sprint 2 |
+| **TOTAL** | | **21 Historias de Usuario** | | | **99 SP** | |
+
+**Totales por sprint:** Sprint 1: **47 puntos** · Sprint 2: **52 puntos**.
+
+---
+
+## 3. Evidencias del Product Backlog en Jira
+
+![](Imagenes/jira1.png)
+---
+
+## 4. Detalle de Historias de Usuario y Tareas Técnicas (Sub-Tasks en Jira)
+
+A continuación se detalla cada Historia de Usuario con la estructura que se encuentra configurada en Jira: descripción de usuario, criterios de aceptación, estimación y el desglose de subtareas para Backend, Frontend y Base de Datos.
+
+---
+
+### ÉPICA 1: MÓDULO DE REGISTRO Y AUTENTICACIÓN
 
 #### HU-01: Registro de Estudiante
+* **Identificador en Jira:** HU-01
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como estudiante universitario quiero registrarme en la plataforma ingresando mis datos personales y credenciales para poder acceder a las tutorías académicas.
+* **Criterios de Aceptación:**
+  1. El formulario solicita: nombres, apellidos, carnet universitario, género, dirección, teléfono, fecha de nacimiento, correo institucional/personal y contraseña.
+  2. Permite subir una fotografía de perfil de forma opcional.
+  3. La contraseña debe exigir al menos 8 caracteres, con al menos una letra mayúscula, una minúscula y un número.
+  4. La contraseña se almacena de forma encriptada (BCrypt).
+  5. El sistema valida la unicidad del correo electrónico y el carnet antes de persistir el registro.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `POST /api/estudiantes/registro` con validaciones de campos y hashing de contraseña.
+  - `[FRONTEND]` Crear vista `StudentRegisterPage.vue` con formulario interactivo y componente de validación de contraseña en vivo.
+  - `[DATABASE]` Mapear entidad `Estudiante` vinculada a `Usuario` con estado inicial `PENDIENTE`.
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero registrarme en el sistema ingresando mis datos personales para poder acceder a las funcionalidades de la plataforma y agendar tutorías. |
-| **Criterios de Aceptación** | 1. El formulario debe solicitar: nombre, apellido, carnet universitario, género, dirección, teléfono, fecha de nacimiento, correo electrónico y contraseña.<br>2. El formulario permite subir una fotografía de perfil opcional.<br>3. La contraseña debe tener un mínimo de 8 caracteres, incluyendo al menos una letra minúscula, una mayúscula y un número.<br>4. La contraseña debe almacenarse encriptada en la base de datos.<br>5. El sistema debe validar que el correo electrónico no esté duplicado. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | Ninguna |
-| **Módulo** | Registro y Autenticación |
+---
 
 #### HU-02: Registro de Tutor
+* **Identificador en Jira:** HU-02
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como tutor quiero registrarme ingresando mi perfil profesional, materias de especialidad y dirección de atención para ofrecer sesiones de tutoría.
+* **Criterios de Aceptación:**
+  1. Solicita: nombre, apellido, carnet/ID, fecha de nacimiento, género, dirección, teléfono, número de identificación de tutor, materias que imparte, modalidad/dirección de tutoría, correo, año de inicio de tutorías, universidad de egreso y contraseña.
+  2. Carga obligatoria de fotografía de perfil (almacenada en AWS S3).
+  3. Validación de unicidad de correo y número de identificación de tutor.
+  4. Contraseña robusta (mínimo 8 caracteres, mayúscula, minúscula, número).
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `POST /api/tutores/registro` con servicio S3 para subida de foto y asociación de materias múltiples.
+  - `[FRONTEND]` Diseñar `TutorRegisterPage.vue` con selector múltiple de materias y componente para recorte/subida de foto.
+  - `[DATABASE]` Crear tablas `Tutores`, `Materias` y tabla intermedia `TutoresMaterias`.
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero registrarme en el sistema ingresando mi información profesional y personal para publicar mi perfil y ofrecer sesiones de tutoría. |
-| **Criterios de Aceptación** | 1. El formulario debe solicitar: nombre, apellido, carnet o ID, fecha de nacimiento, género, dirección, teléfono, número de identificación de tutor, especialidad (materias que imparte), dirección de tutoría (física u online), correo electrónico, año de inicio de tutorías, universidad de graduación y contraseña.<br>2. El formulario solicita subir una fotografía de perfil obligatoria.<br>3. Se debe validar la unicidad del correo electrónico y del número de identificación del tutor.<br>4. La contraseña debe tener un mínimo de 8 caracteres, incluir minúscula, mayúscula y número, y almacenarse de forma encriptada. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | Ninguna |
-| **Módulo** | Registro y Autenticación |
+---
 
 #### HU-03: Inicio de Sesión (Estudiantes y Tutores)
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como usuario quiero iniciar sesión con mi correo y contraseña para acceder a mi panel correspondiente. |
-| **Criterios de Aceptación** | 1. El sistema debe verificar que el usuario haya sido aprobado previamente por el administrador; si no está aprobado, debe impedir el acceso.<br>2. Si hay un error de autenticación, el sistema debe mostrar un mensaje con la información del problema.<br>3. Debe existir un enlace visible para registrarse si el usuario no tiene cuenta. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-01, HU-02, HU-05, HU-06 |
-| **Módulo** | Registro y Autenticación |
-
-#### HU-04: Inicio de Sesión de Administrador (2FA)
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero iniciar sesión mediante un proceso de doble autenticación para acceder de forma segura al panel de administración. |
-| **Criterios de Aceptación** | 1. El administrador debe ingresar primero con un usuario y contraseña predeterminados.<br>2. Tras el primer paso, debe ser redirigido a una página para subir un archivo llamado `auth2-ayd1.txt`.<br>3. El archivo debe contener una contraseña encriptada que, al ser validada por el sistema, permitirá el acceso a la página principal.<br>4. La contraseña del primer inicio de sesión y la del archivo deben ser diferentes. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | Ninguna |
-| **Módulo** | Registro y Autenticación |
+* **Identificador en Jira:** HU-03
+* **Estimación:** 3 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como usuario quiero iniciar sesión con mi correo y contraseña para acceder a las opciones de mi rol.
+* **Criterios de Aceptación:**
+  1. El sistema verifica si el usuario está en estado `APROBADO`. Si está en estado `PENDIENTE`, `RECHAZADO` o `INACTIVO`, impide el ingreso e indica la causa.
+  2. Muestra mensajes específicos en caso de credenciales incorrectas.
+  3. Proporciona enlaces directos a las páginas de registro de estudiante y tutor.
+  4. Emite un token JWT con los claims correspondientes al rol autenticado.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Implementar endpoint `POST /auth/login` con validación de hash BCrypt y generación de JWT.
+  - `[FRONTEND]` Crear `LoginPage.vue` y configurar el enrutador con redirección automática según el rol recibido.
+  - `[DATABASE]` Validar índices en columna `Correo` para agilizar la búsqueda de credenciales.
 
 ---
 
-### Módulo 4: Administrador
+#### HU-04: Inicio de Sesión de Administrador (Doble Autenticación 2FA)
+* **Identificador en Jira:** HU-04
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como administrador quiero iniciar sesión mediante doble factor de autenticación para asegurar el acceso al panel administrativo.
+* **Criterios de Aceptación:**
+  1. El administrador ingresa primero con su correo y contraseña predeterminada.
+  2. Tras validar el primer paso, el sistema emite un token provisional de 5 minutos y redirige a la vista 2FA.
+  3. En la vista 2FA se carga el archivo físico `auth2-ayd1.txt` que contiene un payload en Base64 cifrado con AES-256-CBC.
+  4. Al descifrar exitosamente el archivo y coincidir con la clave de fase 2, se entrega el JWT definitivo de Administrador.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `POST /auth/admin-login` y `POST /auth/admin-2fa` con lógica criptográfica AES.
+  - `[FRONTEND]` Crear páginas `LoginPage.vue` (primer paso) y `AdminTwoFactorPage.vue` con zona de arrastrar y soltar archivo (*dropzone*).
+  - `[CONFIG]` Configurar variables de entorno `AdminUser:Password` y `AdminUser:PasswordFase2` diferenciadas.
+
+---
+
+### ÉPICA 2: MÓDULO DE ADMINISTRADOR
 
 #### HU-05: Aprobación de Registro de Estudiantes
+* **Identificador en Jira:** HU-05
+* **Estimación:** 3 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como administrador quiero consultar la lista de estudiantes pendientes de aprobación para aceptar o rechazar sus solicitudes y enviarles una notificación.
+* **Criterios de Aceptación:**
+  1. Listado con foto (o avatar por defecto), nombre completo, carnet, género, fecha de nacimiento y correo.
+  2. Botones de acción "Aceptar" y "Rechazar" en cada registro.
+  3. Envío de correo automático al estudiante notificándole la decisión tomada.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/admin/estudiantes/pendientes` y `PATCH /api/admin/estudiantes/{id}/estado`.
+  - `[BACKEND]` Conectar servicio de correos SMTP con plantilla de correo institucional de aprobación/rechazo.
+  - `[FRONTEND]` Crear componente `AdminApprovalsStudentList.vue` con modales de confirmación.
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero ver la lista de estudiantes pendientes de aprobación para aceptar o rechazar sus solicitudes de ingreso a la plataforma. |
-| **Criterios de Aceptación** | 1. El sistema debe mostrar una lista con fotografía (o una por defecto si no tiene), nombre completo, carnet, género, fecha de nacimiento y correo del estudiante.<br>2. Debe existir un botón para aceptar o rechazar la solicitud a la par de cada registro.<br>3. Se debe enviar un correo de notificación al usuario informando si su cuenta fue aprobada o rechazada. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-01 |
-| **Módulo** | Administrador |
+---
 
 #### HU-06: Aprobación de Registro de Tutores
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero visualizar los tutores pendientes de aprobación para verificar sus perfiles y permitirles usar el sistema. |
-| **Criterios de Aceptación** | 1. La lista debe mostrar fotografía, nombre completo, carnet, género, especialidad, número de identificación y correo electrónico.<br>2. Debe incluir botones para aceptar o rechazar a cada tutor.<br>3. Se debe enviar un correo electrónico al tutor notificando si fue aprobado o rechazado. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-02 |
-| **Módulo** | Administrador |
-
-#### HU-07: Gestión de Usuarios Activos
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero ver a todos los estudiantes y tutores activos en el sistema para poder darlos de baja si es necesario. |
-| **Criterios de Aceptación** | 1. Debe existir una vista para ver todos los estudiantes ya aceptados y una opción para darlos de baja.<br>2. Debe existir una vista separada para ver todos los tutores aceptados y una opción para darlos de baja.<br>3. Al dar de baja a un usuario, se le debe enviar automáticamente una notificación por correo electrónico informándole sobre la baja de su cuenta.<br>4. El usuario dado de baja no debe poder iniciar sesión y su estado debe pasar a inactivo. |
-| **Prioridad** | Media |
-| **Estimación** | |
-| **Dependencias** | HU-05, HU-06 |
-| **Módulo** | Administrador |
-
-#### HU-08: Generación de Reportes
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero generar reportes del sistema para tomar decisiones estratégicas basadas en el uso de la plataforma. |
-| **Criterios de Aceptación** | 1. El sistema debe permitir generar al menos dos reportes relevantes (ej. tutores que más estudiantes han atendido o materia con más demanda).<br>2. Los reportes deben presentarse de forma gráfica incluyendo tablas y elementos visuales (como gráficos de barras o circulares).<br>3. Los datos consumidos para los reportes y gráficos deben ser precisos y actualizados al momento de la consulta. |
-| **Prioridad** | Media |
-| **Estimación** | |
-| **Dependencias** | HU-12, HU-18 |
-| **Módulo** | Administrador |
-
-#### HU-09: Visualización de usuarios dados de baja
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como administrador quiero ver la lista de usuarios que han sido dados de baja del sistema. |
-| **Criterios de Aceptación** | 1. El sistema debe permitir ver la lista de estudiantes y tutores que han sido dados de baja, mostrando su nombre, correo electrónico, fecha de baja y motivo.<br>2. La vista debe permitir filtrar o buscar usuarios dados de baja por rol (estudiante o tutor), nombre o correo electrónico.<br>3. El administrador debe poder consultar el detalle completo de la información del usuario inactivo y el motivo registrado de su baja. |
-| **Prioridad** | Media |
-| **Estimación** | |
-| **Dependencias** | HU-05, HU-06, HU-07 |
-| **Módulo** | Administrador |
+* **Identificador en Jira:** HU-06
+* **Estimación:** 3 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como administrador quiero revisar la lista de tutores pendientes para validar sus materias y credenciales antes de admitirlos.
+* **Criterios de Aceptación:**
+  1. Lista con fotografía obligatoria, nombre, carnet/ID, género, especialidades, número de identificación y correo.
+  2. Opciones individuales de aprobar o rechazar con envío inmediato de notificación por correo electrónico.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/admin/tutores/pendientes` y `PATCH /api/admin/tutores/{id}/estado`.
+  - `[FRONTEND]` Crear componente `AdminApprovalsTutorList.vue` integrado en el panel de aprobaciones.
 
 ---
 
-### Módulo 3: Tutor
+#### HU-07: Gestión de Usuarios Activos y Bajas
+* **Identificador en Jira:** HU-07
+* **Estimación:** 5 Story Points
+* **Prioridad:** Media
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como administrador quiero consultar la lista de estudiantes y tutores activos para poder darlos de baja con un motivo justificado.
+* **Criterios de Aceptación:**
+  1. Vista con pestañas independientes para estudiantes activos y tutores activos.
+  2. Botón "Dar de baja" que despliega un modal exigiendo el motivo de la baja.
+  3. Notificación inmediata por correo electrónico al usuario dado de baja informándole la razón.
+  4. Cambio de estado a `INACTIVO` e imposibilidad de iniciar sesión a partir de ese momento.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints de listado y endpoints `POST /api/admin/estudiantes/{id}/baja` y `POST /api/admin/tutores/{id}/baja`.
+  - `[FRONTEND]` Crear `AdminActiveUsersView.vue` con tabla interactiva, buscador y modal de captura de motivo de baja.
+
+---
+
+#### HU-08: Generación de Reportes del Sistema
+* **Identificador en Jira:** HU-08
+* **Estimación:** 8 Story Points
+* **Prioridad:** Media
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como administrador quiero generar reportes visuales para conocer la demanda de materias y el rendimiento de los tutores.
+* **Criterios de Aceptación:**
+  1. Reporte 1: Tutores con mayor cantidad de estudiantes atendidos (ranking con métricas y porcentaje).
+  2. Reporte 2: Materias con mayor cantidad de sesiones solicitadas.
+  3. Visualización con tarjetas de resumen global, tablas ordenables y gráficos interactivos.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/admin/reportes/tutores-mas-atenciones` y `GET /api/admin/reportes/materias-mayor-demanda`.
+  - `[FRONTEND]` Crear `AdminReportsView.vue` con componentes de visualización gráfica basada en CSS/SVG y tablas de resumen.
+
+---
+
+#### HU-09: Visualización de Usuarios Dados de Baja
+* **Identificador en Jira:** HU-09
+* **Estimación:** 3 Story Points
+* **Prioridad:** Media
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como administrador quiero auditar la lista de usuarios dados de baja para consultar la fecha y motivo de su remoción.
+* **Criterios de Aceptación:**
+  1. Listado consolidado que muestra tipo de usuario, nombre, correo, fecha exacta de baja y motivo registrado.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `GET /api/admin/usuarios/dados-de-baja`.
+  - `[FRONTEND]` Añadir pestaña de auditoría de usuarios inactivos en `AdminActiveUsersView.vue`.
+
+---
+
+### ÉPICA 3: MÓDULO DE TUTOR
 
 #### HU-10: Establecer Horarios de Atención
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero configurar mis días y horas de disponibilidad para que los estudiantes puedan agendar sesiones conmigo. |
-| **Criterios de Aceptación** | 1. El sistema debe permitir seleccionar los días de la semana en los que se atenderá.<br>2. El sistema debe permitir establecer un rango de horario (ej. 8 am a 5 pm) que aplicará uniformemente para todos los días seleccionados.<br>3. El sistema debe validar que la hora de inicio sea anterior a la hora de fin y confirmar el guardado exitoso de los horarios configurados. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-03 |
-| **Módulo** | Tutor |
-
-#### HU-11: Actualizar Horarios de Atención
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero modificar mis horarios y días de atención para adaptar mi disponibilidad a mis necesidades actuales. |
-| **Criterios de Aceptación** | 1. El tutor puede cambiar los días y la hora de atención en el sistema.<br>2. El sistema debe validar que no existan sesiones activas fuera del nuevo rango de horario.<br>3. Si existen conflictos, no se debe permitir la actualización hasta que las sesiones afectadas sean reprogramadas o canceladas. |
-| **Prioridad** | Media |
-| **Estimación** | |
-| **Dependencias** | HU-10 |
-| **Módulo** | Tutor |
-
-#### HU-12: Gestión y Atención de Sesiones Pendientes
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero ver mis sesiones pendientes y marcarlas como atendidas para llevar el control del progreso de mis estudiantes. |
-| **Criterios de Aceptación** | 1. La vista debe mostrar las sesiones ordenadas por fecha más próxima, indicando fecha, hora, nombre del estudiante, motivo y materia.<br>2. Debe existir un botón para marcar al estudiante como "Atendido".<br>3. Al marcar como atendido, debe desplegarse un formulario para ingresar el resumen o recomendaciones de la sesión antes de hacerla desaparecer de la lista de pendientes. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-18 |
-| **Módulo** | Tutor |
-
-#### HU-13: Cancelación de Sesión por el Tutor
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero poder cancelar una sesión agendada para notificar al estudiante si me surge algún inconveniente. |
-| **Criterios de Aceptación** | 1. El tutor debe poder seleccionar una sesión pendiente y cancelarla, quitándola de su lista.<br>2. Al confirmar la cancelación, el horario asociado debe liberarse inmediatamente en la agenda del tutor para que vuelva a estar disponible.<br>3. El sistema debe enviar un correo automático al estudiante notificando la cancelación.<br>4. El correo debe incluir: fecha, hora, motivo de la sesión cancelada, nombre del tutor, materia y un mensaje de disculpa. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-12 |
-| **Módulo** | Tutor |
-
-#### HU-14: Historial de Sesiones
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero poder ver el historial de todas mis sesiones para tener un registro de mi actividad. |
-| **Criterios de Aceptación** | 1. El sistema debe mostrar un listado de todas las sesiones que ha tenido el tutor, incluyendo fecha, hora, nombre del estudiante y estado de la sesión.<br>2. Debe permitir filtrar por fechas o por estudiante.<br>3. El historial debe ser accesible desde el panel de usuario del tutor. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-12, HU-13 |
-| **Módulo** | Tutor |
-
-#### HU-15: Ver y actualizar perfil
-
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como tutor quiero poder visualizar los datos de mi perfil y actualizarlos si es necesario. |
-| **Criterios de Aceptación** | 1. El sistema debe permitir ver todos los datos registrados en el perfil del tutor.<br>2. Debe permitir modificar cualquiera de los campos mostrados, a excepción del correo electrónico.<br>3. Debe permitir subir una nueva fotografía de perfil.<br>4. Si se solicita cambio de contraseña, el formulario debe exigir el ingreso de la contraseña original para validarla contra la base de datos antes de proceder.<br>5. La nueva contraseña debe cumplir con las validaciones de seguridad (mínimo 8 caracteres, mayúscula, minúscula y número) y guardarse encriptada en la base de datos. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-02 |
-| **Módulo** | Tutor |
+* **Identificador en Jira:** HU-10
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como tutor quiero configurar los días de la semana y el rango de horas en los que impartiré tutorías.
+* **Criterios de Aceptación:**
+  1. Permite seleccionar los días hábiles de atención (ej. Lunes a Viernes).
+  2. Permite definir una hora de inicio y una hora de fin uniforme para todos los días seleccionados.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `POST /api/tutores/horario` para registrar o actualizar el horario base.
+  - `[FRONTEND]` Diseñar `TutorScheduleView.vue` con selectores de días y selectores de tiempo.
+  - `[DATABASE]` Crear tabla `TutoresDiasAtencion` vinculada al tutor.
 
 ---
 
-### Módulo 2: Estudiante
+#### HU-11: Actualizar Horarios de Atención con Validación
+* **Identificador en Jira:** HU-11
+* **Estimación:** 5 Story Points
+* **Prioridad:** Media
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como tutor quiero modificar mi disponibilidad validando que no se afecten sesiones previamente agendadas.
+* **Criterios de Aceptación:**
+  1. Valida que no existan sesiones activas o pendientes fuera del nuevo rango o en días desmarcados.
+  2. Si existen conflictos, bloquea el guardado e indica qué sesiones deben atenderse o cancelarse previamente.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Implementar validación en `ConfigurarHorarioEndpoint.cs` comprobando sesiones `PENDIENTE` activas.
+  - `[FRONTEND]` Mostrar alertas detalladas de conflicto de horarios en `TutorScheduleView.vue`.
 
-#### HU-16: Exploración y Búsqueda de Tutores
+---
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero ver la lista de tutores disponibles y usar filtros avanzados para encontrar al tutor que mejor se adapte a mis necesidades. |
-| **Criterios de Aceptación** | 1. La página principal debe mostrar los tutores registrados (exceptuando aquellos con los que ya se tiene sesión), exhibiendo nombre completo, especialidad (materias), dirección de tutoría y foto.<br>2. Debe existir una búsqueda avanzada para filtrar por: materia, años de experiencia, sexo, edad y universidad.<br>3. Los filtros deben implementarse de manera intuitiva y eficiente, permitiendo al usuario una experiencia agradable. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-02, HU-06 |
-| **Módulo** | Estudiante |
+#### HU-12: Dashboard y Atención de Sesiones Pendientes
+* **Identificador en Jira:** HU-12
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como tutor quiero visualizar mis sesiones pendientes ordenadas por fecha más próxima y marcarlas como atendidas con un resumen pedagógico.
+* **Criterios de Aceptación:**
+  1. Tabla ordenada cronológicamente con fecha, hora, nombre del estudiante, materia y motivo de la duda.
+  2. Botón "Atender" que abre modal obligatorio para redactar el resumen o recomendaciones brindadas.
+  3. Tras guardar el resumen, la sesión pasa a estado `ATENDIDA` y se retira de las pendientes.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/sesiones/pendientes` y `POST /api/sesiones/{id}/atender`.
+  - `[FRONTEND]` Crear `TutorDashboardView.vue`, `TutorSessionsTable.vue` y `CompleteSessionModal.vue`.
 
-#### HU-17: Consulta de Horarios y Disponibilidad
+---
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero ver los horarios de un tutor específico para saber en qué momentos está disponible para una sesión. |
-| **Criterios de Aceptación** | 1. Al seleccionar un tutor, se deben mostrar los días y horarios que atiende.<br>2. El sistema debe permitir filtrar por fecha y mostrar claramente los horarios ocupados y disponibles para ese día específico.<br>3. Debe indicar si el tutor no atiende en la fecha seleccionada. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-10, HU-16 |
-| **Módulo** | Estudiante |
+#### HU-13: Cancelación de Sesión por el Tutor
+* **Identificador en Jira:** HU-13
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como tutor quiero poder cancelar una tutoría pendiente notificando al estudiante y liberando el horario en mi agenda.
+* **Criterios de Aceptación:**
+  1. Modal de confirmación que solicita el motivo de la cancelación.
+  2. Cambio de estado a `CANCELADA_TUTOR` y liberación inmediata del bloque de tiempo.
+  3. Envío de correo automático al estudiante con los datos de la sesión y un mensaje de disculpa.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `POST /api/sesiones/{id}/cancelar-tutor` con envío de correo SMTP.
+  - `[FRONTEND]` Crear componente `CancelSessionModal.vue`.
 
-#### HU-18: Programar Sesión de Tutoría
+---
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero agendar una sesión con un tutor llenando un formulario para reservar mi espacio. |
-| **Criterios de Aceptación** | 1. El formulario debe solicitar: fecha, hora, materia (impartida por el tutor) y motivo de la sesión.<br>2. El sistema debe validar que la fecha y hora seleccionadas estén dentro del horario del tutor y que el espacio esté disponible.<br>3. El sistema debe impedir agendar más de una sesión con el mismo tutor simultáneamente, y evitar traslapes de horario en sesiones del mismo día.<br>4. Si falla alguna validación, se debe notificar al usuario el motivo específico. |
-| **Prioridad** | Alta |
-| **Estimación** | |
-| **Dependencias** | HU-17 |
-| **Módulo** | Estudiante |
+#### HU-14: Historial de Sesiones del Tutor
+* **Identificador en Jira:** HU-14
+* **Estimación:** 3 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como tutor quiero consultar el registro histórico de todas mis sesiones (atendidas y canceladas).
+* **Criterios de Aceptación:**
+  1. Listado filtrable por rango de fechas y por estado (`ATENDIDA`, `CANCELADA_TUTOR`, `CANCELADA_ESTUDIANTE`).
+  2. Visualización de fecha, hora, nombre del estudiante, materia y motivo.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `GET /api/tutores/historial-sesiones`.
+  - `[FRONTEND]` Crear `TutorHistoryView.vue` con filtros reactivos.
 
-#### HU-19: Gestión de Sesiones Activas
+---
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero ver la lista de mis próximas sesiones y tener la opción de cancelarlas si no podré asistir. |
-| **Criterios de Aceptación** | 1. Debe existir una vista de "Sesiones Activas" mostrando fecha, hora, tutor, materia, dirección y motivo.<br>2. Debe haber una opción para cancelar la sesión, requiriendo un mensaje de confirmación antes de removerla de la lista de activas.<br>3. Al confirmar la cancelación, la sesión debe cambiar a estado "Cancelada por el estudiante" y liberar inmediatamente ese horario en la agenda del tutor para que esté disponible para otros alumnos. |
-| **Prioridad** | Media |
-| **Estimación** | |
-| **Dependencias** | HU-18 |
-| **Módulo** | Estudiante |
+#### HU-15: Perfil del Tutor
+* **Identificador en Jira:** HU-15
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como tutor quiero ver y actualizar mi información personal y profesional, así como cambiar mi contraseña de acceso.
+* **Criterios de Aceptación:**
+  1. Permite modificar campos excepto el correo electrónico.
+  2. Permite reemplazar la foto de perfil en S3.
+  3. Cambio de contraseña exige ingresar y validar la contraseña actual antes de aplicar el nuevo hash.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/tutores/perfil` y `PUT /api/tutores/perfil`.
+  - `[FRONTEND]` Crear `TutorProfileView.vue` con formulario de perfil y formulario de cambio de clave.
 
-#### HU-20: Visualización de Historial de Sesiones
+---
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero ver un historial de mis sesiones pasadas o canceladas para llevar un control de mi actividad en la plataforma. |
-| **Criterios de Aceptación** | 1. El estudiante debe ver sesiones atendidas y canceladas mostrando: fecha, tutor, materia, motivo, dirección, resumen de la sesión (si fue atendida) y estado.<br>2. El sistema debe permitir filtrar o buscar en el historial por tutor, materia, estado o rango de fechas.<br>3. El estudiante debe poder acceder al detalle completo de las notas y el resumen pedagógico proporcionado por el tutor en las sesiones completadas. |
-| **Prioridad** | Baja |
-| **Estimación** | |
-| **Dependencias** | HU-12, HU-13, HU-19 |
-| **Módulo** | Estudiante |
+### ÉPICA 4: MÓDULO DE ESTUDIANTE
 
-#### HU-21: Gestión de Perfil
+#### HU-16: Exploración y Búsqueda Avanzada de Tutores
+* **Identificador en Jira:** HU-16
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como estudiante quiero explorar los tutores disponibles y filtrarlos por múltiples criterios para encontrar al más idóneo.
+* **Criterios de Aceptación:**
+  1. La vista principal lista tutores activos excluyendo aquellos con quienes ya se tiene una sesión activa programada.
+  2. Tarjetas con foto, nombre completo, materias, dirección física u online y universidad.
+  3. Filtros avanzados: por materia, años de experiencia, sexo, edad y universidad de graduación.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `GET /api/tutores/explorar` con filtros dinámicos en EF Core.
+  - `[FRONTEND]` Crear `StudentTutorsExplorerPage.vue`, `TutorFilterSidebar.vue` y `TutorCard.vue`.
 
-| Campo | Detalle |
-| :--- | :--- |
-| **Descripción** | Como estudiante quiero ver y editar mis datos personales para mantener mi información actualizada. |
-| **Criterios de Aceptación** | 1. El estudiante debe poder visualizar todos los datos registrados en su perfil.<br>2. El estudiante debe poder modificar cualquiera de los campos mostrados, a excepción del correo electrónico.<br>3. Si se solicita cambio de contraseña, el sistema debe requerir obligatoriamente la contraseña original y validarla antes de permitir el cambio.<br>4. La nueva contraseña debe cumplir con los requisitos mínimos de seguridad (8 caracteres, mayúscula, minúscula y número) y almacenarse encriptada en la base de datos. |
-| **Prioridad** | Baja |
-| **Estimación** | |
-| **Dependencias** | HU-01 |
-| **Módulo** | Estudiante |
+---
+
+#### HU-17: Consulta de Horarios y Disponibilidad por Fecha
+* **Identificador en Jira:** HU-17
+* **Estimación:** 5 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como estudiante quiero seleccionar un tutor y ver qué horas tiene libres u ocupadas en una fecha seleccionada.
+* **Criterios de Aceptación:**
+  1. Muestra los días de la semana en que atiende el tutor.
+  2. Al seleccionar una fecha específica en el calendario, despliega los bloques de hora indicando si están disponibles u ocupados.
+  3. Informa claramente si el tutor no labora en el día seleccionado.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `GET /api/tutores/{id}/disponibilidad` calculando bloques ocupados según sesiones agendadas.
+  - `[FRONTEND]` Crear `SessionBookingView.vue` con selector de fecha interactivo y grilla de horarios.
+
+---
+
+#### HU-18: Programación de Sesión de Tutoría
+* **Identificador en Jira:** HU-18
+* **Estimación:** 8 Story Points
+* **Prioridad:** Alta
+* **Sprint Asignado:** Sprint 1
+* **Descripción:** Yo como estudiante quiero agendar una tutoría completando el formulario de reserva para asegurar mi espacio de asesoría.
+* **Criterios de Aceptación:**
+  1. Solicita: fecha, hora de inicio, materia (del catálogo del tutor) y motivo detallado de la consulta.
+  2. Valida que el tutor atienda ese día y que el horario esté libre.
+  3. Impide que un estudiante tenga más de una sesión activa con el mismo tutor.
+  4. Impide que un estudiante agende dos sesiones a la misma hora en el mismo día (evita traslapes).
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `POST /api/sesiones/programar` con validaciones de concurrencia y reglas de negocio.
+  - `[FRONTEND]` Implementar flujo de confirmación de reserva en `SessionBookingView.vue`.
+
+---
+
+#### HU-19: Gestión y Cancelación de Sesiones Activas
+* **Identificador en Jira:** HU-19
+* **Estimación:** 5 Story Points
+* **Prioridad:** Media
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como estudiante quiero ver mis sesiones activas agendadas y poder cancelar una sesión si no podré asistir.
+* **Criterios de Aceptación:**
+  1. Listado con fecha, hora, nombre del tutor, materia, dirección y motivo.
+  2. Opción para cancelar sesión con confirmación requerida.
+  3. Al cancelar, el estado cambia a `CANCELADA_ESTUDIANTE` y el horario del tutor queda libre inmediatamente para otros alumnos.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/sesiones/activas` y `POST /api/sesiones/{id}/cancelar-estudiante`.
+  - `[FRONTEND]` Crear `StudentSessionsPage.vue` y `StudentSessionCard.vue`.
+
+---
+
+#### HU-20: Visualización de Historial de Sesiones del Estudiante
+* **Identificador en Jira:** HU-20
+* **Estimación:** 3 Story Points
+* **Prioridad:** Baja
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como estudiante quiero revisar el historial de tutorías pasadas para consultar los resúmenes y recomendaciones dadas por los tutores.
+* **Criterios de Aceptación:**
+  1. Lista sesiones finalizadas (`ATENDIDA`) y canceladas (por estudiante o tutor).
+  2. Para las sesiones atendidas, muestra visiblemente el resumen/notas pedagógicas redactadas por el tutor.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoint `GET /api/estudiantes/historial-sesiones`.
+  - `[FRONTEND]` Crear `StudentHistoryPage.vue` con acordeón de detalles y resúmenes.
+
+---
+
+#### HU-21: Perfil del Estudiante
+* **Identificador en Jira:** HU-21
+* **Estimación:** 5 Story Points
+* **Prioridad:** Baja
+* **Sprint Asignado:** Sprint 2
+* **Descripción:** Yo como estudiante quiero consultar y actualizar mis datos personales y contraseña para mantener mi cuenta al día.
+* **Criterios de Aceptación:**
+  1. Modificación de datos personales (excepto correo institucional).
+  2. Modificación opcional de fotografía de perfil.
+  3. Cambio de contraseña con validación de clave actual.
+* **Sub-tareas Técnicas en Jira:**
+  - `[BACKEND]` Crear endpoints `GET /api/estudiantes/perfil` y `PUT /api/estudiantes/perfil`.
+  - `[FRONTEND]` Crear `StudentProfilePage.vue` con pestañas de información y seguridad.
