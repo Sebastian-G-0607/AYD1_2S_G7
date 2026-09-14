@@ -145,11 +145,7 @@ function openSummary(session: StudentHistorySession) {
       </div>
     </div>
 
-    <BaseAlert
-      v-if="errorMessage"
-      type="error"
-      :message="errorMessage"
-    />
+    <BaseAlert v-if="errorMessage" type="error" :message="errorMessage" />
 
     <!-- Tabla -->
     <div
@@ -174,44 +170,26 @@ function openSummary(session: StudentHistorySession) {
       </div>
 
       <!-- Loading -->
-      <div
-        v-if="isLoading"
-        class="flex flex-col items-center justify-center py-16 gap-3"
-      >
-        <span
-          class="material-symbols-outlined text-4xl text-primary animate-spin"
-        >
+      <div v-if="isLoading" class="flex flex-col items-center justify-center py-16 gap-3">
+        <span class="material-symbols-outlined text-4xl text-primary animate-spin">
           progress_activity
         </span>
 
-        <p class="text-sm text-on-surface-variant">
-          Cargando historial...
-        </p>
+        <p class="text-sm text-on-surface-variant">Cargando historial...</p>
       </div>
 
       <!-- Tabla con datos -->
-      <div
-        v-else-if="filteredSessions.length"
-        class="overflow-x-auto"
-      >
+      <div v-else-if="filteredSessions.length" class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-surface-container-low/50">
-              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">
-                Fecha
-              </th>
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">Fecha</th>
 
-              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">
-                Tutor
-              </th>
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">Tutor</th>
 
-              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">
-                Materia
-              </th>
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">Materia</th>
 
-              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">
-                Motivo
-              </th>
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">Motivo</th>
 
               <th
                 class="py-4 px-6 text-sm font-semibold text-on-surface-variant hidden lg:table-cell"
@@ -219,13 +197,9 @@ function openSummary(session: StudentHistorySession) {
                 Dirección
               </th>
 
-              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">
-                Estado
-              </th>
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant">Estado</th>
 
-              <th
-                class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right"
-              >
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
                 Resumen
               </th>
             </tr>
@@ -248,9 +222,7 @@ function openSummary(session: StudentHistorySession) {
                   <div
                     class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
                   >
-                    <span class="material-symbols-outlined text-primary text-[19px]">
-                      person
-                    </span>
+                    <span class="material-symbols-outlined text-primary text-[19px]"> person </span>
                   </div>
 
                   <span class="text-sm font-medium text-on-surface">
@@ -278,24 +250,16 @@ function openSummary(session: StudentHistorySession) {
 
               <td class="py-5 px-6 hidden lg:table-cell">
                 <div class="flex items-center gap-1.5 text-on-surface-variant">
-                  <span class="material-symbols-outlined text-[17px]">
-                    location_on
-                  </span>
+                  <span class="material-symbols-outlined text-[17px]"> location_on </span>
 
-                  <span
-                    class="text-sm max-w-[180px] truncate"
-                    :title="session.direccionTutoria"
-                  >
+                  <span class="text-sm max-w-[180px] truncate" :title="session.direccionTutoria">
                     {{ session.direccionTutoria }}
                   </span>
                 </div>
               </td>
 
               <td class="py-5 px-6">
-                <BaseBadge
-                  :variant="getStatusVariant(session.estado)"
-                  size="sm"
-                >
+                <BaseBadge :variant="getStatusVariant(session.estado)" size="sm">
                   {{ formatStatus(session.estado) }}
                 </BaseBadge>
               </td>
@@ -308,17 +272,10 @@ function openSummary(session: StudentHistorySession) {
                   class="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors"
                   @click="openSummary(session)"
                 >
-                  <span class="material-symbols-outlined">
-                    visibility
-                  </span>
+                  <span class="material-symbols-outlined"> visibility </span>
                 </button>
 
-                <span
-                  v-else
-                  class="text-xs text-on-surface-variant"
-                >
-                  No aplica
-                </span>
+                <span v-else class="text-xs text-on-surface-variant"> No aplica </span>
               </td>
             </tr>
           </tbody>
@@ -326,16 +283,11 @@ function openSummary(session: StudentHistorySession) {
       </div>
 
       <!-- Vacío -->
-      <div
-        v-else
-        class="flex flex-col items-center justify-center py-16 px-4 text-center"
-      >
+      <div v-else class="flex flex-col items-center justify-center py-16 px-4 text-center">
         <div
           class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant mb-4"
         >
-          <span class="material-symbols-outlined text-[32px]">
-            history
-          </span>
+          <span class="material-symbols-outlined text-[32px]"> history </span>
         </div>
 
         <h3 class="text-xl font-bold font-headline text-on-surface mb-2">
@@ -349,15 +301,8 @@ function openSummary(session: StudentHistorySession) {
     </div>
 
     <!-- Modal resumen -->
-    <BaseModal
-      v-model="isSummaryOpen"
-      title="Resumen de la sesión"
-      max-width="lg"
-    >
-      <div
-        v-if="selectedSession"
-        class="space-y-5"
-      >
+    <BaseModal v-model="isSummaryOpen" title="Resumen de la sesión" max-width="lg">
+      <div v-if="selectedSession" class="space-y-5">
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
             Materia
