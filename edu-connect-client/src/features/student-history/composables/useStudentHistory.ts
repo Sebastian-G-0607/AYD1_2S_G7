@@ -20,8 +20,7 @@ export function useStudentHistory() {
         session.motivo.toLowerCase().includes(query)
 
       const matchesStatus =
-        statusFilter.value === 'TODAS' ||
-        session.estado.toUpperCase() === statusFilter.value
+        statusFilter.value === 'TODAS' || session.estado.toUpperCase() === statusFilter.value
 
       return matchesSearch && matchesStatus
     })
@@ -36,9 +35,7 @@ export function useStudentHistory() {
   const cancelledSessions = computed(
     () =>
       sessions.value.filter(s =>
-        ['CANCELADA_TUTOR', 'CANCELADA_ESTUDIANTE', 'CANCELADA'].includes(
-          s.estado.toUpperCase()
-        )
+        ['CANCELADA_TUTOR', 'CANCELADA_ESTUDIANTE', 'CANCELADA'].includes(s.estado.toUpperCase())
       ).length
   )
 

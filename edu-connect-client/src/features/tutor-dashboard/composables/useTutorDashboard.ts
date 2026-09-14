@@ -79,7 +79,12 @@ export function useTutorDashboard() {
       sessions.value = sessions.value.filter(s => s.id !== selectedSession.value?.id)
       stats.value.sesionesPendientes = Math.max(0, stats.value.sesionesPendientes - 1)
       stats.value.sesionesAtendidasMes += 1
-      tutorDashboardService.getStats().then(s => { stats.value = s }).catch(() => {})
+      tutorDashboardService
+        .getStats()
+        .then(s => {
+          stats.value = s
+        })
+        .catch(() => {})
       actionSuccess.value = 'La sesión ha sido completada exitosamente.'
       isCompleteModalOpen.value = false
       selectedSession.value = null
@@ -103,7 +108,12 @@ export function useTutorDashboard() {
       sessions.value = sessions.value.filter(s => s.id !== selectedSession.value?.id)
       stats.value.sesionesPendientes = Math.max(0, stats.value.sesionesPendientes - 1)
       stats.value.sesionesCanceladas += 1
-      tutorDashboardService.getStats().then(s => { stats.value = s }).catch(() => {})
+      tutorDashboardService
+        .getStats()
+        .then(s => {
+          stats.value = s
+        })
+        .catch(() => {})
       actionSuccess.value =
         response.mensaje ||
         'La sesión ha sido cancelada exitosamente y el estudiante ha sido notificado por correo electrónico.'

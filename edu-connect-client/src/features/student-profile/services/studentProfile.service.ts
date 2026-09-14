@@ -12,10 +12,7 @@ interface ProblemDetails {
   detail?: string
 }
 
-export function getProfileApiError(
-  error: unknown,
-  fallback: string
-): string {
+export function getProfileApiError(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as ProblemDetails | undefined
 
@@ -27,16 +24,12 @@ export function getProfileApiError(
 
 export const studentProfileService = {
   async getProfile(): Promise<StudentProfile> {
-    const { data } = await api.get<StudentProfile>(
-      '/estudiantes/perfil'
-    )
+    const { data } = await api.get<StudentProfile>('/estudiantes/perfil')
 
     return data
   },
 
-  async updateProfile(
-    payload: UpdateStudentProfilePayload
-  ): Promise<StudentProfile> {
+  async updateProfile(payload: UpdateStudentProfilePayload): Promise<StudentProfile> {
     const formData = new FormData()
 
     formData.append('Nombre', payload.nombre)
@@ -51,26 +44,17 @@ export const studentProfileService = {
       formData.append('Fotografia', payload.fotografia)
     }
 
-    const { data } = await api.put<StudentProfile>(
-      '/estudiantes/perfil',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+    const { data } = await api.put<StudentProfile>('/estudiantes/perfil', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    )
+    })
 
     return data
   },
 
-  async changePassword(
-    payload: ChangeStudentPasswordPayload
-  ): Promise<ChangePasswordResponse> {
-    const { data } = await api.put<ChangePasswordResponse>(
-      '/estudiantes/perfil/password',
-      payload
-    )
+  async changePassword(payload: ChangeStudentPasswordPayload): Promise<ChangePasswordResponse> {
+    const { data } = await api.put<ChangePasswordResponse>('/estudiantes/perfil/password', payload)
 
     return data
   }

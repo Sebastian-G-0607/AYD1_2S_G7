@@ -4,6 +4,11 @@ export interface AvailabilityBlock {
   disponible: boolean
 }
 
+export interface SesionOcupada {
+  horaInicio: string
+  horaFin: string
+}
+
 export interface TutorAvailability {
   tutorId: number
   nombreCompleto: string
@@ -13,4 +18,5 @@ export interface TutorAvailability {
   fecha: string
   atiendeEseDia: boolean
   bloques: AvailabilityBlock[]
+  sesionesOcupadas?: SesionOcupada[]
 }

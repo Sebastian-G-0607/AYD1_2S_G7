@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  onBeforeUnmount,
-  reactive,
-  ref,
-  watch
-} from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 
 import {
   BaseAlert,
@@ -79,17 +73,11 @@ const maxBirthDate = computed(() => {
 })
 
 const passwordMismatch = computed(() => {
-  if (
-    !passwordForm.nuevaPassword ||
-    !passwordForm.confirmarNuevaPassword
-  ) {
+  if (!passwordForm.nuevaPassword || !passwordForm.confirmarNuevaPassword) {
     return false
   }
 
-  return (
-    passwordForm.nuevaPassword !==
-    passwordForm.confirmarNuevaPassword
-  )
+  return passwordForm.nuevaPassword !== passwordForm.confirmarNuevaPassword
 })
 
 const passwordIsValid = computed(() => {
@@ -116,10 +104,7 @@ watch(
     form.telefono = value.telefono
     form.fechaNacimiento = value.fechaNacimiento
 
-    if (
-      fotografiaPreview.value &&
-      fotografiaPreview.value.startsWith('blob:')
-    ) {
+    if (fotografiaPreview.value && fotografiaPreview.value.startsWith('blob:')) {
       URL.revokeObjectURL(fotografiaPreview.value)
     }
 
@@ -145,10 +130,7 @@ function handleFileChange(event: Event) {
     return
   }
 
-  if (
-    fotografiaPreview.value &&
-    fotografiaPreview.value.startsWith('blob:')
-  ) {
+  if (fotografiaPreview.value && fotografiaPreview.value.startsWith('blob:')) {
     URL.revokeObjectURL(fotografiaPreview.value)
   }
 
@@ -172,28 +154,18 @@ function validarPerfil(): boolean {
   fechaNacimientoError.value = ''
 
   if (!/^\d{6,10}$/.test(form.carnet)) {
-    carnetError.value =
-      'El carnet debe contener entre 6 y 10 dígitos.'
+    carnetError.value = 'El carnet debe contener entre 6 y 10 dígitos.'
   }
 
   if (!/^\d{8}$/.test(form.telefono)) {
-    telefonoError.value =
-      'El teléfono debe contener exactamente 8 dígitos.'
+    telefonoError.value = 'El teléfono debe contener exactamente 8 dígitos.'
   }
 
-  if (
-    !form.fechaNacimiento ||
-    form.fechaNacimiento > maxBirthDate.value
-  ) {
-    fechaNacimientoError.value =
-      'El estudiante debe tener al menos 16 años cumplidos.'
+  if (!form.fechaNacimiento || form.fechaNacimiento > maxBirthDate.value) {
+    fechaNacimientoError.value = 'El estudiante debe tener al menos 16 años cumplidos.'
   }
 
-  return !(
-    carnetError.value ||
-    telefonoError.value ||
-    fechaNacimientoError.value
-  )
+  return !(carnetError.value || telefonoError.value || fechaNacimientoError.value)
 }
 
 async function handleSubmit() {
@@ -258,8 +230,7 @@ async function handlePasswordChange() {
   const success = await changePassword({
     passwordActual: passwordForm.passwordActual,
     nuevaPassword: passwordForm.nuevaPassword,
-    confirmarNuevaPassword:
-      passwordForm.confirmarNuevaPassword
+    confirmarNuevaPassword: passwordForm.confirmarNuevaPassword
   })
 
   if (success) {
@@ -273,10 +244,7 @@ async function handlePasswordChange() {
 }
 
 onBeforeUnmount(() => {
-  if (
-    fotografiaPreview.value &&
-    fotografiaPreview.value.startsWith('blob:')
-  ) {
+  if (fotografiaPreview.value && fotografiaPreview.value.startsWith('blob:')) {
     URL.revokeObjectURL(fotografiaPreview.value)
   }
 })
@@ -304,19 +272,12 @@ onBeforeUnmount(() => {
     />
 
     <!-- Cargando -->
-    <div
-      v-if="isLoading"
-      class="min-h-[500px] flex flex-col items-center justify-center gap-3"
-    >
-      <span
-        class="material-symbols-outlined text-primary text-[42px] animate-spin"
-      >
+    <div v-if="isLoading" class="min-h-[500px] flex flex-col items-center justify-center gap-3">
+      <span class="material-symbols-outlined text-primary text-[42px] animate-spin">
         progress_activity
       </span>
 
-      <p class="text-on-surface-variant">
-        Cargando información del perfil...
-      </p>
+      <p class="text-on-surface-variant">Cargando información del perfil...</p>
     </div>
 
     <!-- Perfil -->
@@ -331,22 +292,16 @@ onBeforeUnmount(() => {
         />
 
         <div class="absolute bottom-6 left-6 sm:left-8 text-on-primary">
-          <h1 class="text-3xl font-bold font-headline">
-            Perfil de Estudiante
-          </h1>
+          <h1 class="text-3xl font-bold font-headline">Perfil de Estudiante</h1>
 
-          <p class="text-base opacity-80 mt-1">
-            Configuración y detalles de la cuenta
-          </p>
+          <p class="text-base opacity-80 mt-1">Configuración y detalles de la cuenta</p>
         </div>
       </div>
 
       <!-- Contenido -->
       <div class="px-6 sm:px-8 pb-8 pt-20 relative">
         <!-- Avatar -->
-        <div
-          class="absolute -top-16 right-6 sm:right-12 flex flex-col items-center gap-2"
-        >
+        <div class="absolute -top-16 right-6 sm:right-12 flex flex-col items-center gap-2">
           <button
             type="button"
             class="relative group rounded-full"
@@ -363,10 +318,7 @@ onBeforeUnmount(() => {
                 class="w-full h-full object-cover"
               />
 
-              <span
-                v-else
-                class="material-symbols-outlined text-[52px] text-on-surface-variant"
-              >
+              <span v-else class="material-symbols-outlined text-[52px] text-on-surface-variant">
                 person
               </span>
             </div>
@@ -374,9 +326,7 @@ onBeforeUnmount(() => {
             <div
               class="absolute inset-0 rounded-full bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <span
-                class="material-symbols-outlined text-on-primary text-[28px]"
-              >
+              <span class="material-symbols-outlined text-on-primary text-[28px]">
                 photo_camera
               </span>
             </div>
@@ -399,10 +349,7 @@ onBeforeUnmount(() => {
           />
         </div>
 
-        <form
-          class="flex flex-col gap-6"
-          @submit.prevent="handleSubmit"
-        >
+        <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
           <!-- Nombre y apellido -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <BaseInput
@@ -514,8 +461,8 @@ onBeforeUnmount(() => {
             />
 
             <p class="text-xs text-on-surface-variant">
-              El correo se utiliza para el acceso a tu cuenta y no
-              puede modificarse desde el perfil.
+              El correo se utiliza para el acceso a tu cuenta y no puede modificarse desde el
+              perfil.
             </p>
           </div>
 
@@ -523,12 +470,7 @@ onBeforeUnmount(() => {
           <div
             class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-7 mt-2 border-t border-surface-container"
           >
-            <BaseButton
-              type="button"
-              variant="surface"
-              icon="key"
-              @click="openPasswordModal"
-            >
+            <BaseButton type="button" variant="surface" icon="key" @click="openPasswordModal">
               Cambiar Contraseña
             </BaseButton>
 
@@ -555,8 +497,7 @@ onBeforeUnmount(() => {
     >
       <div class="space-y-6">
         <p class="text-sm text-on-surface-variant">
-          Por seguridad, debes ingresar tu contraseña actual antes
-          de establecer una nueva.
+          Por seguridad, debes ingresar tu contraseña actual antes de establecer una nueva.
         </p>
 
         <BaseAlert
@@ -589,9 +530,7 @@ onBeforeUnmount(() => {
           required
         />
 
-        <PasswordRequirements
-          :password="passwordForm.nuevaPassword"
-        />
+        <PasswordRequirements :password="passwordForm.nuevaPassword" />
 
         <BaseInput
           id="confirmarNuevaPassword"
@@ -601,21 +540,13 @@ onBeforeUnmount(() => {
           label="Confirmar nueva contraseña"
           autocomplete="new-password"
           show-password-toggle
-          :error="
-            passwordMismatch
-              ? 'Las contraseñas no coinciden.'
-              : undefined
-          "
+          :error="passwordMismatch ? 'Las contraseñas no coinciden.' : undefined"
           required
         />
       </div>
 
       <template #footer>
-        <BaseButton
-          variant="outline"
-          :disabled="isChangingPassword"
-          @click="closePasswordModal"
-        >
+        <BaseButton variant="outline" :disabled="isChangingPassword" @click="closePasswordModal">
           Cancelar
         </BaseButton>
 

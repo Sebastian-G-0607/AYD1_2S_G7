@@ -1,9 +1,6 @@
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/features/auth'
-import {
-  getProfileApiError,
-  studentProfileService
-} from '../services/studentProfile.service'
+import { getProfileApiError, studentProfileService } from '../services/studentProfile.service'
 import type {
   StudentProfile,
   UpdateStudentProfilePayload,
@@ -48,15 +45,12 @@ export function useStudentProfile() {
     }
   }
 
-  async function updateProfile(
-    payload: UpdateStudentProfilePayload
-  ): Promise<boolean> {
+  async function updateProfile(payload: UpdateStudentProfilePayload): Promise<boolean> {
     isSaving.value = true
     clearMessages()
 
     try {
-      const updatedProfile =
-        await studentProfileService.updateProfile(payload)
+      const updatedProfile = await studentProfileService.updateProfile(payload)
 
       profile.value = updatedProfile
 
@@ -67,20 +61,15 @@ export function useStudentProfile() {
           ...authStore.user,
           nombre: updatedProfile.nombre,
           apellido: updatedProfile.apellido,
-          fotografiaUrl:
-            updatedProfile.fotografiaUrl || undefined
+          fotografiaUrl: updatedProfile.fotografiaUrl || undefined
         })
       }
 
-      successMessage.value =
-        'Perfil actualizado correctamente.'
+      successMessage.value = 'Perfil actualizado correctamente.'
 
       return true
     } catch (error) {
-      errorMessage.value = getProfileApiError(
-        error,
-        'No fue posible actualizar el perfil.'
-      )
+      errorMessage.value = getProfileApiError(error, 'No fue posible actualizar el perfil.')
 
       return false
     } finally {
@@ -88,17 +77,14 @@ export function useStudentProfile() {
     }
   }
 
-  async function changePassword(
-    payload: ChangeStudentPasswordPayload
-  ): Promise<boolean> {
+  async function changePassword(payload: ChangeStudentPasswordPayload): Promise<boolean> {
     isChangingPassword.value = true
     passwordErrorMessage.value = ''
 
     try {
       await studentProfileService.changePassword(payload)
 
-      successMessage.value =
-        'Contraseña actualizada correctamente.'
+      successMessage.value = 'Contraseña actualizada correctamente.'
 
       return true
     } catch (error) {
