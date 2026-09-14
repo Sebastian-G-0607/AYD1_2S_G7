@@ -25,7 +25,7 @@
 Cada aspecto técnico y de gestión del proyecto se encuentra documentado de forma individual y exhaustiva en los siguientes enlaces:
 
 1. **[Manual Técnico (Arquitectura, Instalación y Endpoints)](docs/manual-tecnico/manual-tecnico.md)**  
-2. 5. **[Manual de Usuario (Guía Visual e Instrucciones)](/docs/documentacion-edu-connect/docs/manual-usuario/manual-usuario.md)**
+2. **[Manual de Usuario (Guía Visual e Instrucciones)](docs/manual-usuario/manual-usuario.md)**
 3. **[Requerimientos No Funcionales ](docs/requerimientos/requerimientos-no-funcionales.md)**
 4. **[Product Backlog & Estimaciones en Story Points ](docs/product-backlog/historias-de-usuario.md)**  
 5. **[Prototipado y Diseño Frontend con Google Stitch](docs/prototipos/prototipos-stitch.md)**  
