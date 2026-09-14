@@ -28,9 +28,7 @@ Cada aspecto técnico y de gestión del proyecto se encuentra documentado de for
 2. **[Requerimientos No Funcionales ](docs/requerimientos/requerimientos-no-funcionales.md)**
 3. **[Product Backlog & Estimaciones en Story Points ](docs/product-backlog/historias-de-usuario.md)**  
 4. **[Prototipado y Diseño Frontend con Google Stitch](docs/prototipos/prototipos-stitch.md)**  
-5. **[Gestión Ágil: Tablero Kanban en Jira y Evidencias Scrum](docs/Gestion_Proyectos_Kanban.md)**  
-6. **[Sprint 1](docs/Sprint_1.md)** 
-7. **[Sprint 2](docs/Sprint_2.md)**  
+
 ---
 
 ## Enlaces Importantes de Gestión y Herramientas
