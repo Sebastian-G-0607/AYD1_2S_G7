@@ -1,5 +1,12 @@
 # Requerimientos No Funcionales (RNF) — EduConnect
 
+### Documentos relacionados
+
+- [Requerimientos Funcionales](requerimientos-funcionales.md)
+- [Manual Técnico](../manual-tecnico/manual-tecnico.md)
+- [Principios de Usabilidad de Nielsen](../ux-ui/principios-nielsen.md)
+- [Prototipado con Google Stitch](../prototipos/prototipos-stitch.md)
+
 **Universidad de San Carlos de Guatemala**  
 **Facultad de Ingeniería — Escuela de Ciencias y Sistemas**  
 **Análisis y Diseño de Sistemas 1  — 2do Semestre 2026**  

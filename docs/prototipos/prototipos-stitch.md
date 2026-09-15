@@ -1,5 +1,12 @@
 # Prototipado y Diseño Frontend con Google Stitch — EduConnect
 
+### Documentos relacionados
+
+- [Requerimientos Funcionales](../requerimientos/requerimientos-funcionales.md)
+- [Principios de Usabilidad de Nielsen](../ux-ui/principios-nielsen.md)
+- [Manual de Usuario](../manual-usuario/manual-usuario.md)
+- [Manual Técnico](../manual-tecnico/manual-tecnico.md)
+
 **Universidad de San Carlos de Guatemala**  
 **Facultad de Ingeniería — Escuela de Ciencias y Sistemas**  
 **Análisis y Diseño de Sistemas 1  — 2do Semestre 2026**  

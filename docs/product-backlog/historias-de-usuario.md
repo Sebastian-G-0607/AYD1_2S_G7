@@ -1,5 +1,12 @@
 # Product Backlog & Estimaciones (Jira) — EduConnect
 
+### Documentos relacionados
+
+- [Requerimientos Funcionales](../requerimientos/requerimientos-funcionales.md)
+- [Casos de Uso](../casos-de-uso/diagrama-casos-de-uso.md)
+- [Tablero Kanban y Evidencias](../tablero-kanban/tablero.md)
+- [Sprint 1](../../scrum/sprint-1/sprint-dailies.md) · [Sprint 2](../../scrum/sprint-2/sprint-dailies.md)
+
 **Universidad de San Carlos de Guatemala (USAC)**  
 **Facultad de Ingeniería — Escuela de Ciencias y Sistemas**  
 **Análisis y Diseño de Sistemas 1 (AYD1) — Segundo Semestre 2026**  

@@ -1,5 +1,11 @@
 # Casos de Uso del Negocio y del Sistema - EduConnect
 
+### Documentos relacionados
+
+- [Requerimientos Funcionales](../requerimientos/requerimientos-funcionales.md)
+- [Historias de Usuario y Product Backlog](../product-backlog/historias-de-usuario.md)
+- [Manual de Usuario](../manual-usuario/manual-usuario.md)
+
 ---
 
 ## 1. Actores del Sistema

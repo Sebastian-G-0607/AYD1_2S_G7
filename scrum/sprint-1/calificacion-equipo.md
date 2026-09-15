@@ -1,5 +1,12 @@
 # Evaluación del Equipo Scrum - Sprint 1
 
+### Documentos relacionados
+
+- [README del proyecto](../../README.md)
+- [Daily Scrums del Sprint 1](sprint-dailies.md)
+- [Sprint Planning 1](sprint-planning.md)
+- [Sprint Retrospective 1](sprint-retrospective.md)
+
 La siguiente evaluación se ha realizado de manera objetiva basándose en el historial de contribuciones del repositorio en las ramas respectivas (usando los carnets como identificadores). Los datos contemplan el periodo del **23 de agosto al 04 de septiembre**.
 
 | Nombre | Carnet | Commits | Líneas (+) | Líneas (-) | Rango de Fechas | Puntuación (1-100) |
