@@ -14,10 +14,10 @@
 
 ```mermaid
 flowchart TD
-    Usuario["👤 Usuario del Sistema\n(Rol Base)"]
-    Estudiante["🎓 Estudiante"]
-    Tutor["👨‍🏫 Tutor Académico"]
-    Administrador["🛡️ Administrador"]
+    Usuario[" Usuario del Sistema\n(Rol Base)"]
+    Estudiante[" Estudiante"]
+    Tutor[" Tutor Académico"]
+    Administrador[" Administrador"]
 
     Usuario -->|Generalización| Estudiante
     Usuario -->|Generalización| Tutor
@@ -39,10 +39,10 @@ El Core del Negocio representa la totalidad del alcance a modelar en un único p
 
 ```mermaid
 flowchart LR
-    Estudiante["👤 Estudiante"]
-    Tutor["👤 Tutor Académico"]
-    Admin["👤 Administrador"]
-    EmailService["💻 Servicio SMTP"]
+    Estudiante[" Estudiante"]
+    Tutor[" Tutor Académico"]
+    Admin[" Administrador"]
+    EmailService[" Servicio SMTP"]
 
     subgraph LimiteNegocio ["Límite del Negocio"]
         CUN_CORE(["CUN-CORE-01<br/><b>Plataforma Integral de Gestión y<br/>Vinculación de Tutorías (EduConnect)</b>"])
@@ -69,10 +69,10 @@ Descomposición del Core en los 4 macro-procesos de negocio de principio a fin:
 
 ```mermaid
 flowchart TB
-    Estudiante["👤 Estudiante"]
-    Tutor["👤 Tutor Académico"]
-    Admin["👤 Administrador"]
-    EmailService["💻 Servicio SMTP"]
+    Estudiante[" Estudiante"]
+    Tutor[" Tutor Académico"]
+    Admin[" Administrador"]
+    EmailService[" Servicio SMTP"]
 
     subgraph PrimeraDescomposicion ["Primera Descomposición del Negocio (CUN)"]
         CUN01(["<b>CUN-01</b><br/>Gestión de Registro, Admisión<br/>y Acceso de Usuarios"])
@@ -106,9 +106,9 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    Est["🎓 Estudiante"]
-    Tut["👨‍🏫 Tutor"]
-    Adm["🛡️ Administrador"]
+    Est["Estudiante"]
+    Tut["Tutor"]
+    Adm["Administrador"]
 
     subgraph Sistema ["Plataforma EduConnect"]
         CU01(["CU-01: Registrar Estudiante"])
@@ -176,9 +176,9 @@ flowchart LR
 #### Módulo 1: Registro, Autenticación y Perfil
 ```mermaid
 flowchart LR
-    Est["🎓 Estudiante"]
-    Tut["👨‍🏫 Tutor"]
-    Adm["🛡️ Administrador"]
+    Est["Estudiante"]
+    Tut["Tutor"]
+    Adm["Administrador"]
 
     subgraph ModuloAuth ["Módulo 1: Registro, Autenticación y Perfil"]
         CU01(["CU-01: Registrar Estudiante"])
@@ -223,7 +223,7 @@ flowchart LR
 #### Módulo 2: Portal del Estudiante
 ```mermaid
 flowchart LR
-    Est["🎓 Estudiante"]
+    Est["Estudiante"]
 
     subgraph ModuloEstudiante ["Módulo 2: Portal del Estudiante"]
         CU16(["CU-16: Explorar Tutores"])
@@ -253,8 +253,8 @@ flowchart LR
 #### Módulo 3: Portal del Tutor
 ```mermaid
 flowchart LR
-    Tut["👨‍🏫 Tutor Académico"]
-    Smtp["💻 Servidor SMTP"]
+    Tut["Tutor Académico"]
+    Smtp["Servidor SMTP"]
 
     subgraph ModuloTutor ["Módulo 3: Portal del Tutor"]
         CU10(["CU-10: Configurar Horarios"])
@@ -285,8 +285,8 @@ flowchart LR
 #### Módulo 4: Panel del Administrador
 ```mermaid
 flowchart LR
-    Adm["🛡️ Administrador"]
-    Smtp["💻 Servidor SMTP"]
+    Adm["Administrador"]
+    Smtp["Servidor SMTP"]
 
     subgraph ModuloAdmin ["Módulo 4: Panel del Administrador"]
         CU05(["CU-05: Aprobar/Rechazar Estudiante"])
