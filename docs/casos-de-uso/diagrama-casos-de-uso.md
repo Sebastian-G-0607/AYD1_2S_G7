@@ -20,10 +20,10 @@
 
 ```mermaid
 flowchart TD
-    Usuario["👤 Usuario del Sistema\n(Rol Base)"]
-    Estudiante["🎓 Estudiante"]
-    Tutor["👨‍🏫 Tutor Académico"]
-    Administrador["🛡️ Administrador"]
+    Usuario[" Usuario del Sistema\n(Rol Base)"]
+    Estudiante["Estudiante"]
+    Tutor[" Tutor Académico"]
+    Administrador[" Administrador"]
 
     Usuario -->|Generalización| Estudiante
     Usuario -->|Generalización| Tutor
