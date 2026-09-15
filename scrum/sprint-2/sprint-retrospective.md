@@ -21,7 +21,7 @@
 * **Duración:** 35 minutos
 * **Plataforma:** Google Meet
 * **Enlace a la Grabación en Video:**  
-  `[PEGA_AQUÍ_EL_ENLACE_AL_VIDEO_DE_SPRINT_RETROSPECTIVE_2]`
+  [Grabación Sprint Retrospective 2 en Google Drive](https://drive.google.com/file/d/1cs33HjPimm_d2zusLpagXPFDeMIj5nEp/view?usp=drive_link)
 
 ### Participantes
 * **Carlos Eduardo Lau López** (202202812) — **Scrum Master**
