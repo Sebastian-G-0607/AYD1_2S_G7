@@ -16,5 +16,17 @@ public interface IEmailService
         string nombreUsuario,
         string? motivo = null,
         CancellationToken cancellationToken = default);
+
+    Task SendCancelacionSesionTutorNotificacionAsync(
+        string toEmail,
+        string nombreEstudiante,
+        string nombreTutor,
+        string materia,
+        DateOnly fecha,
+        TimeOnly hora,
+        string motivoOriginal,
+        string motivoCancelacion,
+        string? mensajeDisculpa = null,
+        CancellationToken cancellationToken = default);
 }
 

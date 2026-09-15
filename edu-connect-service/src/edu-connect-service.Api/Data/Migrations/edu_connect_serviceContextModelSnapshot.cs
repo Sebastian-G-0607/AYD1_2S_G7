@@ -249,6 +249,10 @@ namespace educonnectservice.Api.Data.Migrations
                         .HasColumnType("CLOB")
                         .HasColumnName("motivo");
 
+                    b.Property<string>("MotivoCancelacion")
+                        .HasColumnType("CLOB")
+                        .HasColumnName("motivo_cancelacion");
+
                     b.Property<string>("Resumen")
                         .HasColumnType("CLOB")
                         .HasColumnName("resumen");

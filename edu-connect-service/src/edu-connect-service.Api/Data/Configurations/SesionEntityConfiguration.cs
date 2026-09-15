@@ -73,6 +73,10 @@ public class SesionEntityConfiguration : IEntityTypeConfiguration<Sesion>
             .HasColumnName("resumen")
             .HasColumnType("CLOB");
 
+        builder.Property(s => s.MotivoCancelacion)
+            .HasColumnName("motivo_cancelacion")
+            .HasColumnType("CLOB");
+
         builder.Property(s => s.FechaCreacion)
             .HasColumnName("fecha_creacion")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

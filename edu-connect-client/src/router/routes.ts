@@ -6,15 +6,29 @@ export const routes: RouteRecordRaw[] = [
     name: 'root',
     redirect: () => {
       const token = localStorage.getItem('edu_auth_token')
+
       if (!token) return '/login'
+
       const rawUser = localStorage.getItem('edu_auth_user')
+
       if (!rawUser) return '/login'
+
       try {
         const user = JSON.parse(rawUser) as { rol?: string }
         const role = user.rol?.toLowerCase().trim() || ''
-        if (role.includes('admin')) return '/admin/aprobaciones'
-        if (role === 'tutor') return '/tutor/dashboard'
-        if (role === 'estudiante' || role === 'student') return '/estudiante/explorar-tutores'
+
+        if (role.includes('admin')) {
+          return '/admin/aprobaciones'
+        }
+
+        if (role === 'tutor') {
+          return '/tutor/dashboard'
+        }
+
+        if (role === 'estudiante' || role === 'student') {
+          return '/estudiante/explorar-tutores'
+        }
+
         return '/login'
       } catch {
         return '/login'
@@ -67,6 +81,30 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/usuarios',
+    name: 'admin-users',
+    component: () => import('@/pages/AdminUsersPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Usuarios - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/reportes',
+    name: 'admin-reports',
+    component: () => import('@/pages/AdminReportsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Visión General y Reportes - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/2fa',
     name: 'admin-2fa',
     component: () => import('@/pages/AdminTwoFactorPage.vue'),
@@ -86,6 +124,18 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Estudiante', 'Student'],
       title: 'Explorador de Tutores - EduConnect Estudiante',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/estudiante/mis-sesiones',
+    name: 'student-sessions',
+    component: () => import('@/pages/StudentSessionsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Mis Sesiones - EduConnect Estudiante',
       layout: 'dashboard'
     }
   },
@@ -114,6 +164,30 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/tutor/historial',
+    name: 'tutor-history',
+    component: () => import('@/pages/TutorHistoryPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Historial de Sesiones - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/tutor/perfil',
+    name: 'tutor-profile',
+    component: () => import('@/pages/TutorProfilePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Tutor'],
+      title: 'Mi Perfil - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/estudiante/tutores/:tutorId',
     name: 'student-tutor-detail',
     component: () => import('@/pages/StudentTutorDetailPage.vue'),
@@ -122,6 +196,32 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Estudiante', 'Student'],
       title: 'Programar Sesión - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+
+  {
+    path: '/estudiante/historial',
+    name: 'student-history',
+    component: () => import('@/pages/StudentHistoryPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Historial de Sesiones - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+
+  {
+    path: '/estudiante/mi-perfil',
+    name: 'student-profile',
+    component: () => import('@/pages/StudentProfilePage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Mi Perfil - EduConnect Estudiante',
       layout: 'dashboard'
     }
   },

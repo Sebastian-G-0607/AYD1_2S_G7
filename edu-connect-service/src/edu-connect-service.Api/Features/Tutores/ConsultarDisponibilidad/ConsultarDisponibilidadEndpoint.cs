@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ namespace edu_connect_service.Api.Features.Tutores.ConsultarDisponibilidad;
 public static class ConsultarDisponibilidadEndpoint
 {
     private static readonly TimeSpan DuracionBloque = TimeSpan.FromHours(1);
+    private static readonly TimeSpan IntervaloPaso = TimeSpan.FromMinutes(30);
 
     public static void MapConsultarDisponibilidad(this IEndpointRouteBuilder app)
     {
@@ -57,9 +59,24 @@ public static class ConsultarDisponibilidadEndpoint
             .OrderBy(d => d)
             .ToList();
 
-        var diaSemanaConsultado = filtro.Fecha.DayOfWeek == DayOfWeek.Sunday
+        DateOnly fechaConsulta;
+        var rawFecha = filtro.Fecha;
+
+        if (!string.IsNullOrWhiteSpace(rawFecha) &&
+            (DateOnly.TryParseExact(rawFecha, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dExact)
+             || DateOnly.TryParse(rawFecha, CultureInfo.InvariantCulture, out dExact)
+             || DateOnly.TryParse(rawFecha, out dExact)))
+        {
+            fechaConsulta = dExact;
+        }
+        else
+        {
+            fechaConsulta = DateOnly.FromDateTime(DateTime.Today);
+        }
+
+        var diaSemanaConsultado = fechaConsulta.DayOfWeek == DayOfWeek.Sunday
             ? 7
-            : (int)filtro.Fecha.DayOfWeek;
+            : (int)fechaConsulta.DayOfWeek;
 
         var atiendeEseDia = diasAtencion.Contains(diaSemanaConsultado);
 
@@ -71,21 +88,43 @@ public static class ConsultarDisponibilidadEndpoint
                 diasAtencion,
                 tutor.HoraInicio,
                 tutor.HoraFin,
-                filtro.Fecha,
+                fechaConsulta,
                 AtiendeEseDia: false,
-                Bloques: []
+                Bloques: [],
+                SesionesOcupadas: []
             ));
         }
 
-        var estadosQueOcupan = new[] { "PENDIENTE", "ATENDIDA" };
-
-        var horariosOcupados = await dbContext.Sesiones
+        var estadosOcupadosIds = await dbContext.EstadosSesiones
             .AsNoTracking()
-            .Where(s => s.TutorId == tutorId)
-            .Where(s => s.FechaSesion == filtro.Fecha)
-            .Where(s => estadosQueOcupan.Contains(s.Estado.Nombre))
-            .Select(s => s.HoraInicio)
+            .Where(e => e.Nombre.ToUpper() == "PENDIENTE" || e.Nombre.ToUpper() == "ATENDIDA")
+            .Select(e => e.Id)
             .ToListAsync(cancellationToken);
+
+        var sesionesQuery = dbContext.Sesiones
+            .AsNoTracking()
+            .Where(s => s.TutorId == tutorId && s.FechaSesion == fechaConsulta);
+
+        if (estadosOcupadosIds.Count > 0)
+        {
+            sesionesQuery = sesionesQuery.Where(s => estadosOcupadosIds.Contains(s.EstadoId));
+        }
+        else
+        {
+            sesionesQuery = sesionesQuery.Where(s => !s.Estado.Nombre.ToUpper().Contains("CANCEL"));
+        }
+
+        var sesionesOcupadasDb = await sesionesQuery
+            .Select(s => new { s.HoraInicio, s.HoraFin })
+            .OrderBy(s => s.HoraInicio)
+            .ToListAsync(cancellationToken);
+
+        var sesionesOcupadas = sesionesOcupadasDb
+            .Select(s => new SesionOcupadaDto(
+                s.HoraInicio,
+                s.HoraFin ?? s.HoraInicio.Add(DuracionBloque)
+            ))
+            .ToList();
 
         var bloques = new List<BloqueHorarioDto>();
         var horaActual = tutor.HoraInicio.Value;
@@ -95,7 +134,11 @@ public static class ConsultarDisponibilidadEndpoint
         {
             var horaFinBloque = horaActual.Add(DuracionBloque);
 
-            var disponible = !horariosOcupados.Contains(horaActual);
+            var ocupado = sesionesOcupadas.Any(s =>
+                horaActual < s.HoraFin && horaFinBloque > s.HoraInicio
+            );
+
+            var disponible = !ocupado;
 
             bloques.Add(new BloqueHorarioDto(horaActual, horaFinBloque, disponible));
 
@@ -104,7 +147,7 @@ public static class ConsultarDisponibilidadEndpoint
                 break;
             }
 
-            horaActual = horaFinBloque;
+            horaActual = horaActual.Add(IntervaloPaso);
         }
 
         return Results.Ok(new DisponibilidadTutorResponseDto(
@@ -113,9 +156,10 @@ public static class ConsultarDisponibilidadEndpoint
             diasAtencion,
             tutor.HoraInicio,
             tutor.HoraFin,
-            filtro.Fecha,
+            fechaConsulta,
             AtiendeEseDia: true,
-            Bloques: bloques
+            Bloques: bloques,
+            SesionesOcupadas: sesionesOcupadas
         ));
     }
 }

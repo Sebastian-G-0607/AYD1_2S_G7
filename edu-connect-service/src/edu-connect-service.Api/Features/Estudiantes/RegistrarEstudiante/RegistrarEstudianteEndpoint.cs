@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Models;
+using edu_connect_service.Api.Shared.Storage;
 using edu_connect_service.Api.Shared.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public static class RegistrarEstudianteEndpoint
     private static async Task<IResult> HandleAsync(
         [FromForm] RegistrarEstudianteRequestDto request,
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Nombre))
@@ -206,11 +208,21 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        string? fotografiaUrl = null;
+        string? fotografiaKey = null;
         if (request.Fotografia is not null && request.Fotografia.Length > 0)
         {
-            // TODO: Implementar lógica de guardado en almacenamiento de objetos (S3 / Oracle Object Storage).
-            fotografiaUrl = $"/uploads/estudiantes/{Guid.NewGuid():N}.jpg";
+            try
+            {
+                fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
+            }
+            catch (Exception)
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Error al almacenar fotografía",
+                    detail: "No se pudo subir la fotografía de perfil al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
+                );
+            }
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -224,12 +236,9 @@ public static class RegistrarEstudianteEndpoint
             FechaRegistro = DateTime.UtcNow
         };
 
-        dbContext.Usuarios.Add(usuario);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
         var estudiante = new Estudiante
         {
-            UsuarioId = usuario.Id,
+            UsuarioId = 0,
             Nombre = request.Nombre.Trim(),
             Apellido = request.Apellido.Trim(),
             Carnet = normalizedCarnet,
@@ -237,11 +246,37 @@ public static class RegistrarEstudianteEndpoint
             Direccion = request.Direccion.Trim(),
             Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = fotografiaUrl
+            FotografiaUrl = fotografiaKey
         };
 
-        dbContext.Estudiantes.Add(estudiante);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            dbContext.Usuarios.Add(usuario);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            estudiante.UsuarioId = usuario.Id;
+            dbContext.Estudiantes.Add(estudiante);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            if (!string.IsNullOrWhiteSpace(fotografiaKey))
+            {
+                await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            }
+
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al registrar estudiante",
+                detail: "Ocurrió un error al registrar los datos del estudiante en el sistema. La transacción fue revertida y no se guardó ningún cambio."
+            );
+        }
+
+        var fotografiaPresignedUrl = s3Service.GeneratePresignedUrl(estudiante.FotografiaUrl);
 
         var response = new EstudianteResponseDto(
             estudiante.UsuarioId,
@@ -252,7 +287,7 @@ public static class RegistrarEstudianteEndpoint
             estudiante.Direccion,
             estudiante.Telefono,
             estudiante.FechaNacimiento,
-            estudiante.FotografiaUrl,
+            fotografiaPresignedUrl,
             usuario.Correo,
             rolEstudiante.Nombre,
             estadoPendiente.Nombre,

@@ -14,6 +14,7 @@ export interface TokenResponseDto {
   rol: string
   nombre?: string | null
   apellido?: string | null
+  fotografiaUrl?: string | null
 }
 
 export type AuthResponse = TokenResponseDto

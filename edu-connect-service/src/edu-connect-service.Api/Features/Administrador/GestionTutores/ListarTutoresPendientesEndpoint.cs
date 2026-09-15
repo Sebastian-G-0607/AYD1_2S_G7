@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Administrador.GestionTutores;
@@ -21,6 +22,7 @@ public static class ListarTutoresPendientesEndpoint
 
     private static async Task<IResult> HandleAsync(
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
         var tutoresPendientes = await dbContext.Tutores
@@ -47,7 +49,7 @@ public static class ListarTutoresPendientesEndpoint
                 t.Genero,
                 t.FechaNacimiento,
                 t.Usuario.Correo,
-                t.FotografiaUrl,
+                s3Service.GeneratePresignedUrl(t.FotografiaUrl) ?? t.FotografiaUrl,
                 especialidad,
                 materias,
                 t.DireccionTutoria,

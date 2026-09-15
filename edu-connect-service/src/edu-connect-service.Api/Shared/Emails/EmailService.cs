@@ -174,5 +174,99 @@ public class EmailService(
 
         await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
     }
+
+    public async Task SendCancelacionSesionTutorNotificacionAsync(
+        string toEmail,
+        string nombreEstudiante,
+        string nombreTutor,
+        string materia,
+        DateOnly fecha,
+        TimeOnly hora,
+        string motivoOriginal,
+        string motivoCancelacion,
+        string? mensajeDisculpa = null,
+        CancellationToken cancellationToken = default)
+    {
+        var subject = $"Cancelación de tutoría: {materia} con {nombreTutor}";
+        var disculpa = string.IsNullOrWhiteSpace(mensajeDisculpa)
+            ? "Lamentamos profundamente los inconvenientes que esta cancelación imprevista pueda ocasionarte en tu planificación académica. Te invitamos a consultar la disponibilidad de la plataforma para reprogramar una nueva sesión."
+            : mensajeDisculpa.Trim();
+
+        var htmlBody = $$"""
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+                    .header { background-color: #dc2626; padding: 24px; text-align: center; color: white; }
+                    .content { padding: 24px; color: #374151; line-height: 1.6; }
+                    .session-details { background-color: #f3f4f6; padding: 16px; border-radius: 6px; margin: 16px 0; }
+                    .session-details table { width: 100%; border-collapse: collapse; }
+                    .session-details td { padding: 6px 0; vertical-align: top; }
+                    .session-details td.label { font-weight: bold; width: 40%; color: #4b5563; }
+                    .apology-box { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 14px; border-radius: 4px; margin: 16px 0; font-style: italic; color: #991b1b; }
+                    .footer { background-color: #f3f4f6; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin:0; font-size: 24px;">EduConnect</h1>
+                        <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">Notificación de Cancelación de Sesión</p>
+                    </div>
+                    <div class="content">
+                        <h2>Sesión de Tutoría Cancelada</h2>
+                        <p>Hola <strong>{{WebUtility.HtmlEncode(nombreEstudiante)}}</strong>,</p>
+                        <p>Te informamos que tu tutor <strong>{{WebUtility.HtmlEncode(nombreTutor)}}</strong> ha cancelado la siguiente sesión de tutoría debido a un inconveniente:</p>
+
+                        <div class="session-details">
+                            <table>
+                                <tr>
+                                    <td class="label">Materia:</td>
+                                    <td><strong>{{WebUtility.HtmlEncode(materia)}}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Tutor:</td>
+                                    <td>{{WebUtility.HtmlEncode(nombreTutor)}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Fecha:</td>
+                                    <td>{{fecha.ToString("dd/MM/yyyy")}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Hora:</td>
+                                    <td>{{hora.ToString("hh:mm tt")}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Motivo de la sesión:</td>
+                                    <td>{{WebUtility.HtmlEncode(motivoOriginal)}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Motivo de cancelación:</td>
+                                    <td><strong style="color: #dc2626;">{{WebUtility.HtmlEncode(motivoCancelacion)}}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="apology-box">
+                            <p style="margin: 0;"><strong>Mensaje:</strong></p>
+                            <p style="margin: 6px 0 0 0;">{{WebUtility.HtmlEncode(disculpa)}}</p>
+                        </div>
+
+                        <p>El horario ha sido liberado en el sistema y puedes ingresar a la plataforma cuando desees para agendar una nueva tutoría.</p>
+                        <p>Atentamente,<br><strong>Equipo de EduConnect</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; {{DateTime.UtcNow.Year}} EduConnect. Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
+    }
 }
 

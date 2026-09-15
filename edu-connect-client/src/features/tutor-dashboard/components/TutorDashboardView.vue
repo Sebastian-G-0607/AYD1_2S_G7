@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BaseButton } from '@/components/ui'
+import { BaseAlert, BaseButton } from '@/components/ui'
 import { useTutorDashboard } from '../composables/useTutorDashboard'
 import TutorStatsCards from './TutorStatsCards.vue'
 import TutorSessionsTable from './TutorSessionsTable.vue'
@@ -11,13 +11,17 @@ const {
   stats,
   isLoading,
   isProcessingAction,
+  actionError,
+  actionSuccess,
   selectedSession,
   isCompleteModalOpen,
   isCancelModalOpen,
   openCompleteModal,
   openCancelModal,
   handleCompleteSession,
-  handleCancelSession
+  handleCancelSession,
+  dismissActionSuccess,
+  dismissActionError
 } = useTutorDashboard()
 </script>
 
@@ -49,6 +53,24 @@ const {
         </BaseButton>
       </div>
     </div>
+
+    <BaseAlert
+      v-if="actionSuccess"
+      type="success"
+      :message="actionSuccess"
+      dismissible
+      class="mb-6"
+      @dismiss="dismissActionSuccess"
+    />
+
+    <BaseAlert
+      v-if="actionError && !isCancelModalOpen && !isCompleteModalOpen"
+      type="error"
+      :message="actionError"
+      dismissible
+      class="mb-6"
+      @dismiss="dismissActionError"
+    />
 
     <TutorStatsCards :stats="stats" />
 
@@ -90,6 +112,7 @@ const {
       v-model="isCancelModalOpen"
       :session="selectedSession"
       :loading="isProcessingAction"
+      :error-message="actionError"
       @submit="handleCancelSession"
     />
   </div>

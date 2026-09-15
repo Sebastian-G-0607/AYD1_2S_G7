@@ -15,5 +15,6 @@ public record TokenResponseDto(
     string Correo,
     string Rol,
     string? Nombre,
-    string? Apellido
+    string? Apellido,
+    string? FotografiaUrl
 );

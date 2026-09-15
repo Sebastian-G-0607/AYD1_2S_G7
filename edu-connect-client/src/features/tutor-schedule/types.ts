@@ -11,6 +11,13 @@ export interface TutorScheduleResponse {
   diasAtencion: number[]
 }
 
+export interface TutorScheduleGetResponse {
+  tutorId: number
+  horaInicio: string | null
+  horaFin: string | null
+  diasAtencion: number[]
+}
+
 export interface ScheduleDay {
   id: number
   label: string

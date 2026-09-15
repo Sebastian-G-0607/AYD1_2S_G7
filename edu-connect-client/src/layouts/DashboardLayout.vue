@@ -14,6 +14,7 @@ interface NavItem {
 const route = useRoute()
 const authStore = useAuthStore()
 const { logout } = useAuth()
+
 const { isDesktopSidebarOpen, isMobileMenuOpen, closeMobileMenu, closeSidebar, toggleMenu } =
   useSidebar()
 
@@ -26,11 +27,14 @@ const userRole = computed(() => {
 
 const userDisplayName = computed(() => {
   if (userRole.value.includes('admin')) return 'Admin EduConnect'
+
   if (authStore.user?.nombre) {
     return `${authStore.user.nombre} ${authStore.user.apellido || ''}`.trim()
   }
+
   if (userRole.value === 'tutor') return 'Prof. Tutor'
   if (userRole.value === 'estudiante') return 'Estudiante'
+
   return authStore.user?.correo || 'Usuario'
 })
 
@@ -38,57 +42,119 @@ const userRoleDisplay = computed(() => {
   if (userRole.value.includes('admin')) return 'Super Administrador'
   if (userRole.value === 'tutor') return 'Tutor Académico'
   if (userRole.value === 'estudiante') return 'Estudiante'
+
   return authStore.userRole || 'Usuario'
 })
 
 const userInitials = computed(() => {
   if (userRole.value.includes('admin')) return 'AD'
+
   if (authStore.user?.nombre) {
     const first = authStore.user.nombre.charAt(0)
     const second = authStore.user.apellido ? authStore.user.apellido.charAt(0) : ''
+
     return (first + second).toUpperCase()
   }
+
   if (userRole.value === 'tutor') return 'TU'
   if (userRole.value === 'estudiante') return 'ES'
+
   return 'EC'
 })
 
 const portalSubtitle = computed(() => {
-  if (userRole.value.includes('admin')) return 'Panel de Administración'
-  if (userRole.value === 'tutor') return 'Portal del Tutor'
-  if (userRole.value === 'estudiante') return 'Portal del Estudiante'
+  if (userRole.value.includes('admin')) {
+    return 'Panel de Administración'
+  }
+
+  if (userRole.value === 'tutor') {
+    return 'Portal del Tutor'
+  }
+
+  if (userRole.value === 'estudiante') {
+    return 'Portal del Estudiante'
+  }
+
   return 'EduConnect'
 })
 
 const navItems = computed<NavItem[]>(() => {
   if (userRole.value.includes('admin')) {
     return [
-      { name: 'Aprobaciones', icon: 'verified_user', to: '/admin/aprobaciones' },
-      { name: 'Usuarios', icon: 'group', to: '/admin/usuarios' },
-      { name: 'Reportes', icon: 'bar_chart', to: '/admin/reportes' }
+      {
+        name: 'Aprobaciones',
+        icon: 'verified_user',
+        to: '/admin/aprobaciones'
+      },
+      {
+        name: 'Usuarios',
+        icon: 'group',
+        to: '/admin/usuarios'
+      },
+      {
+        name: 'Reportes',
+        icon: 'bar_chart',
+        to: '/admin/reportes'
+      }
     ]
   }
 
   if (userRole.value === 'tutor') {
     return [
-      { name: 'Dashboard', icon: 'home', to: '/tutor/dashboard' },
-      { name: 'Horarios', icon: 'schedule', to: '/tutor/horarios' },
-      { name: 'Historial', icon: 'assignment', to: '/tutor/historial' },
-      { name: 'Mi Perfil', icon: 'person', to: '/tutor/mi-perfil' }
+      {
+        name: 'Dashboard',
+        icon: 'home',
+        to: '/tutor/dashboard'
+      },
+      {
+        name: 'Horarios',
+        icon: 'schedule',
+        to: '/tutor/horarios'
+      },
+      {
+        name: 'Historial',
+        icon: 'assignment',
+        to: '/tutor/historial'
+      },
+      {
+        name: 'Mi Perfil',
+        icon: 'person',
+        to: '/tutor/perfil'
+      }
     ]
   }
 
   return [
-    { name: 'Explorar Tutores', icon: 'search', to: '/estudiante/explorar-tutores' },
-    { name: 'Mis Sesiones', icon: 'event_available', to: '/estudiante/mis-sesiones' },
-    { name: 'Historial', icon: 'history_edu', to: '/estudiante/historial' },
-    { name: 'Mi Perfil', icon: 'person_outline', to: '/estudiante/mi-perfil' }
+    {
+      name: 'Explorar Tutores',
+      icon: 'search',
+      to: '/estudiante/explorar-tutores'
+    },
+    {
+      name: 'Mis Sesiones',
+      icon: 'event_available',
+      to: '/estudiante/mis-sesiones'
+    },
+    {
+      name: 'Historial',
+      icon: 'history_edu',
+      to: '/estudiante/historial'
+    },
+    {
+      name: 'Mi Perfil',
+      icon: 'person_outline',
+      to: '/estudiante/mi-perfil'
+    }
   ]
 })
 
 function isRouteActive(itemPath: string): boolean {
   if (itemPath === route.path) return true
-  if (itemPath !== '/' && route.path.startsWith(itemPath)) return true
+
+  if (itemPath !== '/' && route.path.startsWith(itemPath)) {
+    return true
+  }
+
   return false
 }
 
@@ -99,6 +165,7 @@ function openLogoutModal() {
 
 function closeLogoutModal() {
   if (isLoggingOut.value) return
+
   isLogoutModalOpen.value = false
 }
 
@@ -115,12 +182,14 @@ async function confirmLogout() {
 
 <template>
   <div class="min-h-screen bg-surface font-body text-on-surface flex flex-col">
+    <!-- Overlay móvil -->
     <div
       v-if="isMobileMenuOpen"
       class="fixed inset-0 bg-on-background/40 backdrop-blur-sm z-40 lg:hidden"
       @click="closeMobileMenu"
     />
 
+    <!-- Sidebar -->
     <aside
       :class="[
         'fixed top-0 bottom-0 left-0 w-72 bg-surface-container-lowest z-50 flex flex-col border-r border-outline-variant/30 shadow-[4px_0_12px_rgba(30,41,59,0.03)] transition-transform duration-300 ease-in-out',
@@ -128,6 +197,7 @@ async function confirmLogout() {
         isDesktopSidebarOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'
       ]"
     >
+      <!-- Logo -->
       <div
         class="px-6 py-6 flex items-center justify-between relative border-b border-surface-container/60"
       >
@@ -135,17 +205,21 @@ async function confirmLogout() {
           <div
             class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm shrink-0"
           >
-            <span class="material-symbols-outlined text-[20px]">school</span>
+            <span class="material-symbols-outlined text-[20px]"> school </span>
           </div>
+
           <div class="flex flex-col min-w-0">
             <span
               class="font-headline text-lg font-bold text-primary tracking-tight leading-none truncate"
-              >EduConnect</span
             >
+              EduConnect
+            </span>
+
             <span
               class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mt-1 truncate"
-              >{{ userRoleDisplay }}</span
             >
+              {{ userRoleDisplay }}
+            </span>
           </div>
         </div>
 
@@ -156,13 +230,15 @@ async function confirmLogout() {
           class="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container-low shrink-0 flex items-center justify-center"
           @click="closeSidebar"
         >
-          <span class="material-symbols-outlined text-[20px] lg:hidden">close</span>
-          <span class="material-symbols-outlined text-[20px] hidden lg:inline-block"
-            >menu_open</span
-          >
+          <span class="material-symbols-outlined text-[20px] lg:hidden"> close </span>
+
+          <span class="material-symbols-outlined text-[20px] hidden lg:inline-block">
+            menu_open
+          </span>
         </button>
       </div>
 
+      <!-- Navegación -->
       <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         <RouterLink
           v-for="item in navItems"
@@ -176,29 +252,38 @@ async function confirmLogout() {
           ]"
           @click="closeMobileMenu"
         >
-          <span class="material-symbols-outlined text-[22px]">{{ item.icon }}</span>
-          <span>{{ item.name }}</span>
+          <span class="material-symbols-outlined text-[22px]">
+            {{ item.icon }}
+          </span>
+
+          <span>
+            {{ item.name }}
+          </span>
         </RouterLink>
       </nav>
 
+      <!-- Cerrar sesión -->
       <div class="p-4 border-t border-surface-container/60 flex flex-col gap-2">
         <button
           type="button"
           class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-error hover:bg-error-container/40 transition-colors font-medium text-sm"
           @click="openLogoutModal"
         >
-          <span class="material-symbols-outlined text-[20px]">logout</span>
-          <span>Cerrar Sesión</span>
+          <span class="material-symbols-outlined text-[20px]"> logout </span>
+
+          <span> Cerrar Sesión </span>
         </button>
       </div>
     </aside>
 
+    <!-- Contenido -->
     <div
       :class="[
         'flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out',
         isDesktopSidebarOpen ? 'lg:pl-72' : 'lg:pl-0'
       ]"
     >
+      <!-- Header -->
       <header
         class="sticky top-0 z-30 h-20 bg-surface/85 backdrop-blur-xl border-b border-outline-variant/20 px-4 sm:px-8 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.03)]"
       >
@@ -213,33 +298,40 @@ async function confirmLogout() {
             ]"
             @click="toggleMenu"
           >
-            <span class="material-symbols-outlined text-[24px]">menu</span>
+            <span class="material-symbols-outlined text-[24px]"> menu </span>
           </button>
 
           <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-[20px]">school</span>
-            <span class="text-sm font-semibold text-on-surface tracking-tight">{{
-              portalSubtitle
-            }}</span>
+            <span class="material-symbols-outlined text-[20px]"> school </span>
+
+            <span class="text-sm font-semibold text-on-surface tracking-tight">
+              {{ portalSubtitle }}
+            </span>
           </div>
         </div>
 
         <div class="flex items-center gap-4">
+          <!-- Notificaciones -->
           <button
             type="button"
             aria-label="Notificaciones"
             class="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors relative"
           >
-            <span class="material-symbols-outlined text-[22px]">notifications</span>
+            <span class="material-symbols-outlined text-[22px]"> notifications </span>
+
             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
           </button>
 
+          <!-- Usuario -->
           <div class="flex items-center gap-3 pl-4 border-l border-surface-container-high">
             <div class="hidden sm:flex flex-col text-right">
-              <span class="text-sm font-semibold text-on-surface leading-tight">{{
-                userDisplayName
-              }}</span>
-              <span class="text-xs text-on-surface-variant">{{ userRoleDisplay }}</span>
+              <span class="text-sm font-semibold text-on-surface leading-tight">
+                {{ userDisplayName }}
+              </span>
+
+              <span class="text-xs text-on-surface-variant">
+                {{ userRoleDisplay }}
+              </span>
             </div>
 
             <div
@@ -251,7 +343,10 @@ async function confirmLogout() {
                 alt="Avatar de usuario"
                 class="w-full h-full object-cover"
               />
-              <span v-else>{{ userInitials }}</span>
+
+              <span v-else>
+                {{ userInitials }}
+              </span>
             </div>
 
             <button
@@ -261,17 +356,19 @@ async function confirmLogout() {
               class="p-2 rounded-xl text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors"
               @click="openLogoutModal"
             >
-              <span class="material-symbols-outlined text-[20px]">logout</span>
+              <span class="material-symbols-outlined text-[20px]"> logout </span>
             </button>
           </div>
         </div>
       </header>
 
+      <!-- Página -->
       <main class="flex-1 p-4 sm:p-8 bg-surface">
         <slot />
       </main>
     </div>
 
+    <!-- Modal cerrar sesión -->
     <BaseModal
       :model-value="isLogoutModalOpen"
       title="Cerrar Sesión"
@@ -283,8 +380,9 @@ async function confirmLogout() {
         <div
           class="w-12 h-12 rounded-2xl bg-error-container/60 text-error flex items-center justify-center shrink-0"
         >
-          <span class="material-symbols-outlined text-[28px]">logout</span>
+          <span class="material-symbols-outlined text-[28px]"> logout </span>
         </div>
+
         <div class="flex flex-col gap-1.5">
           <h4 class="text-base font-semibold text-on-surface">
             ¿Estás seguro de que deseas cerrar sesión?
@@ -296,6 +394,7 @@ async function confirmLogout() {
         <BaseButton variant="outline" size="md" :disabled="isLoggingOut" @click="closeLogoutModal">
           Cancelar
         </BaseButton>
+
         <BaseButton variant="danger" size="md" :loading="isLoggingOut" @click="confirmLogout">
           Cerrar Sesión
         </BaseButton>

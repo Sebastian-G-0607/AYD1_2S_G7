@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Administrador.GestionEstudiantes;
@@ -21,28 +22,30 @@ public static class ListarEstudiantesPendientesEndpoint
 
     private static async Task<IResult> HandleAsync(
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         CancellationToken cancellationToken)
     {
-        var estudiantesPendientes = await dbContext.Estudiantes
+        var estudiantes = await dbContext.Estudiantes
             .AsNoTracking()
             .Include(e => e.Usuario)
             .ThenInclude(u => u.Estado)
             .Where(e => e.Usuario.Estado.Nombre == "PENDIENTE")
             .OrderBy(e => e.Usuario.FechaRegistro)
-            .Select(e => new EstudiantePendienteResponseDto(
-                e.UsuarioId,
-                e.Nombre,
-                e.Apellido,
-                e.Carnet,
-                e.Genero,
-                e.FechaNacimiento,
-                e.Usuario.Correo,
-                e.FotografiaUrl,
-                e.Direccion,
-                e.Telefono,
-                e.Usuario.FechaRegistro
-            ))
             .ToListAsync(cancellationToken);
+
+        var estudiantesPendientes = estudiantes.Select(e => new EstudiantePendienteResponseDto(
+            e.UsuarioId,
+            e.Nombre,
+            e.Apellido,
+            e.Carnet,
+            e.Genero,
+            e.FechaNacimiento,
+            e.Usuario.Correo,
+            s3Service.GeneratePresignedUrl(e.FotografiaUrl),
+            e.Direccion,
+            e.Telefono,
+            e.Usuario.FechaRegistro
+        )).ToList();
 
         return Results.Ok(estudiantesPendientes);
     }

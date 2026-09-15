@@ -363,6 +363,108 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "HU-08: Reporte Tutores con Más Atenciones",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/tutores-mas-atendidos?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"tutores-mas-atendidos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-08: Reporte Materias con Mayor Demanda",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/materias-mayor-demanda?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"materias-mayor-demanda"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HU-08: Reportes Resumen Global",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/administrador/reportes/resumen",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"administrador",
+								"reportes",
+								"resumen"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
