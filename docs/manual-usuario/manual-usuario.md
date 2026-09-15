@@ -1,5 +1,12 @@
 # Manual de Usuario – EduConnect
 
+### Documentos relacionados
+
+- [Prototipado con Google Stitch](../prototipos/prototipos-stitch.md)
+- [Principios de Usabilidad de Nielsen](../ux-ui/principios-nielsen.md)
+- [Requerimientos Funcionales](../requerimientos/requerimientos-funcionales.md)
+- [Manual Técnico](../manual-tecnico/manual-tecnico.md)
+
 ## Inicio de Sesión y Registro
 
 Esta sección corresponde a las pantallas de acceso a la plataforma, comunes para todos los roles.

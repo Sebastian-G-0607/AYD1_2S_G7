@@ -1,5 +1,12 @@
 # Manual Técnico de Arquitectura e Instalación — EduConnect
 
+### Documentos relacionados
+
+- [Requerimientos No Funcionales](../requerimientos/requerimientos-no-funcionales.md)
+- [Requerimientos Funcionales](../requerimientos/requerimientos-funcionales.md)
+- [Diagrama de Casos de Uso](../casos-de-uso/diagrama-casos-de-uso.md)
+- [Manual de Usuario](../manual-usuario/manual-usuario.md)
+
 **Universidad de San Carlos de Guatemala**  
 **Facultad de Ingeniería — Escuela de Ciencias y Sistemas**  
 **Análisis y Diseño de Sistemas 1  — Segundo Semestre 2026**  

@@ -1,5 +1,11 @@
 # Principios de Usabilidad de Nielsen aplicados en EduConnect
 
+### Documentos relacionados
+
+- [Prototipado con Google Stitch](../prototipos/prototipos-stitch.md)
+- [Manual de Usuario](../manual-usuario/manual-usuario.md)
+- [Requerimientos No Funcionales](../requerimientos/requerimientos-no-funcionales.md)
+
 Este apartado describe cómo se aplican los diez principios de usabilidad de Jakob Nielsen dentro de EduConnect, tomando como referencia las funcionalidades implementadas para los roles de Administrador, Tutor y Estudiante.
 
 ---

@@ -1,5 +1,12 @@
 # Requerimientos Funcionales
 
+### Documentos relacionados
+
+- [Requerimientos No Funcionales](requerimientos-no-funcionales.md)
+- [Casos de Uso](../casos-de-uso/diagrama-casos-de-uso.md)
+- [Historias de Usuario y Product Backlog](../product-backlog/historias-de-usuario.md)
+- [Manual de Usuario](../manual-usuario/manual-usuario.md)
+
 Los siguientes requerimientos funcionales describen las principales acciones y comportamientos que debe proporcionar la plataforma EduConnect para permitir la gestión de usuarios, tutores, sesiones académicas y procesos administrativos.
 
 ---

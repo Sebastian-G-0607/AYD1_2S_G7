@@ -1,5 +1,11 @@
 # Evaluación del Equipo Scrum - Sprint 2
 
+### Documentos relacionados
+
+- [README del proyecto](../../README.md)
+- [Daily Scrums del Sprint 2](sprint-dailies.md)
+- [Sprint Retrospective 2](sprint-retrospective.md)
+
 La siguiente evaluación se ha realizado de manera objetiva basándose en el historial de contribuciones del repositorio en las ramas respectivas (usando los carnets como identificadores). Los datos contemplan el periodo del **07 de septiembre al 13 de septiembre**. En este sprint también se incluye la métrica de corrección de errores (fixes).
 
 | Nombre | Carnet | Commits | Líneas (+) | Líneas (-) | Fixes | Rango de Fechas | Puntuación (1-100) |
