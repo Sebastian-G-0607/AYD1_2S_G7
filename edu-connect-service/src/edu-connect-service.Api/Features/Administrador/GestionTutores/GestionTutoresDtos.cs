@@ -66,3 +66,40 @@ public record DarBajaTutorResponseDto(
     string Mensaje
 );
 
+public record ActualizarTutorAdminRequestDto(
+    string Nombre,
+    string Apellido,
+    string CarnetId,
+    string NumeroIdentificacion,
+    string Genero,
+    DateOnly FechaNacimiento,
+    string? Direccion,
+    string? Telefono,
+    string DireccionTutoria,
+    int AnioInicio,
+    string Universidad,
+    List<string>? Materias = null,
+    List<int>? MateriasIds = null,
+    string? FotografiaUrl = null
+);
+
+public record ActualizarTutorAdminResponseDto(
+    int Id,
+    string Nombre,
+    string Apellido,
+    string CarnetId,
+    string NumeroIdentificacion,
+    string Genero,
+    DateOnly FechaNacimiento,
+    string Correo,
+    string FotografiaUrl,
+    string Especialidad,
+    List<string> Materias,
+    string DireccionTutoria,
+    int AnioInicio,
+    string Universidad,
+    string? Direccion,
+    string? Telefono,
+    string Mensaje
+);
+

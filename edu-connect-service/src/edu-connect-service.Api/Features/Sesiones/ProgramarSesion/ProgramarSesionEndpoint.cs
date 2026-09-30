@@ -22,7 +22,7 @@ public static class ProgramarSesionEndpoint
             .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         ProgramarSesionRequestDto request,
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
@@ -90,6 +90,8 @@ public static class ProgramarSesionEndpoint
 
         var tutor = await dbContext.Tutores
             .AsNoTracking()
+            .Include(tutor => tutor.Usuario)
+                .ThenInclude(u => u.Estado)
             .FirstOrDefaultAsync(
                 tutor => tutor.UsuarioId == request.TutorId,
                 cancellationToken
@@ -101,6 +103,15 @@ public static class ProgramarSesionEndpoint
                 statusCode: StatusCodes.Status404NotFound,
                 title: "Tutor no encontrado",
                 detail: "El tutor seleccionado no existe."
+            );
+        }
+
+        if (tutor.Usuario.Estado.Nombre != "APROBADO")
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Tutor no disponible",
+                detail: "El tutor seleccionado no se encuentra activo para recibir reservas de tutoría."
             );
         }
 
