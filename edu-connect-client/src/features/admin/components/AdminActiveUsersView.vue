@@ -22,7 +22,8 @@ const {
   confirmBaja,
   dismissFeedback,
   getInitials,
-  formatFecha
+  formatFecha,
+  navigateToEditTutor
 } = useAdminActiveUsers()
 </script>
 
@@ -414,14 +415,24 @@ const {
 
               <!-- Acciones -->
               <td class="py-4 px-6 text-right">
-                <button
-                  type="button"
-                  class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer"
-                  @click="openBajaModal(tutor, 'tutor')"
-                >
-                  <span class="material-symbols-outlined text-[16px]">person_remove</span>
-                  Dar de Baja
-                </button>
+                <div class="inline-flex items-center gap-2 justify-end">
+                  <button
+                    type="button"
+                    class="font-label-sm text-label-sm text-primary hover:text-primary-container hover:bg-primary-fixed/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-primary/20 cursor-pointer"
+                    @click="navigateToEditTutor(tutor.id)"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer"
+                    @click="openBajaModal(tutor, 'tutor')"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">person_remove</span>
+                    Dar de Baja
+                  </button>
+                </div>
               </td>
             </tr>
 

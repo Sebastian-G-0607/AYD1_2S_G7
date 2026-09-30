@@ -162,3 +162,43 @@ export interface ReportesResumen {
 }
 
 export type ReportsTabType = 'todos' | 'tutores' | 'materias'
+
+// ==========================================
+// HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)
+// ==========================================
+export interface UpdateTutorAdminPayload {
+  nombre: string
+  apellido: string
+  carnetId: string
+  numeroIdentificacion: string
+  genero: string
+  fechaNacimiento: string
+  direccion: string
+  telefono?: string
+  direccionTutoria: string
+  anioInicio: number
+  universidad: string
+  materias?: string[]
+  materiasIds?: number[]
+  fotografiaUrl?: string
+}
+
+export interface UpdateTutorAdminResponse {
+  id: number
+  nombre: string
+  apellido: string
+  carnetId: string
+  numeroIdentificacion: string
+  genero: string
+  fechaNacimiento: string
+  correo: string
+  fotografiaUrl: string
+  especialidad: string
+  materias: string[]
+  direccionTutoria: string
+  anioInicio: number
+  universidad: string
+  direccion?: string
+  telefono?: string
+  mensaje: string
+}
