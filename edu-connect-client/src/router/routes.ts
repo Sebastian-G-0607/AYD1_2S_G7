@@ -214,6 +214,19 @@ export const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/estudiante/plan-estudio',
+    name: 'student-study-plan',
+    component: () => import('@/pages/StudentStudyPlanPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Plan de Estudio - EduConnect',
+      layout: 'dashboard'
+    }
+  },
+
+  {
     path: '/estudiante/mi-perfil',
     name: 'student-profile',
     component: () => import('@/pages/StudentProfilePage.vue'),
