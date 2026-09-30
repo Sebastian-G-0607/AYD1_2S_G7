@@ -10,7 +10,11 @@ const {
   errorMessage,
   successMessage,
   fieldErrors,
-  canSave,
+  currentYear,
+  maxBirthDate,
+  minBirthDate,
+  handleNombreInput,
+  handleApellidoInput,
   handleCarnetInput,
   handleDpiInput,
   handlePhoneInput,
@@ -25,7 +29,6 @@ const {
 
 <template>
   <div class="flex flex-col w-full h-full relative font-body-md text-on-background">
-    <!-- Estado de carga inicial -->
     <div
       v-if="isLoading"
       class="flex flex-col items-center justify-center gap-4 py-24 text-on-surface-variant"
@@ -36,7 +39,6 @@ const {
       <p class="font-label-md text-label-md">Cargando datos del tutor...</p>
     </div>
 
-    <!-- Error crítico de carga -->
     <div
       v-else-if="errorMessage && !tutorOriginal"
       class="max-w-3xl mx-auto w-full my-12 p-6 rounded-2xl bg-error-container text-on-error-container flex flex-col items-center text-center gap-4 border border-error/20"
@@ -53,13 +55,10 @@ const {
       </button>
     </div>
 
-    <!-- Contenido Principal: Formulario adaptado desde Stitch -->
     <div v-else class="w-full max-w-4xl mx-auto my-4 sm:my-8 relative">
-      <!-- TARJETA PRINCIPAL STITCH -->
       <div
         class="w-full bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-container relative overflow-hidden flex flex-col"
       >
-        <!-- Header Banner -->
         <div class="h-44 bg-primary relative px-6 sm:px-8 pt-6 pb-6 flex flex-col justify-between">
           <div
             class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-fixed-dim/20 via-transparent to-transparent pointer-events-none"
@@ -78,8 +77,12 @@ const {
 
           <div class="text-on-primary z-10">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-[20px] text-primary-fixed">admin_panel_settings</span>
-              <span class="text-xs uppercase tracking-wider text-primary-fixed font-semibold">Módulo Administrador</span>
+              <span class="material-symbols-outlined text-[20px] text-primary-fixed"
+                >admin_panel_settings</span
+              >
+              <span class="text-xs uppercase tracking-wider text-primary-fixed font-semibold"
+                >Módulo Administrador</span
+              >
             </div>
             <h1 class="font-headline-lg text-headline-lg text-white font-bold leading-tight mt-1">
               Perfil de Tutor
@@ -91,7 +94,6 @@ const {
         </div>
 
         <div class="px-6 sm:px-8 pb-8 pt-16 relative flex flex-col gap-8">
-          <!-- Avatar Section -->
           <div class="absolute -top-16 right-6 sm:right-12 flex flex-col items-center gap-2">
             <div class="relative group">
               <div
@@ -120,9 +122,7 @@ const {
             </span>
           </div>
 
-          <!-- FORMULARIO DE EDICIÓN -->
           <form class="flex flex-col gap-6" @submit.prevent="handleSave">
-            <!-- NOMBRES Y APELLIDOS -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
                 <label class="font-label-md text-label-md text-on-surface" for="nombres">
@@ -130,8 +130,9 @@ const {
                 </label>
                 <input
                   id="nombres"
-                  v-model="formData.nombre"
+                  :value="formData.nombre"
                   type="text"
+                  maxlength="60"
                   placeholder="Ingrese los nombres"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -139,7 +140,7 @@ const {
                       ? 'border-2 border-error ring-1 ring-error/30 bg-error-container/10'
                       : 'border-none focus:ring-2 focus:ring-primary/50'
                   ]"
-                  @input="clearFieldError('nombre')"
+                  @input="handleNombreInput"
                 />
                 <span
                   v-if="fieldErrors.nombre"
@@ -156,8 +157,9 @@ const {
                 </label>
                 <input
                   id="apellidos"
-                  v-model="formData.apellido"
+                  :value="formData.apellido"
                   type="text"
+                  maxlength="60"
                   placeholder="Ingrese los apellidos"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -165,7 +167,7 @@ const {
                       ? 'border-2 border-error ring-1 ring-error/30 bg-error-container/10'
                       : 'border-none focus:ring-2 focus:ring-primary/50'
                   ]"
-                  @input="clearFieldError('apellido')"
+                  @input="handleApellidoInput"
                 />
                 <span
                   v-if="fieldErrors.apellido"
@@ -177,7 +179,6 @@ const {
               </div>
             </div>
 
-            <!-- CARNET Y DOCUMENTO DE IDENTIFICACIÓN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
                 <label class="font-label-md text-label-md text-on-surface" for="carnet">
@@ -207,7 +208,10 @@ const {
               </div>
 
               <div class="flex flex-col gap-2">
-                <label class="font-label-md text-label-md text-on-surface" for="numeroIdentificacion">
+                <label
+                  class="font-label-md text-label-md text-on-surface"
+                  for="numeroIdentificacion"
+                >
                   DPI / Documento de Identificación <span class="text-error">*</span>
                 </label>
                 <input
@@ -234,7 +238,6 @@ const {
               </div>
             </div>
 
-            <!-- GÉNERO Y FECHA DE NACIMIENTO -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
                 <label class="font-label-md text-label-md text-on-surface" for="genero">
@@ -244,7 +247,12 @@ const {
                   <select
                     id="genero"
                     v-model="formData.genero"
-                    class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all border-none appearance-none cursor-pointer"
+                    :class="[
+                      'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all appearance-none cursor-pointer',
+                      fieldErrors.genero
+                        ? 'border-2 border-error ring-1 ring-error/30 bg-error-container/10'
+                        : 'border-none focus:ring-2 focus:ring-primary/50'
+                    ]"
                     @change="clearFieldError('genero')"
                   >
                     <option value="masculino">Masculino</option>
@@ -256,6 +264,13 @@ const {
                     expand_more
                   </span>
                 </div>
+                <span
+                  v-if="fieldErrors.genero"
+                  class="text-xs text-error font-medium flex items-center gap-1 mt-0.5"
+                >
+                  <span class="material-symbols-outlined text-[14px]">error</span>
+                  {{ fieldErrors.genero }}
+                </span>
               </div>
 
               <div class="flex flex-col gap-2">
@@ -266,6 +281,8 @@ const {
                   id="fechaNacimiento"
                   v-model="formData.fechaNacimiento"
                   type="date"
+                  :min="minBirthDate"
+                  :max="maxBirthDate"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all cursor-pointer',
                     fieldErrors.fechaNacimiento
@@ -284,7 +301,6 @@ const {
               </div>
             </div>
 
-            <!-- TELÉFONO Y DIRECCIÓN DE RESIDENCIA -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
                 <label class="font-label-md text-label-md text-on-surface" for="telefono">
@@ -321,6 +337,7 @@ const {
                   id="direccion"
                   v-model="formData.direccion"
                   type="text"
+                  maxlength="200"
                   placeholder="Dirección domiciliar"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -340,7 +357,6 @@ const {
               </div>
             </div>
 
-            <!-- UNIVERSIDAD Y AÑO DE INICIO -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="flex flex-col gap-2">
                 <label class="font-label-md text-label-md text-on-surface" for="universidad">
@@ -350,6 +366,7 @@ const {
                   id="universidad"
                   v-model="formData.universidad"
                   type="text"
+                  maxlength="100"
                   placeholder="Ej. USAC, URL, UVG"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -377,7 +394,7 @@ const {
                   v-model.number="formData.anioInicio"
                   type="number"
                   min="1980"
-                  :max="new Date().getFullYear()"
+                  :max="currentYear"
                   placeholder="Ej. 2020"
                   :class="[
                     'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -397,7 +414,6 @@ const {
               </div>
             </div>
 
-            <!-- DIRECCIÓN DE TUTORÍA / MODALIDAD -->
             <div class="flex flex-col gap-2">
               <label class="font-label-md text-label-md text-on-surface" for="direccionTutoria">
                 Dirección de Tutoría / Modalidad <span class="text-error">*</span>
@@ -406,6 +422,7 @@ const {
                 id="direccionTutoria"
                 v-model="formData.direccionTutoria"
                 type="text"
+                maxlength="200"
                 placeholder="Ej. Edificio T3 Salón 201 o Sesiones en Google Meet"
                 :class="[
                   'w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none transition-all',
@@ -424,7 +441,6 @@ const {
               </span>
             </div>
 
-            <!-- CORREO ELECTRÓNICO (STITCH: READ-ONLY CON CANDADO) -->
             <div class="flex flex-col gap-2">
               <label
                 class="font-label-md text-label-md text-on-surface flex items-center gap-2"
@@ -448,11 +464,11 @@ const {
                 class="w-full bg-surface-container-low text-on-surface-variant font-body-md text-body-md px-4 py-3 rounded-lg cursor-not-allowed border-none opacity-70"
               />
               <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                Este correo se utiliza para autenticación y notificaciones oficiales del tutor. Permanece protegido contra modificaciones.
+                Este correo se utiliza para autenticación y notificaciones oficiales del tutor.
+                Permanece protegido contra modificaciones.
               </p>
             </div>
 
-            <!-- ESPECIALIDAD / MATERIAS QUE IMPARTE -->
             <div class="flex flex-col gap-3 pt-2">
               <div class="flex items-center justify-between">
                 <label class="font-label-md text-label-md text-on-surface flex items-center gap-2">
@@ -464,7 +480,6 @@ const {
                 </span>
               </div>
 
-              <!-- Lista de materias seleccionables -->
               <div
                 :class="[
                   'p-4 bg-surface-container-low rounded-xl border flex flex-wrap gap-2 max-h-48 overflow-y-auto transition-all',
@@ -508,7 +523,6 @@ const {
               </span>
             </div>
 
-            <!-- ACCIONES DEL FORMULARIO -->
             <div
               class="flex flex-col sm:flex-row items-center justify-between pt-6 mt-4 border-t border-surface-container gap-4"
             >
@@ -532,10 +546,7 @@ const {
                       : 'bg-outline-variant/40 text-on-surface-variant/60 cursor-not-allowed'
                   ]"
                 >
-                  <span
-                    v-if="isSaving"
-                    class="material-symbols-outlined animate-spin text-[18px]"
-                  >
+                  <span v-if="isSaving" class="material-symbols-outlined animate-spin text-[18px]">
                     progress_activity
                   </span>
                   <span v-else class="material-symbols-outlined text-[18px]">save</span>
@@ -544,7 +555,6 @@ const {
               </div>
             </div>
 
-            <!-- BANNERS DE FEEDBACK (ABAJO DE TODO EL BLOQUE) -->
             <div
               v-if="errorMessage"
               class="p-4 rounded-xl bg-error-container text-on-error-container border border-error/20 flex items-center justify-between shadow-sm animate-[fadeIn_0.3s_ease-out]"

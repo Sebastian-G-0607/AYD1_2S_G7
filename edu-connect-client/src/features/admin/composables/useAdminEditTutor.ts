@@ -40,6 +40,7 @@ export function useAdminEditTutor() {
     apellido: null,
     carnetId: null,
     numeroIdentificacion: null,
+    genero: null,
     fechaNacimiento: null,
     direccion: null,
     direccionTutoria: null,
@@ -51,6 +52,14 @@ export function useAdminEditTutor() {
 
   const currentYear = new Date().getFullYear()
 
+  const maxBirthDate = computed(() => {
+    const date = new Date()
+    date.setFullYear(date.getFullYear() - 18)
+    return date.toISOString().split('T')[0]
+  })
+
+  const minBirthDate = '1920-01-01'
+
   const canSave = computed(() => {
     return !isSaving.value
   })
@@ -60,6 +69,22 @@ export function useAdminEditTutor() {
       fieldErrors[field] = null
     }
     clearMessages()
+  }
+
+  function handleNombreInput(e: Event) {
+    const target = e.target as HTMLInputElement
+    const sanitized = target.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]/g, '').slice(0, 60)
+    formData.nombre = sanitized
+    target.value = sanitized
+    clearFieldError('nombre')
+  }
+
+  function handleApellidoInput(e: Event) {
+    const target = e.target as HTMLInputElement
+    const sanitized = target.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]/g, '').slice(0, 60)
+    formData.apellido = sanitized
+    target.value = sanitized
+    clearFieldError('apellido')
   }
 
   function handleCarnetInput(e: Event) {
@@ -105,50 +130,173 @@ export function useAdminEditTutor() {
     })
 
     let isValid = true
+    const nameRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/
 
     if (!formData.nombre.trim()) {
       fieldErrors.nombre = 'El nombre del tutor es obligatorio.'
+      isValid = false
+    } else if (formData.nombre.trim().length < 2) {
+      fieldErrors.nombre = 'El nombre debe tener al menos 2 caracteres.'
+      isValid = false
+    } else if (formData.nombre.trim().length > 60) {
+      fieldErrors.nombre = 'El nombre no puede exceder los 60 caracteres.'
+      isValid = false
+    } else if (!nameRegex.test(formData.nombre.trim())) {
+      fieldErrors.nombre = 'El nombre solo puede contener letras y espacios.'
       isValid = false
     }
 
     if (!formData.apellido.trim()) {
       fieldErrors.apellido = 'El apellido del tutor es obligatorio.'
       isValid = false
+    } else if (formData.apellido.trim().length < 2) {
+      fieldErrors.apellido = 'El apellido debe tener al menos 2 caracteres.'
+      isValid = false
+    } else if (formData.apellido.trim().length > 60) {
+      fieldErrors.apellido = 'El apellido no puede exceder los 60 caracteres.'
+      isValid = false
+    } else if (!nameRegex.test(formData.apellido.trim())) {
+      fieldErrors.apellido = 'El apellido solo puede contener letras y espacios.'
+      isValid = false
     }
 
-    if (!formData.carnetId.trim() || formData.carnetId.length < 6 || formData.carnetId.length > 10) {
+    if (
+      !formData.carnetId.trim() ||
+      formData.carnetId.length < 6 ||
+      formData.carnetId.length > 10
+    ) {
       fieldErrors.carnetId = 'El carnet o ID debe ser numérico y contener entre 6 y 10 dígitos.'
+      isValid = false
+    } else if (/^0+$/.test(formData.carnetId.trim())) {
+      fieldErrors.carnetId = 'El carnet no puede estar compuesto únicamente por ceros.'
       isValid = false
     }
 
     if (!formData.numeroIdentificacion.trim() || formData.numeroIdentificacion.length !== 13) {
-      fieldErrors.numeroIdentificacion = 'El documento de identificación (DPI) debe contener exactamente 13 dígitos numéricos.'
+      fieldErrors.numeroIdentificacion =
+        'El documento de identificación (DPI) debe contener exactamente 13 dígitos numéricos.'
+      isValid = false
+    } else if (/^0+$/.test(formData.numeroIdentificacion.trim())) {
+      fieldErrors.numeroIdentificacion =
+        'El documento de identificación no puede estar compuesto únicamente por ceros.'
+      isValid = false
+    }
+
+    if (!formData.genero || !['masculino', 'femenino'].includes(formData.genero.toLowerCase())) {
+      fieldErrors.genero = 'Debe seleccionar un género válido.'
       isValid = false
     }
 
     if (!formData.fechaNacimiento) {
       fieldErrors.fechaNacimiento = 'La fecha de nacimiento es obligatoria.'
       isValid = false
+    } else {
+      const parts = formData.fechaNacimiento.split('-')
+      if (parts.length !== 3) {
+        fieldErrors.fechaNacimiento = 'El formato de fecha no es válido.'
+        isValid = false
+      } else {
+        const year = Number(parts[0])
+        const month = Number(parts[1])
+        const day = Number(parts[2])
+
+        if (
+          isNaN(year) ||
+          isNaN(month) ||
+          isNaN(day) ||
+          month < 1 ||
+          month > 12 ||
+          day < 1 ||
+          day > 31
+        ) {
+          fieldErrors.fechaNacimiento =
+            'La fecha de nacimiento contiene valores numéricos de día o mes inválidos.'
+          isValid = false
+        } else {
+          const testDate = new Date(year, month - 1, day)
+          if (
+            testDate.getFullYear() !== year ||
+            testDate.getMonth() !== month - 1 ||
+            testDate.getDate() !== day
+          ) {
+            fieldErrors.fechaNacimiento = 'La fecha no corresponde a un día de calendario válido.'
+            isValid = false
+          } else {
+            const today = new Date()
+            if (testDate > today) {
+              fieldErrors.fechaNacimiento = 'La fecha de nacimiento no puede ser una fecha futura.'
+              isValid = false
+            } else if (year < 1920) {
+              fieldErrors.fechaNacimiento = 'El año de nacimiento no puede ser anterior a 1920.'
+              isValid = false
+            } else {
+              let age = today.getFullYear() - year
+              const monthDiff = today.getMonth() - (month - 1)
+              if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+                age--
+              }
+              if (age < 18) {
+                fieldErrors.fechaNacimiento = 'El tutor debe ser mayor de 18 años.'
+                isValid = false
+              }
+            }
+          }
+        }
+      }
     }
 
     if (!formData.direccion.trim()) {
       fieldErrors.direccion = 'La dirección de residencia es obligatoria.'
+      isValid = false
+    } else if (formData.direccion.trim().length < 5) {
+      fieldErrors.direccion = 'La dirección de residencia debe contener al menos 5 caracteres.'
+      isValid = false
+    } else if (formData.direccion.trim().length > 200) {
+      fieldErrors.direccion = 'La dirección de residencia no puede exceder los 200 caracteres.'
       isValid = false
     }
 
     if (!formData.direccionTutoria.trim()) {
       fieldErrors.direccionTutoria = 'La dirección de tutoría o modalidad es obligatoria.'
       isValid = false
+    } else if (formData.direccionTutoria.trim().length < 5) {
+      fieldErrors.direccionTutoria =
+        'La dirección o modalidad de tutoría debe contener al menos 5 caracteres.'
+      isValid = false
+    } else if (formData.direccionTutoria.trim().length > 200) {
+      fieldErrors.direccionTutoria = 'La dirección de tutoría no puede exceder los 200 caracteres.'
+      isValid = false
     }
 
     if (!formData.universidad.trim()) {
       fieldErrors.universidad = 'La universidad de graduación es obligatoria.'
       isValid = false
+    } else if (formData.universidad.trim().length < 3) {
+      fieldErrors.universidad = 'El nombre de la universidad debe contener al menos 3 caracteres.'
+      isValid = false
+    } else if (formData.universidad.trim().length > 100) {
+      fieldErrors.universidad = 'El nombre de la universidad no puede exceder los 100 caracteres.'
+      isValid = false
+    } else if (!/[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(formData.universidad.trim())) {
+      fieldErrors.universidad = 'El nombre de la universidad debe contener texto válido.'
+      isValid = false
     }
 
-    if (!formData.anioInicio || formData.anioInicio < 1980 || formData.anioInicio > currentYear) {
-      fieldErrors.anioInicio = `El año de inicio debe ser entre 1980 y ${currentYear}.`
+    if (!formData.anioInicio || isNaN(Number(formData.anioInicio))) {
+      fieldErrors.anioInicio = 'El año de inicio de tutorías es obligatorio.'
       isValid = false
+    } else {
+      const anioNum = Number(formData.anioInicio)
+      if (anioNum < 1980 || anioNum > currentYear) {
+        fieldErrors.anioInicio = `El año de inicio debe ser entre 1980 y ${currentYear}.`
+        isValid = false
+      } else if (formData.fechaNacimiento) {
+        const birthYear = Number(formData.fechaNacimiento.split('-')[0])
+        if (!isNaN(birthYear) && anioNum < birthYear + 18) {
+          fieldErrors.anioInicio = `El año de inicio (${anioNum}) no puede ser previo a la mayoría de edad del tutor (${birthYear + 18}).`
+          isValid = false
+        }
+      }
     }
 
     if (formData.selectedMaterias.length === 0) {
@@ -156,9 +304,14 @@ export function useAdminEditTutor() {
       isValid = false
     }
 
-    if (formData.telefono && formData.telefono.length !== 8) {
-      fieldErrors.telefono = 'El teléfono debe contener 8 dígitos numéricos.'
-      isValid = false
+    if (formData.telefono.trim()) {
+      if (formData.telefono.trim().length !== 8) {
+        fieldErrors.telefono = 'El teléfono debe contener exactamente 8 dígitos numéricos.'
+        isValid = false
+      } else if (!/^[2-8]\d{7}$/.test(formData.telefono.trim())) {
+        fieldErrors.telefono = 'El teléfono debe iniciar con un dígito válido (2 al 8).'
+        isValid = false
+      }
     }
 
     return isValid
@@ -192,7 +345,10 @@ export function useAdminEditTutor() {
       formData.fotografiaUrl = tutor.fotografiaUrl || ''
       formData.selectedMaterias = tutor.materias ? [...tutor.materias] : []
     } catch (err) {
-      errorMessage.value = extractApiErrorMessage(err, 'No fue posible cargar la información del tutor.')
+      errorMessage.value = extractApiErrorMessage(
+        err,
+        'No fue posible cargar la información del tutor.'
+      )
     } finally {
       isLoading.value = false
     }
@@ -227,7 +383,6 @@ export function useAdminEditTutor() {
       const response = await adminService.updateTutor(tutorId, payload)
       successMessage.value = response.mensaje || 'Información del tutor actualizada correctamente.'
 
-      // Actualizar datos locales
       if (tutorOriginal.value) {
         tutorOriginal.value.nombre = response.nombre
         tutorOriginal.value.apellido = response.apellido
@@ -276,6 +431,10 @@ export function useAdminEditTutor() {
     fieldErrors,
     canSave,
     currentYear,
+    maxBirthDate,
+    minBirthDate,
+    handleNombreInput,
+    handleApellidoInput,
     handleCarnetInput,
     handleDpiInput,
     handlePhoneInput,
