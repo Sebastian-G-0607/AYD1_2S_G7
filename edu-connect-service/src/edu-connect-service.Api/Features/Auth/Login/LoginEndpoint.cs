@@ -11,14 +11,21 @@ public static class LoginEndpoint
 {
     public static void MapLogin(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/login", async (
-            [FromBody] LoginRequestDto request,
-            edu_connect_serviceContext dbContext,
-            IJwtTokenService jwtTokenService,
-            IS3Service s3Service,
-            IOptions<JwtOptions> jwtOptions,
-            CancellationToken cancellationToken) =>
-        {
+        app.MapPost("/login", HandleAsync)
+        .Produces<TokenResponseDto>()
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden);
+    }
+
+    public static async Task<IResult> HandleAsync(
+        [FromBody] LoginRequestDto request,
+        edu_connect_serviceContext dbContext,
+        IJwtTokenService jwtTokenService,
+        IS3Service s3Service,
+        IOptions<JwtOptions> jwtOptions,
+        CancellationToken cancellationToken)
+    {
             var user = await dbContext.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Estado)
@@ -67,10 +74,5 @@ public static class LoginEndpoint
             );
 
             return Results.Ok(response);
-        })
-        .Produces<TokenResponseDto>()
-        .ProducesValidationProblem()
-        .ProducesProblem(StatusCodes.Status401Unauthorized)
-        .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 }

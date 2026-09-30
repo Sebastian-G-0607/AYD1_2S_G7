@@ -134,3 +134,10 @@ coverage/
 context/
 auth2-ayd1.txt
 edu-connect-service/src/edu-connect-service.Api/postman_collection.json
+
+#############################################
+# Playwright E2E
+#############################################
+playwright-report/
+test-results/
+.auth/

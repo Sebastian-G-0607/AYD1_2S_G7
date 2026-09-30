@@ -1,0 +1,76 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:latest
+    container_name: oracle-db
+    ports:
+      - "1523:1521"
+    environment:
+      - ORACLE_PASSWORD=Oracle12345
+      - APP_USER=playwright
+      - APP_USER_PASSWORD=ApiDev1234
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./edu-connect-service
+      dockerfile: Dockerfile
+    container_name: edu-connect-api
+    ports:
+      - "5000:8080"
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env.e2e
+
+  frontend:
+    build:
+      context: ./edu-connect-client
+      dockerfile: Dockerfile
+    container_name: edu-connect-frontend
+    ports:
+      - "5173:8080"
+    depends_on:
+      - api
+    networks:
+      - app-network
+    env_file:
+      - .env.e2e
+
+  e2e:
+    build:
+      context: ./e2e
+      dockerfile: Dockerfile
+    container_name: edu-connect-e2e
+    network_mode: host
+    depends_on:
+      - frontend
+    environment:
+      - E2E_BASE_URL=http://localhost:5173
+      - E2E_ADMIN_EMAIL=admin@educonnect.com
+      - E2E_ADMIN_PASSWORD=admin123
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - ./e2e:/app
+      - /app/node_modules
+      - ./e2e/playwright-report:/app/playwright-report
+      - ./e2e/test-results:/app/test-results
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  oracle-data:
