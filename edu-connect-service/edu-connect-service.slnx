@@ -3,6 +3,6 @@
     <Project Path="src/edu-connect-service.Api/edu-connect-service.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/edu-connect-service.Tests/edu-connect-service.Tests.csproj" />
+    <Project Path="tests/edu-connect-service.Api.UnitTests/edu-connect-service.Api.UnitTests.csproj" />
   </Folder>
 </Solution>

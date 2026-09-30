@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
-namespace edu_connect_service.Tests.Features.Administrador.GestionTutores;
+namespace edu_connect_service.Api.UnitTests.Features.Administrador.GestionTutores;
 
 /// <summary>
 /// Pruebas unitarias para la HU-35: Ver, actualizar y dar de baja tutores.
