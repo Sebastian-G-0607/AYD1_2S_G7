@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.HttpLogging;
 using edu_connect_service.Api.Features.Sesiones;
 using edu_connect_service.Api.Shared.Storage;
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails()

@@ -3,7 +3,7 @@ import { BaseAlert, BaseBadge, BaseButton, BaseCard } from '@/components/ui'
 import { useStudentStudyPlan } from '../composables/useStudentStudyPlan'
 import type { RecursoTipo } from '../types'
 
-const { studyPlan, isLoading, errorMessage } = useStudentStudyPlan()
+const { studyPlan, isLoading, isDownloading, errorMessage, downloadStudyPlanPdf } = useStudentStudyPlan()
 
 function formatDate(date: string) {
   if (!date) return '-'
@@ -43,10 +43,6 @@ function resourceLabel(tipo: RecursoTipo) {
   }
 }
 
-function handlePrint() {
-  // HU-26: la generación real del PDF se implementa aparte.
-  window.print()
-}
 </script>
 
 <template>
@@ -66,11 +62,12 @@ function handlePrint() {
       <BaseButton
         v-if="studyPlan"
         variant="outline"
-        icon="print"
+        icon="picture_as_pdf"
+        :loading="isDownloading"
         :disabled="isLoading"
-        @click="handlePrint"
+        @click="downloadStudyPlanPdf"
       >
-        Imprimir constancia
+        Descargar constancia
       </BaseButton>
     </div>
 
