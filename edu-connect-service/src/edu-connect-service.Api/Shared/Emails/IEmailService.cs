@@ -11,6 +11,12 @@ public interface IEmailService
         string? motivo = null,
         CancellationToken cancellationToken = default);
 
+    Task SendTokenVerificacionAsync(
+        string toEmail,
+        string nombreUsuario,
+        string token,
+        CancellationToken cancellationToken = default);
+
     Task SendBajaCuentaNotificacionAsync(
         string toEmail,
         string nombreUsuario,

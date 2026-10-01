@@ -102,6 +102,7 @@ public class EmailService(
             <body>
                 <div class="container">
                     <div class="header">
+                        <div style="font-size: 44px; line-height: 1; margin-bottom: 8px;">🎓</div>
                         <h1 style="margin:0; font-size: 24px;">EduConnect</h1>
                     </div>
                     <div class="content">
@@ -111,6 +112,86 @@ public class EmailService(
                         {{motivoHtml}}
                         <p>Si tienes alguna pregunta o requieres asistencia adicional, por favor responde a este correo o contacta a soporte.</p>
                         <p>Atentamente,<br><strong>Equipo de EduConnect</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; {{DateTime.UtcNow.Year}} EduConnect. Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
+    }
+
+    public async Task SendTokenVerificacionAsync(
+        string toEmail,
+        string nombreUsuario,
+        string token,
+        CancellationToken cancellationToken = default)
+    {
+        const string subject = "Bienvenido a EduConnect - Codigo de verificacion de tu cuenta";
+
+        var logoUrl = configuration["App:LogoUrl"] ?? configuration["LOGO_URL"];
+        var logoHtml = !string.IsNullOrWhiteSpace(logoUrl)
+            ? $"<img src=\"{WebUtility.HtmlEncode(logoUrl)}\" alt=\"EduConnect\" style=\"max-height: 48px; max-width: 200px; margin-bottom: 8px; display: inline-block;\" />"
+            : """
+              <div style="font-size: 44px; line-height: 1; margin-bottom: 8px;">🎓</div>
+              """;
+
+        var htmlBody = $$"""
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+                    .header { background-color: #1e3a8a; padding: 24px; text-align: center; color: white; }
+                    .content { padding: 24px; color: #374151; line-height: 1.6; }
+                    .token-card { background-color: #f0fdf4; border: 2px dashed #16a34a; border-radius: 8px; padding: 24px; text-align: center; margin: 24px 0; }
+                    .token-title { margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #166534; text-transform: uppercase; letter-spacing: 1px; }
+                    .token-code { font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 700; letter-spacing: 8px; color: #15803d; }
+                    .token-expiry { margin: 10px 0 0 0; font-size: 13px; color: #166534; }
+                    .instructions { margin-top: 24px; }
+                    .instructions ol { padding-left: 20px; color: #374151; line-height: 1.8; }
+                    .security-notice { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; font-size: 13px; color: #92400e; margin-top: 20px; }
+                    .footer { background-color: #f3f4f6; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        {{logoHtml}}
+                        <h1 style="margin: 0; font-size: 24px; color: #ffffff; letter-spacing: 0.5px;">EduConnect</h1>
+                    </div>
+                    <div class="content">
+                        <h2>¡Bienvenido/a a EduConnect!</h2>
+                        <p>Hola <strong>{{WebUtility.HtmlEncode(nombreUsuario)}}</strong>,</p>
+                        <p>Te damos una cordial bienvenida a EduConnect. Nos complace informarte que tu solicitud de registro ha sido revisada y aprobada exitosamente por el equipo de administración.</p>
+                        <p>Para garantizar la seguridad de tu cuenta y confirmar que este correo te pertenece, requerimos que ingreses tu token de verificación personal en tu primer inicio de sesión.</p>
+
+                        <div class="token-card">
+                            <div class="token-title">Token de Verificación</div>
+                            <div class="token-code">{{WebUtility.HtmlEncode(token)}}</div>
+                            <div class="token-expiry">Este token es válido por <strong>24 horas</strong> a partir de este momento.</div>
+                        </div>
+
+                        <div class="instructions">
+                            <h3 style="color: #1e3a8a; margin-top: 0; font-size: 18px;">Instrucciones para proceder:</h3>
+                            <ol>
+                                <li>Ingresa al portal de EduConnect desde tu navegador web.</li>
+                                <li>Inicia sesión con tu correo electrónico registrado y tu contraseña.</li>
+                                <li>En la pantalla de verificación de primer inicio de sesión, introduce el token de verificación de 6 dígitos mostrado arriba.</li>
+                                <li>Una vez confirmado el token, tu cuenta quedará completamente habilitada para su uso.</li>
+                            </ol>
+                        </div>
+
+                        <div class="security-notice">
+                            <strong>Importante:</strong> Este código es personal, de uso único y confidencial. El equipo de EduConnect nunca te solicitará este código ni tu contraseña por ningún medio. Si no te registraste en nuestra plataforma, desestima este mensaje.
+                        </div>
+
+                        <p style="margin-top: 24px;">Atentamente,<br><strong>Equipo de EduConnect</strong></p>
                     </div>
                     <div class="footer">
                         <p>&copy; {{DateTime.UtcNow.Year}} EduConnect. Todos los derechos reservados.</p>

@@ -66,7 +66,7 @@ erDiagram
 
     token_correo {
         int id PK
-        int usuario_id
+        int usuario_id FK
         varchar token
         datetime fecha_generacion
         datetime fecha_expiracion
