@@ -25,8 +25,10 @@ public static class AdministradorEndpoints
         apiGroup.MapListarTutoresPendientes();
         apiGroup.MapActualizarEstadoTutor();
 
-        // Gestión de Tutores Activos (HU-07)
+        // Gestión de Tutores Activos (HU-07 / HU-35)
         apiGroup.MapListarTutoresActivos();
+        apiGroup.MapObtenerTutorPorId();
+        apiGroup.MapActualizarTutor();
         apiGroup.MapDarBajaTutor();
 
         // Gestión de usuarios dados de baja
@@ -46,6 +48,8 @@ public static class AdministradorEndpoints
         rootGroup.MapListarTutoresPendientes();
         rootGroup.MapActualizarEstadoTutor();
         rootGroup.MapListarTutoresActivos();
+        rootGroup.MapObtenerTutorPorId();
+        rootGroup.MapActualizarTutor();
         rootGroup.MapDarBajaTutor();
 
         rootGroup.MapGestionUsuarios();
