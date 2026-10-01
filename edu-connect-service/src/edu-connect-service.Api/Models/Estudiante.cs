@@ -22,5 +22,7 @@ public class Estudiante
 
     public string? FotografiaUrl { get; set; }
 
+    public string? DocumentoCarnetUrl { get; set; }
+
     public ICollection<Sesion> Sesiones { get; set; } = [];
 }

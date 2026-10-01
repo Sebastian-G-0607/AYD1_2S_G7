@@ -29,6 +29,24 @@ public class edu_connect_serviceContext(DbContextOptions<edu_connect_serviceCont
 
     public DbSet<Sesion> Sesiones => Set<Sesion>();
 
+    public DbSet<TokenCorreo> TokensCorreo => Set<TokenCorreo>();
+
+    public DbSet<PlanEstudio> PlanesEstudio => Set<PlanEstudio>();
+
+    public DbSet<RecursoPlanEstudio> RecursosPlanEstudio => Set<RecursoPlanEstudio>();
+
+    public DbSet<CalificacionTutor> CalificacionesTutores => Set<CalificacionTutor>();
+
+    public DbSet<CalificacionEstudiante> CalificacionesEstudiantes => Set<CalificacionEstudiante>();
+
+    public DbSet<CategoriaReporteTutor> CategoriasReportesTutores => Set<CategoriaReporteTutor>();
+
+    public DbSet<ReporteTutor> ReportesTutores => Set<ReporteTutor>();
+
+    public DbSet<CategoriaReporteEstudiante> CategoriasReportesEstudiantes => Set<CategoriaReporteEstudiante>();
+
+    public DbSet<ReporteEstudiante> ReportesEstudiantes => Set<ReporteEstudiante>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<DateOnly>()
