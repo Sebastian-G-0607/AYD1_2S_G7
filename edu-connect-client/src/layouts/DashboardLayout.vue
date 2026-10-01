@@ -141,6 +141,11 @@ const navItems = computed<NavItem[]>(() => {
       to: '/estudiante/historial'
     },
     {
+      name: 'Plan de Estudio',
+      icon: 'menu_book',
+      to: '/estudiante/plan-estudio'
+    },
+    {
       name: 'Mi Perfil',
       icon: 'person_outline',
       to: '/estudiante/mi-perfil'
