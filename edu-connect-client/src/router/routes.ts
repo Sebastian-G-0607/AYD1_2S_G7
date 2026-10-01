@@ -93,6 +93,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/tutores/:id/editar',
+    name: 'admin-edit-tutor',
+    component: () => import('@/pages/AdminEditTutorPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Editar Tutor - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/reportes',
     name: 'admin-reports',
     component: () => import('@/pages/AdminReportsPage.vue'),

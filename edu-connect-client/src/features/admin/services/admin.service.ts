@@ -11,7 +11,9 @@ import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
   ReportesResumen,
-  InactiveUserItem
+  InactiveUserItem,
+  UpdateTutorAdminPayload,
+  UpdateTutorAdminResponse
 } from '../types'
 
 function getAdminBasePath(): string {
@@ -192,6 +194,40 @@ export const adminService = {
     } catch {
       const { data } = await api.put<DarBajaResponse>(
         `/administrador/tutores/${tutorId}/dar-baja`,
+        payload
+      )
+      return data
+    }
+  },
+
+  // ==========================================
+  // HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)
+  // ==========================================
+  async getTutorById(tutorId: number): Promise<ActiveTutorItem> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.get<ActiveTutorItem>(`${basePath}/tutores/${tutorId}`)
+      return data
+    } catch {
+      const { data } = await api.get<ActiveTutorItem>(`/administrador/tutores/${tutorId}`)
+      return data
+    }
+  },
+
+  async updateTutor(
+    tutorId: number,
+    payload: UpdateTutorAdminPayload
+  ): Promise<UpdateTutorAdminResponse> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.put<UpdateTutorAdminResponse>(
+        `${basePath}/tutores/${tutorId}`,
+        payload
+      )
+      return data
+    } catch {
+      const { data } = await api.put<UpdateTutorAdminResponse>(
+        `/administrador/tutores/${tutorId}`,
         payload
       )
       return data
