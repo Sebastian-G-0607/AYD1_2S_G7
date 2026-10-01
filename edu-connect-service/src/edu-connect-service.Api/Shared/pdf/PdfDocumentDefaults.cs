@@ -11,7 +11,7 @@ public static class PdfDocumentDefaults
     public const string NombrePlataforma = "EduConnect";
     public const string TelefonoContacto = "+502 2345-6789";
 
-    public static readonly string FontFamily = "Arial";
+    public static readonly string FontFamily = "Lato";
 
     public static readonly Color ColorPrimario = Color.FromHex("#2563EB");
     public static readonly Color ColorTextoSecundario = Color.FromHex("#6B7280");
