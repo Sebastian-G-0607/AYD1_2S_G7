@@ -241,27 +241,27 @@ const {
           <thead>
             <tr class="bg-surface-bright sticky top-0 z-10 border-b border-surface-container-high">
               <th
-                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-16"
+                class="py-3 px-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap w-12 text-center"
               >
                 Perfil
               </th>
               <th
-                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[200px]"
+                class="py-3 px-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap min-w-[170px]"
               >
                 Nombre &amp; Correo
               </th>
               <th
-                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+                class="py-3 px-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
               >
                 {{ activeSubTab === 'estudiantes' ? 'Carnet / Rol' : 'Especialidad / Materias' }}
               </th>
               <th
-                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap"
+                class="py-3 px-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap text-center"
               >
                 Fecha Ingreso
               </th>
               <th
-                class="py-3 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap text-right"
+                class="py-3 px-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider whitespace-nowrap text-center"
               >
                 Acciones
               </th>
@@ -276,9 +276,9 @@ const {
               class="border-b border-surface-container hover:bg-surface-container-low/50 transition-colors group"
             >
               <!-- Avatar -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3 text-center">
                 <div
-                  class="h-10 w-10 rounded-full overflow-hidden bg-primary-fixed shadow-sm flex items-center justify-center"
+                  class="h-10 w-10 mx-auto rounded-full overflow-hidden bg-primary-fixed shadow-sm flex items-center justify-center"
                 >
                   <img
                     v-if="student.fotografiaUrl"
@@ -297,7 +297,7 @@ const {
               </td>
 
               <!-- Nombre y Correo -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3">
                 <div class="flex flex-col">
                   <span class="font-label-md text-label-md text-on-surface">
                     {{ student.nombre }} {{ student.apellido }}
@@ -309,7 +309,7 @@ const {
               </td>
 
               <!-- Rol / Carnet -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3">
                 <span
                   class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary-fixed text-on-primary-fixed-variant font-mono"
                 >
@@ -318,19 +318,19 @@ const {
               </td>
 
               <!-- Fecha Ingreso -->
-              <td class="py-4 px-6 text-on-surface-variant">
+              <td class="py-3 px-3 text-on-surface-variant text-center whitespace-nowrap">
                 {{ formatFecha(student.fechaRegistro) }}
               </td>
 
               <!-- Acciones -->
-              <td class="py-4 px-6 text-right">
+              <td class="py-3 px-3 text-center whitespace-nowrap">
                 <button
                   type="button"
-                  class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer"
+                  class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer whitespace-nowrap shrink-0"
                   @click="openBajaModal(student, 'estudiante')"
                 >
                   <span class="material-symbols-outlined text-[16px]">person_remove</span>
-                  Dar de Baja
+                  <span>Dar de Baja</span>
                 </button>
               </td>
             </tr>
@@ -363,9 +363,9 @@ const {
               class="border-b border-surface-container hover:bg-surface-container-low/50 transition-colors group"
             >
               <!-- Avatar -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3 text-center">
                 <div
-                  class="h-10 w-10 rounded-full overflow-hidden bg-secondary-fixed shadow-sm flex items-center justify-center text-on-secondary-fixed-variant font-label-md"
+                  class="h-10 w-10 mx-auto rounded-full overflow-hidden bg-secondary-fixed shadow-sm flex items-center justify-center text-on-secondary-fixed-variant font-label-md"
                 >
                   <img
                     v-if="tutor.fotografiaUrl"
@@ -384,7 +384,7 @@ const {
               </td>
 
               <!-- Nombre y Correo -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3">
                 <div class="flex flex-col">
                   <span class="font-label-md text-label-md text-on-surface">
                     {{ tutor.nombre }} {{ tutor.apellido }}
@@ -396,9 +396,9 @@ const {
               </td>
 
               <!-- Especialidad / Materias -->
-              <td class="py-4 px-6">
+              <td class="py-3 px-3">
                 <span
-                  class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-secondary-fixed text-on-secondary-fixed-variant max-w-[260px] truncate"
+                  class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-secondary-fixed text-on-secondary-fixed-variant max-w-[200px] truncate"
                   :title="tutor.especialidad"
                 >
                   {{
@@ -409,28 +409,28 @@ const {
               </td>
 
               <!-- Fecha Ingreso -->
-              <td class="py-4 px-6 text-on-surface-variant">
+              <td class="py-3 px-3 text-on-surface-variant text-center whitespace-nowrap">
                 {{ formatFecha(tutor.fechaRegistro) }}
               </td>
 
               <!-- Acciones -->
-              <td class="py-4 px-6 text-right">
-                <div class="inline-flex items-center gap-2 justify-end">
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <div class="inline-flex items-center justify-center gap-1.5">
                   <button
                     type="button"
-                    class="font-label-sm text-label-sm text-primary hover:text-primary-container hover:bg-primary-fixed/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-primary/20 cursor-pointer"
+                    class="font-label-sm text-label-sm text-primary hover:text-primary-container hover:bg-primary-fixed/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-primary/20 cursor-pointer whitespace-nowrap shrink-0"
                     @click="navigateToEditTutor(tutor.id)"
                   >
                     <span class="material-symbols-outlined text-[16px]">edit</span>
-                    Editar
+                    <span>Editar</span>
                   </button>
                   <button
                     type="button"
-                    class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-3 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer"
+                    class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer whitespace-nowrap shrink-0"
                     @click="openBajaModal(tutor, 'tutor')"
                   >
                     <span class="material-symbols-outlined text-[16px]">person_remove</span>
-                    Dar de Baja
+                    <span>Dar de Baja</span>
                   </button>
                 </div>
               </td>
