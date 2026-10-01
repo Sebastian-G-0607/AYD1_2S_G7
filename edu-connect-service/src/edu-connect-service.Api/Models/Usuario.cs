@@ -18,6 +18,8 @@ public class Usuario
 
     public DateTime FechaRegistro { get; set; }
 
+    public bool CorreoValidado { get; set; }
+
     public DateTime? FechaBaja { get; set; }
 
     public string? MotivoBaja { get; set; }
@@ -27,4 +29,6 @@ public class Usuario
     public Estudiante? Estudiante { get; set; }
 
     public Tutor? Tutor { get; set; }
+
+    public TokenCorreo? TokenCorreo { get; set; }
 }
