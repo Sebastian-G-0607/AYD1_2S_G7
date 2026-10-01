@@ -3,6 +3,7 @@ export { default as StudentRegisterForm } from './components/StudentRegisterForm
 export { default as TutorRegisterForm } from './components/TutorRegisterForm.vue'
 export { default as AdminTwoFactorForm } from './components/AdminTwoFactorForm.vue'
 export { default as PasswordRequirements } from './components/PasswordRequirements.vue'
+export { default as EmailVerificationForm } from './components/EmailVerificationForm.vue'
 export { useAuth } from './composables/useAuth'
 export { authService } from './services/auth.service'
 export { useAuthStore } from './store'

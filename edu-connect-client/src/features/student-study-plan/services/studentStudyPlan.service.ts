@@ -28,7 +28,8 @@ const MOCK_STUDY_PLAN: StudyPlan = {
       recursoId: 2,
       nombre: 'Khan Academy - Regla de la cadena',
       tipo: 'VIDEO',
-      descripcionUso: 'Ver el video completo hasta el minuto 12 y resolver los ejercicios de práctica.'
+      descripcionUso:
+        'Ver el video completo hasta el minuto 12 y resolver los ejercicios de práctica.'
     },
     {
       recursoId: 3,
