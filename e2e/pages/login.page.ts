@@ -1,3 +1,4 @@
+import path from 'path'
 import { type Locator, type Page, expect } from '@playwright/test'
 import { BasePage } from './base.page'
 
@@ -65,5 +66,16 @@ export class LoginPage extends BasePage {
     await this.page.waitForURL(/.*\/admin\/2fa.*/, { timeout: 15000 })
     await this.uploadTwoFactorKey(filePath)
     await this.submitTwoFactor()
+  }
+
+  async loginAsAdmin(email?: string, password?: string, keyFilePath?: string): Promise<void> {
+    const adminEmail = email || process.env.E2E_ADMIN_EMAIL || 'admin@educonnect.com'
+    const adminPassword = password || process.env.E2E_ADMIN_PASSWORD || 'admin123'
+    const keyPath = keyFilePath || path.resolve(__dirname, '../fixtures/docs/auth2-ayd1.txt')
+
+    await this.goto()
+    await this.login(adminEmail, adminPassword)
+    await this.completeTwoFactor(keyPath)
+    await this.page.waitForURL(/.*\/admin\/aprobaciones.*/, { timeout: 15000 })
   }
 }
