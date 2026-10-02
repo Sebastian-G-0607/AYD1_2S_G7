@@ -7,6 +7,7 @@ export interface StudentApprovalItem {
   fechaNacimiento: string
   correo: string
   fotografiaUrl?: string
+  documentoCarnetUrl?: string | null
   direccion?: string
   telefono?: string
   fechaRegistro?: string
@@ -23,6 +24,7 @@ export interface TutorApprovalItem {
   fechaNacimiento: string
   correo: string
   fotografiaUrl?: string
+  documentoCvUrl?: string | null
   especialidad?: string
   materias: string[]
   direccionTutoria?: string
