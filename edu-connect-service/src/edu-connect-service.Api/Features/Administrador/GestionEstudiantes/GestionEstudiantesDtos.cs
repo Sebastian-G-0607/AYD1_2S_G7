@@ -11,7 +11,8 @@ public record EstudiantePendienteResponseDto(
     string? FotografiaUrl,
     string? Direccion = null,
     string? Telefono = null,
-    DateTime? FechaRegistro = null
+    DateTime? FechaRegistro = null,
+    string? DocumentoCarnetUrl = null
 );
 
 public record ActualizarEstadoEstudianteRequestDto(
@@ -53,4 +54,3 @@ public record DarBajaEstudianteResponseDto(
     string? Motivo,
     string Mensaje
 );
-
