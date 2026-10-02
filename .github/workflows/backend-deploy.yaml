@@ -8,34 +8,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  build: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4                                                                                                                                                    
-      with:                                                                                                                                                                            
-        dotnet-version: '10.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
-    - name: Build Solution
-      run: dotnet build edu-connect-service/edu-connect-service.slnx --configuration Release
+      - name: Build Solution
+        run: dotnet build edu-connect-service/edu-connect-service.slnx --configuration Release
 
-  test: ubuntu-latest
-  needs: [build]                                                                                                                                                                       
-    runs-on: ubuntu-latest                                                                                                                                                               
-    steps:                                                                                                                                                                               
-      - uses: actions/checkout@v4                                                                                                                                                        
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET                                                                                                                                                                 
-        uses: actions/setup-dotnet@v4                                                                                                                                                    
-        with:                                                                                                                                                                            
-          dotnet-version: '10.0.x'                                                                                                                                                       
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
-      - name: Run Unit Tests                                                                                                                                                             
-        run: dotnet test edu-connect-service/tests/edu-connect-service.Api.UnitTests/edu-connect-service.Api.UnitTests.csproj --configuration Release        
+      - name: Run Unit Tests
+        run: dotnet test edu-connect-service/tests/edu-connect-service.Api.UnitTests/edu-connect-service.Api.UnitTests.csproj --configuration Release
 
   release:
-  needs: [test]
+    needs: [test]
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
     steps:
@@ -50,8 +51,8 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ env.REPO_LOWER }}-service:latest
 
-  build-and-deploy:
-  need: [release]
+  deploy:
+    needs: [release]
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
     steps:
