@@ -17,7 +17,8 @@ public record TutorPendienteResponseDto(
     string Universidad,
     string? Direccion = null,
     string? Telefono = null,
-    DateTime? FechaRegistro = null
+    DateTime? FechaRegistro = null,
+    string? DocumentoCvUrl = null
 );
 
 public record ActualizarEstadoTutorRequestDto(
@@ -102,4 +103,3 @@ public record ActualizarTutorAdminResponseDto(
     string? Telefono,
     string Mensaje
 );
-
