@@ -30,5 +30,5 @@ public class Usuario
 
     public Tutor? Tutor { get; set; }
 
-    public TokenCorreo? TokenCorreo { get; set; }
+    public ICollection<TokenCorreo> TokensCorreo { get; set; } = [];
 }

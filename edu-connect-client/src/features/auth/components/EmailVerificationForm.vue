@@ -29,7 +29,8 @@ const {
   successMessage,
   clearError,
   clearSuccess,
-  verifyEmail
+  verifyEmail,
+  resendEmailToken
 } = useAuth()
 
 const resolvedEmail = computed(() => {
@@ -80,7 +81,10 @@ function stopTimer() {
   }
 }
 
-function triggerSessionExpiredRedirect(baseMessage = 'Tu sesión de verificación ha expirado.', seconds = 6) {
+function triggerSessionExpiredRedirect(
+  baseMessage = 'Tu sesión de verificación ha expirado.',
+  seconds = 6
+) {
   stopTimer()
   if (redirectTimerId !== null) {
     clearInterval(redirectTimerId)
@@ -104,9 +108,28 @@ function triggerSessionExpiredRedirect(baseMessage = 'Tu sesión de verificació
   }, 1000)
 }
 
-function handleResend() {
-  if (redirectCountdown.value > 0) return
-  startTimer(60)
+async function handleResend() {
+  if (redirectCountdown.value > 0 || isLoading.value) return
+  clearError()
+  clearSuccess()
+  const ok = await resendEmailToken()
+  if (ok) {
+    startTimer(60)
+  } else {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token')
+    if (
+      !tempToken ||
+      (errorMessage.value &&
+        (errorMessage.value.toLowerCase().includes('sesión') ||
+          errorMessage.value.toLowerCase().includes('no autorizado') ||
+          errorMessage.value.toLowerCase().includes('token de validación es inválido')))
+    ) {
+      triggerSessionExpiredRedirect(
+        errorMessage.value || 'Tu sesión de verificación ha expirado.',
+        6
+      )
+    }
+  }
 }
 
 function onComplete(code: string) {
@@ -129,13 +152,15 @@ async function handleSubmit() {
     const tempToken = sessionStorage.getItem('edu_email_validation_token')
     if (
       !tempToken ||
-      (errorMessage.value && (
-        errorMessage.value.toLowerCase().includes('sesión') ||
-        errorMessage.value.toLowerCase().includes('no autorizado') ||
-        errorMessage.value.toLowerCase().includes('token de validación es inválido')
-      ))
+      (errorMessage.value &&
+        (errorMessage.value.toLowerCase().includes('sesión') ||
+          errorMessage.value.toLowerCase().includes('no autorizado') ||
+          errorMessage.value.toLowerCase().includes('token de validación es inválido')))
     ) {
-      triggerSessionExpiredRedirect(errorMessage.value || 'Tu sesión de verificación ha expirado.', 6)
+      triggerSessionExpiredRedirect(
+        errorMessage.value || 'Tu sesión de verificación ha expirado.',
+        6
+      )
     }
   }
 }
@@ -247,10 +272,12 @@ onUnmounted(() => {
           <button
             v-else
             type="button"
-            class="text-sm font-semibold text-secondary hover:text-secondary-container transition-colors underline underline-offset-4 cursor-pointer focus:outline-none"
+            :disabled="isLoading || redirectCountdown > 0"
+            class="text-sm font-semibold text-secondary hover:text-secondary-container transition-colors underline underline-offset-4 cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             @click="handleResend"
           >
-            Reenviar código ahora
+            <span v-if="isLoading">Reenviando código...</span>
+            <span v-else>Reenviar código ahora</span>
           </button>
         </div>
       </div>

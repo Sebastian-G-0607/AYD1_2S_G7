@@ -67,6 +67,21 @@ export const authService = {
     return data
   },
 
+  async resendEmailValidationToken(tempToken: string): Promise<void> {
+    const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
+    const endpoint = isApiPrefix ? '/email-validation-tokens' : '/api/email-validation-tokens'
+
+    await api.post(
+      endpoint,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${tempToken}`
+        }
+      }
+    )
+  },
+
   async registerStudent(studentData: StudentRegisterData): Promise<EstudianteResponseDto> {
     const formData = new FormData()
     formData.append('nombre', studentData.nombre)

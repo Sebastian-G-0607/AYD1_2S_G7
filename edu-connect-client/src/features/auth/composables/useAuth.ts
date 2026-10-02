@@ -311,6 +311,33 @@ export function useAuth() {
     }
   }
 
+  async function resendEmailToken(): Promise<boolean> {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token') || ''
+    if (!tempToken) {
+      errorMessage.value =
+        'No se encontró una sesión de verificación activa. Por favor, inicia sesión nuevamente.'
+      return false
+    }
+
+    isLoading.value = true
+    errorMessage.value = null
+    successMessage.value = null
+
+    try {
+      await authService.resendEmailValidationToken(tempToken)
+      successMessage.value = 'Se ha enviado un nuevo código de verificación a tu correo.'
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Ocurrió un error al reenviar el código. Inténtalo nuevamente.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     errorMessage,
@@ -324,6 +351,7 @@ export function useAuth() {
     registerTutor,
     verifyAdmin2Fa,
     verifyEmail,
+    resendEmailToken,
     validateCarnet,
     validateDpi,
     validateTelefono,

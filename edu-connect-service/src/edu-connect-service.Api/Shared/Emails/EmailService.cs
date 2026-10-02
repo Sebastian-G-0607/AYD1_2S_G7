@@ -204,6 +204,85 @@ public class EmailService(
         await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
     }
 
+    public async Task SendReenvioTokenVerificacionAsync(
+        string toEmail,
+        string nombreUsuario,
+        string token,
+        CancellationToken cancellationToken = default)
+    {
+        const string subject = "EduConnect - Nuevo codigo de verificacion de tu cuenta";
+
+        var logoUrl = configuration["App:LogoUrl"] ?? configuration["LOGO_URL"];
+        var logoHtml = !string.IsNullOrWhiteSpace(logoUrl)
+            ? $"<img src=\"{WebUtility.HtmlEncode(logoUrl)}\" alt=\"EduConnect\" style=\"max-height: 48px; max-width: 200px; margin-bottom: 8px; display: inline-block;\" />"
+            : """
+              <div style="font-size: 24px; font-weight: bold; color: #ffffff; margin-bottom: 8px;">EduConnect</div>
+              """;
+
+        var htmlBody = $$"""
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+                    .header { background-color: #1e3a8a; padding: 24px; text-align: center; color: white; }
+                    .content { padding: 24px; color: #374151; line-height: 1.6; }
+                    .token-card { background-color: #f0fdf4; border: 2px dashed #16a34a; border-radius: 8px; padding: 24px; text-align: center; margin: 24px 0; }
+                    .token-title { margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #166534; text-transform: uppercase; letter-spacing: 1px; }
+                    .token-code { font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 700; letter-spacing: 8px; color: #15803d; }
+                    .token-expiry { margin: 10px 0 0 0; font-size: 13px; color: #166534; }
+                    .instructions { margin-top: 24px; }
+                    .instructions ol { padding-left: 20px; color: #374151; line-height: 1.8; }
+                    .security-notice { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; font-size: 13px; color: #92400e; margin-top: 20px; }
+                    .footer { background-color: #f3f4f6; padding: 16px; text-align: center; font-size: 12px; color: #6b7280; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        {{logoHtml}}
+                        <h1 style="margin: 0; font-size: 24px; color: #ffffff; letter-spacing: 0.5px;">EduConnect</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Nuevo codigo de verificacion</h2>
+                        <p>Hola <strong>{{WebUtility.HtmlEncode(nombreUsuario)}}</strong>,</p>
+                        <p>Has solicitado un nuevo token de verificacion para tu cuenta en EduConnect.</p>
+                        <p>Para continuar con la verificacion de tu correo, ingresa el siguiente codigo en la plataforma. Este nuevo token reemplaza cualquier codigo anterior y expirara en otras 24 horas.</p>
+
+                        <div class="token-card">
+                            <div class="token-title">Nuevo Token de Verificacion</div>
+                            <div class="token-code">{{WebUtility.HtmlEncode(token)}}</div>
+                            <div class="token-expiry">Este token es valido por <strong>24 horas</strong> a partir de este momento.</div>
+                        </div>
+
+                        <div class="instructions">
+                            <h3 style="color: #1e3a8a; margin-top: 0; font-size: 18px;">Instrucciones para proceder:</h3>
+                            <ol>
+                                <li>Ingresa a la pantalla de verificacion en EduConnect.</li>
+                                <li>Introduce el nuevo codigo de verificacion de 6 digitos mostrado arriba.</li>
+                                <li>Una vez confirmado el token, tu cuenta quedara completamente habilitada para su uso.</li>
+                            </ol>
+                        </div>
+
+                        <div class="security-notice">
+                            <strong>Importante:</strong> Este codigo es personal, de uso unico y confidencial. Si no solicitaste este codigo, puedes ignorar este mensaje o contactar al administrador.
+                        </div>
+
+                        <p style="margin-top: 24px;">Atentamente,<br><strong>Equipo de EduConnect</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; {{DateTime.UtcNow.Year}} EduConnect. Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(toEmail, subject, htmlBody, cancellationToken);
+    }
+
     public async Task SendBajaCuentaNotificacionAsync(
         string toEmail,
         string nombreUsuario,

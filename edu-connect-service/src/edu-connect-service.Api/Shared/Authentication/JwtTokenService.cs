@@ -9,7 +9,7 @@ namespace edu_connect_service.Api.Shared.Authentication;
 public interface IJwtTokenService
 {
     string GenerateToken(int idUsuario, string correo, string rol);
-    string GenerateEmailValidationToken(int idUsuario, string correo);
+    string GenerateEmailValidationToken(int idUsuario, string correo, int minutes);
 }
 
 public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : IJwtTokenService
@@ -47,7 +47,7 @@ public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : IJwtTokenService
         return tokenHandler.WriteToken(token);
     }
 
-    public string GenerateEmailValidationToken(int idUsuario, string correo)
+    public string GenerateEmailValidationToken(int idUsuario, string correo, int minutes)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         tokenHandler.OutboundClaimTypeMap.Clear();
@@ -71,7 +71,7 @@ public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : IJwtTokenService
             Subject = new ClaimsIdentity(claims),
             NotBefore = now,
             IssuedAt = now,
-            Expires = now.AddMinutes(2),
+            Expires = now.AddMinutes(minutes),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(

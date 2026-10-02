@@ -295,7 +295,7 @@ public class LoginEndpointTests
         Assert.False(okResult.Value.CorreoValidado);
         Assert.Equal("temp_validation_token", okResult.Value.Token);
         Assert.Equal("Bearer", okResult.Value.TokenType);
-        Assert.Equal(120, okResult.Value.ExpiresIn);
+        Assert.Equal(180, okResult.Value.ExpiresIn);
         Assert.Equal(70, okResult.Value.IdUsuario);
         Assert.Null(okResult.Value.FotografiaUrl);
     }

@@ -28,7 +28,8 @@ export function setupInterceptors(client: AxiosInstance): AxiosInstance {
           url.includes('/admin-login') ||
           url.includes('/admin-2fa') ||
           url.includes('/email-validations') ||
-          url.includes('/email-verifications')
+          url.includes('/email-verifications') ||
+          url.includes('/email-validation-tokens')
         const isAuthPage =
           window.location.pathname === '/login' ||
           window.location.pathname === '/admin/2fa' ||

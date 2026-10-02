@@ -61,12 +61,13 @@ public static class LoginEndpoint
 
             if (!esAdmin && !user.CorreoValidado)
             {
-                var tempToken = jwtTokenService.GenerateEmailValidationToken(user.Id, user.Correo);
+                int expirationMinutes = 5;
+                var tempToken = jwtTokenService.GenerateEmailValidationToken(user.Id, user.Correo, expirationMinutes);
                 var unverifiedResponse = new TokenResponseDto(
                     false,
                     tempToken,
                     "Bearer",
-                    120,
+                    expirationMinutes * 60,
                     user.Id,
                     user.Correo,
                     rol,
