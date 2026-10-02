@@ -3,7 +3,8 @@ import { BaseAlert, BaseBadge, BaseButton, BaseCard } from '@/components/ui'
 import { useStudentStudyPlan } from '../composables/useStudentStudyPlan'
 import type { RecursoTipo } from '../types'
 
-const { studyPlan, isLoading, isDownloading, errorMessage, downloadStudyPlanPdf } = useStudentStudyPlan()
+const { studyPlan, isLoading, isDownloading, errorMessage, downloadStudyPlanPdf } =
+  useStudentStudyPlan()
 
 function formatDate(date: string) {
   if (!date) return '-'
@@ -42,7 +43,6 @@ function resourceLabel(tipo: RecursoTipo) {
       return 'Texto'
   }
 }
-
 </script>
 
 <template>
@@ -72,12 +72,7 @@ function resourceLabel(tipo: RecursoTipo) {
     </div>
 
     <!-- Error -->
-    <BaseAlert
-      v-if="errorMessage"
-      type="error"
-      :message="errorMessage"
-      :dismissible="false"
-    />
+    <BaseAlert v-if="errorMessage" type="error" :message="errorMessage" :dismissible="false" />
 
     <!-- Cargando -->
     <BaseCard v-else-if="isLoading" padding="lg">
@@ -92,8 +87,8 @@ function resourceLabel(tipo: RecursoTipo) {
         </span>
         <p class="text-base font-medium text-on-surface">Aún no tienes un plan de estudio</p>
         <p class="text-sm text-on-surface-variant max-w-md">
-          Cuando un tutor marque una de tus sesiones como atendida y registre tu plan de estudio,
-          lo verás reflejado aquí.
+          Cuando un tutor marque una de tus sesiones como atendida y registre tu plan de estudio, lo
+          verás reflejado aquí.
         </p>
       </div>
     </BaseCard>
@@ -106,13 +101,13 @@ function resourceLabel(tipo: RecursoTipo) {
             <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">
               Última sesión
             </p>
-            <p class="text-base text-on-surface mt-1">{{ formatDate(studyPlan.fechaUltimaSesion) }}</p>
+            <p class="text-base text-on-surface mt-1">
+              {{ formatDate(studyPlan.fechaUltimaSesion) }}
+            </p>
           </div>
 
           <div>
-            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">
-              Tutor
-            </p>
+            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Tutor</p>
             <p class="text-base text-on-surface mt-1">{{ studyPlan.tutorNombre }}</p>
             <p class="text-sm text-on-surface-variant">
               {{ studyPlan.tutorEspecialidad }} · ID {{ studyPlan.tutorIdentificacion }}

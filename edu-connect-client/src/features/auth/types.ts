@@ -6,6 +6,7 @@ export interface LoginRequestDto {
 export type LoginCredentials = LoginRequestDto
 
 export interface TokenResponseDto {
+  correo_validado: boolean
   token: string
   tokenType: string
   expiresIn: number
@@ -15,6 +16,10 @@ export interface TokenResponseDto {
   nombre?: string | null
   apellido?: string | null
   fotografiaUrl?: string | null
+}
+
+export interface EmailValidationRequestDto {
+  token: string
 }
 
 export type AuthResponse = TokenResponseDto

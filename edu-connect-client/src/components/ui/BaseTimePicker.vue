@@ -258,11 +258,9 @@ onUnmounted(() => {
           >
             schedule
           </span>
-          <span
-            v-if="modelValue"
-            class="text-on-surface font-semibold tracking-wide"
-          >
-            {{ modelValue }} <span class="text-xs font-normal text-on-surface-variant ml-1">hrs</span>
+          <span v-if="modelValue" class="text-on-surface font-semibold tracking-wide">
+            {{ modelValue }}
+            <span class="text-xs font-normal text-on-surface-variant ml-1">hrs</span>
           </span>
           <span v-else class="text-outline-variant">
             {{ placeholder }}
@@ -296,14 +294,18 @@ onUnmounted(() => {
             <span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
             <span>Horario de inicio</span>
           </div>
-          <span class="text-[11px] font-semibold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-md">
+          <span
+            class="text-[11px] font-semibold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-md"
+          >
             {{ parsedMinTime }} - {{ parsedMaxTime }}
           </span>
         </div>
 
         <div class="grid grid-cols-[1fr_1fr] gap-3">
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-center">
+            <span
+              class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-center"
+            >
               Hora (24h)
             </span>
             <div class="flex flex-col gap-1 max-h-[180px] overflow-y-auto pr-1">
@@ -325,7 +327,9 @@ onUnmounted(() => {
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-center">
+            <span
+              class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-center"
+            >
               Minuto
             </span>
             <div class="flex flex-col gap-1 max-h-[180px] overflow-y-auto pr-1">
@@ -369,7 +373,9 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="flex items-center justify-between pt-2 border-t border-outline-variant/30 text-xs">
+        <div
+          class="flex items-center justify-between pt-2 border-t border-outline-variant/30 text-xs"
+        >
           <span class="text-on-surface-variant font-medium">
             Seleccionado: <strong class="text-primary">{{ modelValue || '--:--' }}</strong>
           </span>

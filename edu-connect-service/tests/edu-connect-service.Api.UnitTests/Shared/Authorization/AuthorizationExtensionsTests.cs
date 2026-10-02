@@ -28,5 +28,9 @@ public class AuthorizationExtensionsTests
         var requireTutor = authOptions.GetPolicy("RequireTutor");
         Assert.NotNull(requireTutor);
         Assert.Contains(requireTutor.Requirements, r => r is Microsoft.AspNetCore.Authorization.Infrastructure.RolesAuthorizationRequirement rolesReq && rolesReq.AllowedRoles.Contains(AppRoles.Tutor));
+
+        var requireEmailValidation = authOptions.GetPolicy("RequireEmailValidation");
+        Assert.NotNull(requireEmailValidation);
+        Assert.Contains(requireEmailValidation.Requirements, r => r is Microsoft.AspNetCore.Authorization.Infrastructure.ClaimsAuthorizationRequirement claimsReq && claimsReq.ClaimType == "scope" && claimsReq.AllowedValues != null && claimsReq.AllowedValues.Contains("email_validation"));
     }
 }

@@ -82,4 +82,16 @@ public class EmailServiceTests
 
         Assert.Null(exception);
     }
+
+    [Fact]
+    public async Task SendReenvioTokenVerificacionAsync_ExecutesSuccessfully()
+    {
+        var config = CreateFallbackConfiguration();
+        var service = new EmailService(_loggerMock.Object, config);
+
+        var exception = await Record.ExceptionAsync(() =>
+            service.SendReenvioTokenVerificacionAsync("estudiante@test.com", "Juan Perez", "123456"));
+
+        Assert.Null(exception);
+    }
 }

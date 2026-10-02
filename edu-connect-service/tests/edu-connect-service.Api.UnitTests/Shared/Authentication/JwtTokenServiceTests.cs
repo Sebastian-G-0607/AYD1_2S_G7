@@ -51,4 +51,43 @@ public class JwtTokenServiceTests
         Assert.NotNull(jtiClaim);
         Assert.NotEmpty(jtiClaim.Value);
     }
+
+    [Fact]
+    public void GenerateEmailValidationToken_ReturnsValidJwtWithCorrectClaims()
+    {
+        var optionsMock = Options.Create(_jwtOptions);
+        var service = new JwtTokenService(optionsMock);
+
+        var tokenString = service.GenerateEmailValidationToken(261, "estudiante.calificacion@gmail.com");
+
+        Assert.NotNull(tokenString);
+        var handler = new JwtSecurityTokenHandler();
+        Assert.True(handler.CanReadToken(tokenString));
+
+        var jwt = handler.ReadJwtToken(tokenString);
+        Assert.Equal(_jwtOptions.Issuer, jwt.Issuer);
+        Assert.Contains(_jwtOptions.Audience, jwt.Audiences);
+
+        var idClaim = jwt.Claims.FirstOrDefault(c => c.Type == "id_usuario");
+        Assert.NotNull(idClaim);
+        Assert.Equal("261", idClaim.Value);
+
+        var emailClaim = jwt.Claims.FirstOrDefault(c => c.Type == "correo");
+        Assert.NotNull(emailClaim);
+        Assert.Equal("estudiante.calificacion@gmail.com", emailClaim.Value);
+
+        var scopeClaim = jwt.Claims.FirstOrDefault(c => c.Type == "scope");
+        Assert.NotNull(scopeClaim);
+        Assert.Equal("email_validation", scopeClaim.Value);
+
+        var subClaim = jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        Assert.NotNull(subClaim);
+        Assert.Equal("261", subClaim.Value);
+
+        var roleClaim = jwt.Claims.FirstOrDefault(c => c.Type == "rol");
+        Assert.Null(roleClaim);
+
+        Assert.True(jwt.ValidTo > DateTime.UtcNow);
+        Assert.True(jwt.ValidTo <= DateTime.UtcNow.AddMinutes(2).AddSeconds(5));
+    }
 }

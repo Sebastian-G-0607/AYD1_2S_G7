@@ -39,8 +39,8 @@ public class TokenCorreoEntityConfiguration : IEntityTypeConfiguration<TokenCorr
             .HasDefaultValue(false);
 
         builder.HasOne(t => t.Usuario)
-            .WithOne(u => u.TokenCorreo)
-            .HasForeignKey<TokenCorreo>(t => t.UsuarioId)
+            .WithMany(u => u.TokensCorreo)
+            .HasForeignKey(t => t.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

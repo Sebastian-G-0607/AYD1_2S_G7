@@ -128,6 +128,17 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/verification/email',
+    name: 'email-verification',
+    component: () => import('@/pages/EmailVerificationPage.vue'),
+    meta: {
+      requiresAuth: false,
+      guestOnly: true,
+      title: 'Verificación de Seguridad - EduConnect',
+      layout: 'auth'
+    }
+  },
+  {
     path: '/estudiante/explorar-tutores',
     name: 'student-tutors-explorer',
     component: () => import('@/pages/StudentTutorsExplorerPage.vue'),

@@ -172,8 +172,7 @@ const horaInicioEffectiveError = computed(() => {
 function isConflictSession(s: SesionOcupada): boolean {
   if (!sessionConflict.value) return false
   return (
-    sessionConflict.value.horaInicio === s.horaInicio &&
-    sessionConflict.value.horaFin === s.horaFin
+    sessionConflict.value.horaInicio === s.horaInicio && sessionConflict.value.horaFin === s.horaFin
   )
 }
 
@@ -210,7 +209,6 @@ watch(
     }
   }
 )
-
 
 async function loadTutor() {
   if (!Number.isInteger(tutorId.value) || tutorId.value <= 0) {
@@ -615,9 +613,7 @@ onMounted(() => {
                     v-if="form.horaInicio && !horaInicioEffectiveError"
                     class="rounded-lg px-3 py-2 text-xs flex items-center gap-2 transition-all bg-primary-container/30 text-on-primary-container border border-primary/20 font-medium"
                   >
-                    <span class="material-symbols-outlined text-[17px]">
-                      schedule
-                    </span>
+                    <span class="material-symbols-outlined text-[17px]"> schedule </span>
                     <span>
                       Sesión solicitada:
                       <strong>{{ form.horaInicio }} - {{ selectedSessionEndTime }}</strong> (1 hora
@@ -671,7 +667,8 @@ onMounted(() => {
           >
             <span class="material-symbols-outlined text-[20px] text-primary mt-0.5">info</span>
             <p>
-              Las sesiones tienen una duración de 1 hora. Selecciona la hora de inicio deseada dentro del horario de atención del tutor.
+              Las sesiones tienen una duración de 1 hora. Selecciona la hora de inicio deseada
+              dentro del horario de atención del tutor.
             </p>
           </div>
 
