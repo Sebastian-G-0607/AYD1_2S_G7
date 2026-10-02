@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Etapa de Build
   build: ubuntu-latest
   steps:
     - uses: actions/checkout@v4 
@@ -21,7 +20,6 @@ jobs:
     - name: Build Solution
       run: dotnet build edu-connect-service/edu-connect-service.slnx --configuration Release
 
-  # Etapa de tests
   test: ubuntu-latest
   needs: [build]                                                                                                                                                                       
     runs-on: ubuntu-latest                                                                                                                                                               
@@ -36,7 +34,6 @@ jobs:
       - name: Run Unit Tests                                                                                                                                                             
         run: dotnet test edu-connect-service/tests/edu-connect-service.Api.UnitTests/edu-connect-service.Api.UnitTests.csproj --configuration Release        
 
-  # Etapa de build y relase artifacts
   release:
   needs: [test]
     runs-on: ubuntu-latest
@@ -53,7 +50,6 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ env.REPO_LOWER }}-service:latest
 
-  # Etapa Deploy
   build-and-deploy:
   need: [release]
     runs-on: ubuntu-latest
