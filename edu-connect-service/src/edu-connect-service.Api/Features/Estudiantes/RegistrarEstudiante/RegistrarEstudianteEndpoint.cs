@@ -12,6 +12,7 @@ public static class RegistrarEstudianteEndpoint
     public static void MapRegistrarEstudiante(this IEndpointRouteBuilder app)
     {
         app.MapPost("/registro", HandleAsync)
+            .AllowAnonymous()
             .DisableAntiforgery()
             .Accepts<RegistrarEstudianteRequestDto>("multipart/form-data")
             .Produces<EstudianteResponseDto>(StatusCodes.Status201Created)
@@ -21,6 +22,7 @@ public static class RegistrarEstudianteEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         app.MapPost("/registros", HandleAsync)
+            .AllowAnonymous()
             .DisableAntiforgery()
             .Accepts<RegistrarEstudianteRequestDto>("multipart/form-data")
             .ExcludeFromDescription();

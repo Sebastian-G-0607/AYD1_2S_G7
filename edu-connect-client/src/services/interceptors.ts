@@ -5,7 +5,7 @@ export function setupInterceptors(client: AxiosInstance): AxiosInstance {
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const token = localStorage.getItem('edu_auth_token')
-      if (token && config.headers) {
+      if (token && config.headers && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`
       }
       return config
@@ -24,9 +24,15 @@ export function setupInterceptors(client: AxiosInstance): AxiosInstance {
       if (error.response?.status === 401) {
         const url = error.config?.url || ''
         const isAuthRequest =
-          url.includes('/login') || url.includes('/admin-login') || url.includes('/admin-2fa')
+          url.includes('/login') ||
+          url.includes('/admin-login') ||
+          url.includes('/admin-2fa') ||
+          url.includes('/email-validations') ||
+          url.includes('/email-verifications')
         const isAuthPage =
-          window.location.pathname === '/login' || window.location.pathname === '/admin/2fa'
+          window.location.pathname === '/login' ||
+          window.location.pathname === '/admin/2fa' ||
+          window.location.pathname === '/verification/email'
 
         if (!isAuthRequest && !isAuthPage) {
           localStorage.removeItem('edu_auth_token')

@@ -137,6 +137,7 @@ public class LoginEndpointTests
             Rol = rol,
             Estado = estado,
             FechaRegistro = DateTime.UtcNow,
+            CorreoValidado = true,
             Estudiante = new Estudiante
             {
                 UsuarioId = 50,
@@ -173,6 +174,7 @@ public class LoginEndpointTests
 
         var okResult = Assert.IsType<Ok<TokenResponseDto>>(result);
         Assert.NotNull(okResult.Value);
+        Assert.True(okResult.Value.CorreoValidado);
         Assert.Equal("token_jwt_valido", okResult.Value.Token);
         Assert.Equal("Bearer", okResult.Value.TokenType);
         Assert.Equal(7200, okResult.Value.ExpiresIn);
@@ -199,6 +201,7 @@ public class LoginEndpointTests
             Rol = rol,
             Estado = estado,
             FechaRegistro = DateTime.UtcNow,
+            CorreoValidado = true,
             Tutor = new Tutor
             {
                 UsuarioId = 60,
@@ -234,10 +237,108 @@ public class LoginEndpointTests
 
         var okResult = Assert.IsType<Ok<TokenResponseDto>>(result);
         Assert.NotNull(okResult.Value);
+        Assert.True(okResult.Value.CorreoValidado);
         Assert.Equal("token_jwt_tutor", okResult.Value.Token);
         Assert.Equal(60, okResult.Value.IdUsuario);
         Assert.Equal("Ana", okResult.Value.Nombre);
         Assert.Equal("Martinez", okResult.Value.Apellido);
         Assert.Null(okResult.Value.FotografiaUrl);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithUnverifiedEmail_ReturnsOkWithTemporaryToken()
+    {
+        using var db = CreateInMemoryDbContext();
+        var rol = new Rol { Id = 1, Nombre = "Estudiante" };
+        var estado = new EstadoUsuario { Id = 1, Nombre = "APROBADO" };
+
+        var user = new Usuario
+        {
+            Id = 70,
+            Correo = "no_validado@educonnect.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("CorrectPassword123!"),
+            Rol = rol,
+            Estado = estado,
+            FechaRegistro = DateTime.UtcNow,
+            CorreoValidado = false,
+            Estudiante = new Estudiante
+            {
+                UsuarioId = 70,
+                Nombre = "Pedro",
+                Apellido = "Gomez",
+                Carnet = "202099999",
+                Genero = "masculino",
+                Direccion = "Ciudad",
+                Telefono = "12345678"
+            }
+        };
+        db.Usuarios.Add(user);
+        await db.SaveChangesAsync();
+
+        _jwtTokenServiceMock
+            .Setup(j => j.GenerateEmailValidationToken(user.Id, user.Correo))
+            .Returns("temp_validation_token");
+
+        var request = new LoginRequestDto("no_validado@educonnect.com", "CorrectPassword123!");
+
+        var result = await LoginEndpoint.HandleAsync(
+            request,
+            db,
+            _jwtTokenServiceMock.Object,
+            _s3ServiceMock.Object,
+            _jwtOptions,
+            CancellationToken.None
+        );
+
+        var okResult = Assert.IsType<Ok<TokenResponseDto>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.False(okResult.Value.CorreoValidado);
+        Assert.Equal("temp_validation_token", okResult.Value.Token);
+        Assert.Equal("Bearer", okResult.Value.TokenType);
+        Assert.Equal(120, okResult.Value.ExpiresIn);
+        Assert.Equal(70, okResult.Value.IdUsuario);
+        Assert.Null(okResult.Value.FotografiaUrl);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithAdminRole_ReturnsOkWithAuthTokenAndVerifiedEmail()
+    {
+        using var db = CreateInMemoryDbContext();
+        var rol = new Rol { Id = 3, Nombre = "Administrador" };
+        var estado = new EstadoUsuario { Id = 1, Nombre = "APROBADO" };
+
+        var user = new Usuario
+        {
+            Id = 80,
+            Correo = "admin@educonnect.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("CorrectPassword123!"),
+            Rol = rol,
+            Estado = estado,
+            FechaRegistro = DateTime.UtcNow,
+            CorreoValidado = false
+        };
+        db.Usuarios.Add(user);
+        await db.SaveChangesAsync();
+
+        _jwtTokenServiceMock
+            .Setup(j => j.GenerateToken(user.Id, user.Correo, rol.Nombre))
+            .Returns("admin_auth_token");
+
+        var request = new LoginRequestDto("admin@educonnect.com", "CorrectPassword123!");
+
+        var result = await LoginEndpoint.HandleAsync(
+            request,
+            db,
+            _jwtTokenServiceMock.Object,
+            _s3ServiceMock.Object,
+            _jwtOptions,
+            CancellationToken.None
+        );
+
+        var okResult = Assert.IsType<Ok<TokenResponseDto>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.True(okResult.Value.CorreoValidado);
+        Assert.Equal("admin_auth_token", okResult.Value.Token);
+        Assert.Equal(7200, okResult.Value.ExpiresIn);
     }
 }

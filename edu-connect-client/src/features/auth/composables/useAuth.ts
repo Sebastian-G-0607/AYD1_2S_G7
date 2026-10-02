@@ -105,6 +105,16 @@ export function useAuth() {
       }
 
       const response = await authService.login(credentials)
+      if (!response.correo_validado) {
+        sessionStorage.setItem('edu_email_validation_token', response.token)
+        sessionStorage.setItem('edu_email_validation_email', response.correo)
+        await router.push({
+          path: '/verification/email',
+          query: { email: response.correo }
+        })
+        return true
+      }
+
       authStore.setAuthFromTokenResponse(response)
       const targetPath = getRedirectPathByRole(response.rol)
       await router.push(targetPath)
@@ -271,6 +281,36 @@ export function useAuth() {
     }
   }
 
+  async function verifyEmail(tokenCode: string): Promise<boolean> {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token') || ''
+    if (!tempToken) {
+      errorMessage.value =
+        'No se encontró una sesión de verificación activa. Por favor, inicia sesión nuevamente.'
+      return false
+    }
+
+    isLoading.value = true
+    errorMessage.value = null
+
+    try {
+      const response = await authService.verifyEmail(tokenCode, tempToken)
+      sessionStorage.removeItem('edu_email_validation_token')
+      sessionStorage.removeItem('edu_email_validation_email')
+      authStore.setAuthFromTokenResponse(response)
+      const targetPath = getRedirectPathByRole(response.rol)
+      await router.push(targetPath)
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Ocurrió un error al verificar el código. Inténtalo nuevamente.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     errorMessage,
@@ -283,6 +323,7 @@ export function useAuth() {
     registerStudent,
     registerTutor,
     verifyAdmin2Fa,
+    verifyEmail,
     validateCarnet,
     validateDpi,
     validateTelefono,

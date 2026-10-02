@@ -52,6 +52,9 @@ export function extractApiErrorMessage(
       if (url.includes('/admin-2fa')) {
         return 'El archivo de llave es inválido o no autorizado.'
       }
+      if (url.includes('/email-validations') || url.includes('/email-verifications')) {
+        return 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+      }
       return 'Credenciales inválidas o sesión no autorizada.'
     }
 

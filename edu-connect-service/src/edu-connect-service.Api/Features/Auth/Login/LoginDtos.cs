@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace edu_connect_service.Api.Features.Auth.Login;
 
@@ -8,6 +9,7 @@ public record LoginRequestDto(
 );
 
 public record TokenResponseDto(
+    [property: JsonPropertyName("correo_validado")] bool CorreoValidado,
     string Token,
     string TokenType,
     int ExpiresIn,

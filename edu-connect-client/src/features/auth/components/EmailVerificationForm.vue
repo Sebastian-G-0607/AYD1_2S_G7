@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { BaseButton, BaseAlert, BaseOtpInput } from '@/components/ui'
+import { useAuth } from '../composables/useAuth'
 
 interface Props {
   email?: string
@@ -11,22 +12,34 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'verify', code: string): void
-  (e: 'resend'): void
 }>()
 
 const route = useRoute()
+const router = useRouter()
 
 const token = ref('')
-const isLoading = ref(false)
-const errorMessage = ref<string | null>(null)
-const successMessage = ref<string | null>(null)
 const timeLeft = ref(60)
+const redirectCountdown = ref(0)
 let timerId: ReturnType<typeof setInterval> | null = null
+let redirectTimerId: ReturnType<typeof setInterval> | null = null
+
+const {
+  isLoading,
+  errorMessage,
+  successMessage,
+  clearError,
+  clearSuccess,
+  verifyEmail
+} = useAuth()
 
 const resolvedEmail = computed(() => {
   if (props.email) return props.email
   if (typeof route.query.email === 'string' && route.query.email.trim()) {
     return route.query.email.trim()
+  }
+  const stored = sessionStorage.getItem('edu_email_validation_email')
+  if (stored && stored.trim()) {
+    return stored.trim()
   }
   return ''
 })
@@ -41,9 +54,11 @@ const maskedEmail = computed(() => {
 })
 
 const formattedCountdown = computed(() => {
-  const seconds = timeLeft.value
+  const minutes = Math.floor(timeLeft.value / 60)
+  const seconds = timeLeft.value % 60
+  const formattedMin = minutes < 10 ? `0${minutes}` : `${minutes}`
   const formattedSec = seconds < 10 ? `0${seconds}` : `${seconds}`
-  return `00:${formattedSec}`
+  return `${formattedMin}:${formattedSec}`
 })
 
 function startTimer(initialSeconds = 60) {
@@ -65,11 +80,33 @@ function stopTimer() {
   }
 }
 
+function triggerSessionExpiredRedirect(baseMessage = 'Tu sesión de verificación ha expirado.', seconds = 6) {
+  stopTimer()
+  if (redirectTimerId !== null) {
+    clearInterval(redirectTimerId)
+  }
+  redirectCountdown.value = seconds
+  errorMessage.value = `${baseMessage} Serás redirigido al inicio de sesión en ${redirectCountdown.value} segundos...`
+
+  redirectTimerId = setInterval(async () => {
+    redirectCountdown.value--
+    if (redirectCountdown.value > 0) {
+      errorMessage.value = `${baseMessage} Serás redirigido al inicio de sesión en ${redirectCountdown.value} segundos...`
+    } else {
+      if (redirectTimerId !== null) {
+        clearInterval(redirectTimerId)
+        redirectTimerId = null
+      }
+      sessionStorage.removeItem('edu_email_validation_token')
+      sessionStorage.removeItem('edu_email_validation_email')
+      await router.push('/login')
+    }
+  }, 1000)
+}
+
 function handleResend() {
-  errorMessage.value = null
-  successMessage.value = 'Se ha generado un nuevo código de verificación.'
+  if (redirectCountdown.value > 0) return
   startTimer(60)
-  emit('resend')
 }
 
 function onComplete(code: string) {
@@ -77,27 +114,47 @@ function onComplete(code: string) {
 }
 
 async function handleSubmit() {
+  if (redirectCountdown.value > 0) return
+
   if (token.value.trim().length !== 6) {
     errorMessage.value = 'Debes ingresar el código completo de 6 dígitos.'
     return
   }
 
-  errorMessage.value = null
-  isLoading.value = true
-
+  clearError()
+  clearSuccess()
   emit('verify', token.value.trim())
-
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1200)
+  const ok = await verifyEmail(token.value.trim())
+  if (!ok) {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token')
+    if (
+      !tempToken ||
+      (errorMessage.value && (
+        errorMessage.value.toLowerCase().includes('sesión') ||
+        errorMessage.value.toLowerCase().includes('no autorizado') ||
+        errorMessage.value.toLowerCase().includes('token de validación es inválido')
+      ))
+    ) {
+      triggerSessionExpiredRedirect(errorMessage.value || 'Tu sesión de verificación ha expirado.', 6)
+    }
+  }
 }
 
 onMounted(() => {
+  const tempToken = sessionStorage.getItem('edu_email_validation_token')
+  if (!tempToken) {
+    triggerSessionExpiredRedirect('No se encontró una sesión de verificación activa.', 6)
+    return
+  }
   startTimer(60)
 })
 
 onUnmounted(() => {
   stopTimer()
+  if (redirectTimerId !== null) {
+    clearInterval(redirectTimerId)
+    redirectTimerId = null
+  }
 })
 </script>
 
@@ -120,12 +177,12 @@ onUnmounted(() => {
       </h1>
       <p class="text-base text-on-surface-variant font-body max-w-sm mx-auto leading-relaxed">
         <template v-if="maskedEmail">
-          Hemos enviado un código de 6 dígitos a tu correo institucional
+          Hemos enviado un código de 6 dígitos a tu correo electrónico
           <span class="font-semibold text-primary">{{ maskedEmail }}</span
           >. Ingrésalo para continuar.
         </template>
         <template v-else>
-          Hemos enviado un código de 6 dígitos a tu correo institucional. Ingrésalo para continuar.
+          Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo para continuar.
         </template>
       </p>
     </div>
@@ -133,10 +190,10 @@ onUnmounted(() => {
     <BaseAlert
       v-if="errorMessage"
       type="error"
-      title="Error de verificación"
+      :title="redirectCountdown > 0 ? 'Sesión expirada' : 'Error de verificación'"
       :message="errorMessage"
       class="w-full mb-6"
-      @dismiss="errorMessage = null"
+      @dismiss="clearError"
     />
 
     <BaseAlert
@@ -145,7 +202,7 @@ onUnmounted(() => {
       title="Código enviado"
       :message="successMessage"
       class="w-full mb-6"
-      @dismiss="successMessage = null"
+      @dismiss="clearSuccess"
     />
 
     <form class="w-full flex flex-col items-center" @submit.prevent="handleSubmit">
@@ -153,7 +210,7 @@ onUnmounted(() => {
         <BaseOtpInput
           v-model="token"
           :length="6"
-          :disabled="isLoading"
+          :disabled="isLoading || redirectCountdown > 0"
           :error="Boolean(errorMessage)"
           @complete="onComplete"
         />
@@ -165,7 +222,7 @@ onUnmounted(() => {
         size="lg"
         block
         :loading="isLoading"
-        :disabled="token.trim().length !== 6 || isLoading"
+        :disabled="token.trim().length !== 6 || isLoading || redirectCountdown > 0"
         class="group cursor-pointer !rounded-xl !py-4 shadow-md hover:shadow-lg"
       >
         <span>Verificar e Ingresar</span>

@@ -1,5 +1,6 @@
 using edu_connect_service.Api.Data;
 using edu_connect_service.Api.Shared.Authentication;
+using edu_connect_service.Api.Shared.Authorization;
 using edu_connect_service.Api.Shared.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -52,16 +53,39 @@ public static class LoginEndpoint
             }
 
             var rol = user.Rol.Nombre;
-            var token = jwtTokenService.GenerateToken(user.Id, user.Correo, rol);
+            var esAdmin = rol.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                          rol.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
 
             var nombre = user.Estudiante?.Nombre ?? user.Tutor?.Nombre;
             var apellido = user.Estudiante?.Apellido ?? user.Tutor?.Apellido;
+
+            if (!esAdmin && !user.CorreoValidado)
+            {
+                var tempToken = jwtTokenService.GenerateEmailValidationToken(user.Id, user.Correo);
+                var unverifiedResponse = new TokenResponseDto(
+                    false,
+                    tempToken,
+                    "Bearer",
+                    120,
+                    user.Id,
+                    user.Correo,
+                    rol,
+                    nombre,
+                    apellido,
+                    null
+                );
+
+                return Results.Ok(unverifiedResponse);
+            }
+
+            var token = jwtTokenService.GenerateToken(user.Id, user.Correo, rol);
             var fotografiaKey = user.Estudiante?.FotografiaUrl ?? user.Tutor?.FotografiaUrl;
             var fotografiaUrl = !string.IsNullOrWhiteSpace(fotografiaKey)
                 ? s3Service.GeneratePresignedUrl(fotografiaKey)
                 : null;
 
             var response = new TokenResponseDto(
+                true,
                 token,
                 "Bearer",
                 jwtOptions.Value.ExpirationMinutes * 60,

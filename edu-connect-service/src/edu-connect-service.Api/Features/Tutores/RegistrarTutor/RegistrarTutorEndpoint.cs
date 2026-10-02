@@ -12,6 +12,7 @@ public static class RegistrarTutorEndpoint
     public static void MapRegistrarTutor(this IEndpointRouteBuilder app)
     {
         app.MapPost("/registro", HandleAsync)
+            .AllowAnonymous()
             .DisableAntiforgery()
             .Accepts<RegistrarTutorRequestDto>("multipart/form-data")
             .Produces<TutorResponseDto>(StatusCodes.Status201Created)
@@ -21,6 +22,7 @@ public static class RegistrarTutorEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         app.MapPost("/registros", HandleAsync)
+            .AllowAnonymous()
             .DisableAntiforgery()
             .Accepts<RegistrarTutorRequestDto>("multipart/form-data")
             .ExcludeFromDescription();

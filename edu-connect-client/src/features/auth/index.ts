@@ -11,6 +11,7 @@ export type {
   LoginRequestDto,
   LoginCredentials,
   TokenResponseDto,
+  EmailValidationRequestDto,
   AuthResponse,
   AuthUser,
   StudentRegisterData,
