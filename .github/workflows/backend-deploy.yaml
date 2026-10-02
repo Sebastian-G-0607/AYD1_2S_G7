@@ -8,7 +8,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  # Etapa de Build
+  build: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4 
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4                                                                                                                                                    
+      with:                                                                                                                                                                            
+        dotnet-version: '10.0.x'
+
+    - name: Build Solution
+      run: dotnet build edu-connect-service/edu-connect-service.slnx --configuration Release
+
+  # Etapa de tests
+  test: ubuntu-latest
+  needs: [build]                                                                                                                                                                       
+    runs-on: ubuntu-latest                                                                                                                                                               
+    steps:                                                                                                                                                                               
+      - uses: actions/checkout@v4                                                                                                                                                        
+
+      - name: Setup .NET                                                                                                                                                                 
+        uses: actions/setup-dotnet@v4                                                                                                                                                    
+        with:                                                                                                                                                                            
+          dotnet-version: '10.0.x'                                                                                                                                                       
+
+      - name: Run Unit Tests                                                                                                                                                             
+        run: dotnet test edu-connect-service/tests/edu-connect-service.Api.UnitTests/edu-connect-service.Api.UnitTests.csproj --configuration Release        
+
+  # Etapa de build y relase artifacts
+  release:
+  needs: [test]
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
     steps:
@@ -17,11 +47,19 @@ jobs:
       - name: Lowercase repo name
         run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: Build
+      - name: Build and Push
         run: |
           docker build -t ghcr.io/${{ env.REPO_LOWER }}-service:latest ./edu-connect-service
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ env.REPO_LOWER }}-service:latest
+
+  # Etapa Deploy
+  build-and-deploy:
+  need: [release]
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3

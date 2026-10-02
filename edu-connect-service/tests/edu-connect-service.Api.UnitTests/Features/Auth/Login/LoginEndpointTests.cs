@@ -276,7 +276,7 @@ public class LoginEndpointTests
         await db.SaveChangesAsync();
 
         _jwtTokenServiceMock
-            .Setup(j => j.GenerateEmailValidationToken(user.Id, user.Correo))
+            .Setup(j => j.GenerateEmailValidationToken(user.Id, user.Correo, It.IsAny<int>()))
             .Returns("temp_validation_token");
 
         var request = new LoginRequestDto("no_validado@educonnect.com", "CorrectPassword123!");
@@ -295,7 +295,7 @@ public class LoginEndpointTests
         Assert.False(okResult.Value.CorreoValidado);
         Assert.Equal("temp_validation_token", okResult.Value.Token);
         Assert.Equal("Bearer", okResult.Value.TokenType);
-        Assert.Equal(180, okResult.Value.ExpiresIn);
+        Assert.Equal(300, okResult.Value.ExpiresIn);
         Assert.Equal(70, okResult.Value.IdUsuario);
         Assert.Null(okResult.Value.FotografiaUrl);
     }

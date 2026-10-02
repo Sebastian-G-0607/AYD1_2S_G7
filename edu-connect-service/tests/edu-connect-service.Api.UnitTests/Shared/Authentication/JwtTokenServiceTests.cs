@@ -58,7 +58,7 @@ public class JwtTokenServiceTests
         var optionsMock = Options.Create(_jwtOptions);
         var service = new JwtTokenService(optionsMock);
 
-        var tokenString = service.GenerateEmailValidationToken(261, "estudiante.calificacion@gmail.com");
+        var tokenString = service.GenerateEmailValidationToken(261, "estudiante.calificacion@gmail.com", 2);
 
         Assert.NotNull(tokenString);
         var handler = new JwtSecurityTokenHandler();
