@@ -45,6 +45,7 @@ export interface StudentRegisterData {
   password: string
   confirmPassword?: string
   fotografia?: File | string | null
+  documentoCarnet?: File | null
 }
 
 export interface EstudianteResponseDto {
@@ -61,6 +62,7 @@ export interface EstudianteResponseDto {
   rol: string
   estado: string
   fechaRegistro: string
+  documentoCarnetUrl?: string
 }
 
 export interface TutorRegisterData {
@@ -73,6 +75,7 @@ export interface TutorRegisterData {
   telefono: string
   fechaNacimiento: string
   fotografia?: File | string | null
+  documentoCv?: File | null
   direccionTutoria: string
   anioInicio: number | string
   universidad: string
@@ -96,6 +99,7 @@ export interface TutorResponseDto {
   telefono: string
   fechaNacimiento: string
   fotografiaUrl: string
+  documentoCvUrl?: string
   direccionTutoria: string
   anioInicio: number
   universidad: string

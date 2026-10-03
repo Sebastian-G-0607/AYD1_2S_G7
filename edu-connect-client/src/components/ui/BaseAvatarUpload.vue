@@ -64,7 +64,11 @@ const onFileChange = (event: Event) => {
     emit('update:modelValue', file)
     emit('change', file)
   }
+  // Permite volver a elegir exactamente el mismo archivo después de quitarlo o cambiarlo.
+  target.value = ''
 }
+
+defineExpose({ openFileDialog: triggerFileSelect })
 </script>
 
 <template>

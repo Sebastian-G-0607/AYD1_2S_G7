@@ -99,6 +99,10 @@ export const authService = {
       formData.append('fotografia', studentData.fotografia)
     }
 
+    if (studentData.documentoCarnet instanceof File) {
+      formData.append('documentoCarnet', studentData.documentoCarnet)
+    }
+
     const { data } = await api.post<EstudianteResponseDto>('/estudiantes/registro', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -133,6 +137,10 @@ export const authService = {
 
     if (tutorData.fotografia instanceof File) {
       formData.append('fotografia', tutorData.fotografia)
+    }
+
+    if (tutorData.documentoCv instanceof File) {
+      formData.append('documentoCv', tutorData.documentoCv)
     }
 
     tutorData.materiasIds.forEach(id => {

@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { extractApiErrorMessage } from '@/utils/apiError'
+import { validatePdfFile } from '@/utils/fileValidation'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store'
 import type { LoginCredentials, StudentRegisterData, TutorRegisterData } from '../types'
@@ -136,6 +137,22 @@ export function useAuth() {
   }
 
   async function registerStudent(studentData: StudentRegisterData): Promise<boolean> {
+    if (!studentData.fotografia) {
+      errorMessage.value = 'La fotografía reciente es obligatoria para registrarte.'
+      return false
+    }
+
+    if (!(studentData.documentoCarnet instanceof File)) {
+      errorMessage.value = 'El archivo PDF con tu carnet escaneado es obligatorio para registrarte.'
+      return false
+    }
+
+    const pdfError = validatePdfFile(studentData.documentoCarnet)
+    if (pdfError) {
+      errorMessage.value = pdfError
+      return false
+    }
+
     if (!validateCarnet(studentData.carnet)) {
       errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
       return false
@@ -206,6 +223,18 @@ export function useAuth() {
 
     if (!tutorData.fotografia) {
       errorMessage.value = 'La fotografía de perfil es obligatoria para el registro de tutor.'
+      return false
+    }
+
+    if (!(tutorData.documentoCv instanceof File)) {
+      errorMessage.value =
+        'El archivo PDF con tu currículum vitae (CV) es obligatorio para registrarte.'
+      return false
+    }
+
+    const cvPdfError = validatePdfFile(tutorData.documentoCv)
+    if (cvPdfError) {
+      errorMessage.value = cvPdfError
       return false
     }
 

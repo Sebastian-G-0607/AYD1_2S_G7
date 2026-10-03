@@ -7,11 +7,18 @@ import {
   BaseSelect,
   BaseAlert,
   BaseAvatarUpload,
+  BaseFileUpload,
   type SelectOption
 } from '@/components/ui'
 import PasswordRequirements from './PasswordRequirements.vue'
 import { useAuth } from '../composables/useAuth'
 import type { StudentRegisterData } from '../types'
+import {
+  MAX_IMAGE_SIZE_MB,
+  MAX_PDF_SIZE_MB,
+  validateImageFile,
+  validatePdfFile
+} from '@/utils/fileValidation'
 
 const formData = reactive<StudentRegisterData>({
   nombre: '',
@@ -24,7 +31,8 @@ const formData = reactive<StudentRegisterData>({
   correo: '',
   password: '',
   confirmPassword: '',
-  fotografia: null
+  fotografia: null,
+  documentoCarnet: null
 })
 
 const genderOptions: SelectOption[] = [
@@ -52,14 +60,35 @@ const carnetTouchedError = ref<string | null>(null)
 const phoneTouchedError = ref<string | null>(null)
 const birthDateTouchedError = ref<string | null>(null)
 
+const isFileErrorMessage = (message: string): boolean => {
+  const lower = message.toLowerCase()
+  return lower.includes('pdf') || lower.includes('fotograf')
+}
+
 const carnetError = computed(() => {
   if (carnetTouchedError.value) return carnetTouchedError.value
   if (!errorMessage.value) return undefined
   const lower = errorMessage.value.toLowerCase()
-  if (lower.includes('carnet')) {
+  if (lower.includes('carnet') && !isFileErrorMessage(errorMessage.value)) {
     return errorMessage.value
   }
   return undefined
+})
+
+const photoTouchedError = ref<string | null>(null)
+const carnetPdfTouchedError = ref<string | null>(null)
+const avatarUploadRef = ref<InstanceType<typeof BaseAvatarUpload> | null>(null)
+
+const photoError = computed(() => {
+  if (photoTouchedError.value) return photoTouchedError.value
+  if (!errorMessage.value) return undefined
+  return errorMessage.value.toLowerCase().includes('fotograf') ? errorMessage.value : undefined
+})
+
+const carnetPdfError = computed(() => {
+  if (carnetPdfTouchedError.value) return carnetPdfTouchedError.value
+  if (!errorMessage.value) return undefined
+  return errorMessage.value.toLowerCase().includes('pdf') ? errorMessage.value : undefined
 })
 
 const phoneError = computed(() => {
@@ -129,8 +158,45 @@ const onBirthDateBlur = () => {
   }
 }
 
+const onPhotoSelected = (value: File | string | null) => {
+  if (value instanceof File) {
+    const validationMessage = validateImageFile(value)
+    if (validationMessage) {
+      // Se conserva la fotografía anterior (si había una) y se informa el motivo del rechazo.
+      photoTouchedError.value = `No se aceptó "${value.name}". ${validationMessage}`
+      return
+    }
+  }
+  formData.fotografia = value
+  photoTouchedError.value = null
+  if (errorMessage.value && isFileErrorMessage(errorMessage.value)) clearError()
+}
+
+const removePhoto = () => {
+  formData.fotografia = null
+  photoTouchedError.value = null
+}
+
+const onCarnetPdfSelected = (file: File | null) => {
+  formData.documentoCarnet = file
+  carnetPdfTouchedError.value = null
+  if (errorMessage.value && isFileErrorMessage(errorMessage.value)) clearError()
+}
+
+const validateRequiredFiles = (): boolean => {
+  photoTouchedError.value = formData.fotografia ? null : 'La fotografía reciente es obligatoria.'
+  carnetPdfTouchedError.value = formData.documentoCarnet
+    ? null
+    : 'El archivo PDF con tu carnet escaneado es obligatorio.'
+  return !photoTouchedError.value && !carnetPdfTouchedError.value
+}
+
 const handleSubmit = async () => {
   if (passwordMismatch.value) return
+  if (!validateRequiredFiles()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   const success = await registerStudent({ ...formData })
   if (!success) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -164,9 +230,50 @@ const handleSubmit = async () => {
         <p class="text-base text-on-surface-variant font-body">
           Completa los campos detallados a continuación para registrar tu cuenta de estudiante.
         </p>
+
+        <div class="mt-4 space-y-1">
+          <p class="text-sm font-semibold text-on-surface">
+            Fotografía reciente <span class="text-error">*</span>
+          </p>
+          <p class="text-xs text-on-surface-variant">
+            Formato JPG, PNG o WEBP, máximo {{ MAX_IMAGE_SIZE_MB }} MB. Haz clic en la imagen para
+            elegirla o cambiarla.
+          </p>
+          <div class="flex items-center gap-4 pt-1">
+            <button
+              type="button"
+              class="text-sm font-semibold text-secondary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded"
+              @click="avatarUploadRef?.openFileDialog()"
+            >
+              {{ formData.fotografia ? 'Cambiar fotografía' : 'Elegir fotografía' }}
+            </button>
+            <button
+              v-if="formData.fotografia"
+              type="button"
+              class="text-sm font-semibold text-error hover:underline focus:outline-none focus:ring-2 focus:ring-error rounded"
+              @click="removePhoto"
+            >
+              Quitar fotografía
+            </button>
+          </div>
+          <p
+            v-if="photoError"
+            data-testid="foto-error"
+            aria-live="polite"
+            class="flex items-start gap-1 text-xs text-error font-medium pt-1"
+          >
+            <span class="material-symbols-outlined text-[16px]">info</span>
+            <span>{{ photoError }}</span>
+          </p>
+        </div>
       </div>
 
-      <BaseAvatarUpload v-model="formData.fotografia" alt="Foto de perfil del estudiante" />
+      <BaseAvatarUpload
+        ref="avatarUploadRef"
+        :model-value="formData.fotografia"
+        alt="Foto de perfil del estudiante"
+        @update:model-value="onPhotoSelected"
+      />
     </div>
 
     <form class="space-y-10" @submit.prevent="handleSubmit">
@@ -271,6 +378,26 @@ const handleSubmit = async () => {
             />
           </div>
         </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="flex items-center gap-3 border-b border-outline-variant/30 pb-3">
+          <span class="material-symbols-outlined text-primary text-[24px]">description</span>
+          <h2 class="text-xl font-bold text-on-surface font-headline">Documentos</h2>
+        </div>
+
+        <BaseFileUpload
+          id="carnetPdf"
+          name="documentoCarnet"
+          label="Carnet escaneado (PDF)"
+          accept="application/pdf"
+          required
+          :model-value="formData.documentoCarnet"
+          :error="carnetPdfError"
+          :hint="`Solo archivos PDF, máximo ${MAX_PDF_SIZE_MB} MB. El administrador lo usará para validar tu identidad.`"
+          :validate="validatePdfFile"
+          @update:model-value="onCarnetPdfSelected"
+        />
       </div>
 
       <div class="space-y-6">

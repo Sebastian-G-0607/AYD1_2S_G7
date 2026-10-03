@@ -20,12 +20,15 @@ export interface TutorFormData {
   password: string
   confirmPassword: string
   fotoPath?: string
+  cvPdfPath?: string
 }
 
 export class TutorRegisterPage extends BasePage {
   readonly heading: Locator
   readonly avatarInput: Locator
   readonly avatarImage: Locator
+  readonly cvPdfInput: Locator
+  readonly cvPdfError: Locator
   readonly nombreInput: Locator
   readonly apellidoInput: Locator
   readonly carnetInput: Locator
@@ -49,8 +52,10 @@ export class TutorRegisterPage extends BasePage {
   constructor(page: Page) {
     super(page)
     this.heading = page.locator('h1', { hasText: 'Registro de Tutor' })
-    this.avatarInput = page.locator('input[type="file"]')
+    this.avatarInput = page.locator('input[type="file"][accept="image/*"]')
     this.avatarImage = page.locator('img[alt="Foto de perfil del tutor"]')
+    this.cvPdfInput = page.locator('#cvPdf')
+    this.cvPdfError = page.getByTestId('cvPdf-error')
     this.nombreInput = page.locator('#nombre')
     this.apellidoInput = page.locator('#apellido')
     this.carnetInput = page.locator('#carnetId')
@@ -80,6 +85,10 @@ export class TutorRegisterPage extends BasePage {
   async uploadPhoto(filePath: string): Promise<void> {
     await this.avatarInput.setInputFiles(filePath)
     await expect(this.avatarImage).toHaveAttribute('src', /^blob:/)
+  }
+
+  async uploadCvPdf(filePath: string): Promise<void> {
+    await this.cvPdfInput.setInputFiles(filePath)
   }
 
   async selectMateria(materiaName: string): Promise<void> {
@@ -117,6 +126,9 @@ export class TutorRegisterPage extends BasePage {
     }
     await this.correoInput.fill(data.correo)
     await this.passwordInput.fill(data.password)
+    if (data.cvPdfPath) {
+      await this.uploadCvPdf(data.cvPdfPath)
+    }
     await this.confirmPasswordInput.fill(data.confirmPassword)
   }
 

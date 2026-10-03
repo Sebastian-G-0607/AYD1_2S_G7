@@ -28,7 +28,7 @@ public static class RegistrarTutorEndpoint
             .ExcludeFromDescription();
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         [FromForm] RegistrarTutorRequestDto request,
         edu_connect_serviceContext dbContext,
         IS3Service s3Service,
@@ -133,6 +133,33 @@ public static class RegistrarTutorEndpoint
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Fotografía inválida",
                 detail: "El archivo de fotografía debe ser una imagen válida (.jpg, .jpeg, .png, .webp)."
+            );
+        }
+
+        if (request.DocumentoCv is null || request.DocumentoCv.Length == 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Currículum PDF obligatorio",
+                detail: "El archivo PDF con el currículum vitae (CV) es obligatorio para completar el registro."
+            );
+        }
+
+        if (!PdfFileValidator.IsValidPdf(request.DocumentoCv))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Currículum PDF inválido",
+                detail: "El currículum vitae debe ser un archivo PDF válido. No se aceptan otros tipos de archivo."
+            );
+        }
+
+        if (PdfFileValidator.ExceedsMaxSize(request.DocumentoCv))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Currículum PDF demasiado grande",
+                detail: $"El archivo PDF del currículum vitae no puede exceder {PdfFileValidator.MaxFileSizeBytes / (1024 * 1024)} MB."
             );
         }
 
@@ -297,17 +324,22 @@ public static class RegistrarTutorEndpoint
             );
         }
 
-        string fotografiaKey;
+        var fotografiaKey = string.Empty;
+        string? documentoCvKey = null;
         try
         {
             fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia!, "tutores", cancellationToken);
+            documentoCvKey = await s3Service.UploadFileAsync(request.DocumentoCv!, "tutores/cv", cancellationToken);
         }
         catch (Exception)
         {
+            await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            await s3Service.DeleteImageAsync(documentoCvKey, CancellationToken.None);
+
             return Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
-                title: "Error al almacenar fotografía",
-                detail: "No se pudo subir la fotografía de perfil al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
+                title: "Error al almacenar archivos",
+                detail: "No se pudieron subir la fotografía y el currículum al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
             );
         }
 
@@ -334,6 +366,7 @@ public static class RegistrarTutorEndpoint
             Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
             FotografiaUrl = fotografiaKey,
+            DocumentoCvUrl = documentoCvKey,
             DireccionTutoria = request.DireccionTutoria.Trim(),
             AnioInicio = request.AnioInicio,
             Universidad = request.Universidad.Trim(),
@@ -378,6 +411,7 @@ public static class RegistrarTutorEndpoint
         {
             await transaction.RollbackAsync(CancellationToken.None);
             await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            await s3Service.DeleteImageAsync(documentoCvKey, CancellationToken.None);
 
             return Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
@@ -409,7 +443,8 @@ public static class RegistrarTutorEndpoint
             estadoPendiente.Nombre,
             usuario.FechaRegistro,
             distinctDias,
-            distinctMateriaIds
+            distinctMateriaIds,
+            s3Service.GeneratePresignedUrl(tutor.DocumentoCvUrl)
         );
 
         return Results.Created($"/api/tutores/{tutor.UsuarioId}", response);

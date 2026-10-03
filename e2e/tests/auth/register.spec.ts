@@ -12,6 +12,7 @@ test.describe('Módulo de Autenticación - Registro y Aprobación de Usuarios', 
 
     await studentRegisterPage.fillForm(STUDENT_TEST_DATA)
 
+    await expect(page.getByText('carnet.pdf', { exact: true })).toBeVisible()
     await expect(studentRegisterPage.nombreInput).toHaveValue(STUDENT_TEST_DATA.nombre)
     await expect(studentRegisterPage.apellidoInput).toHaveValue(STUDENT_TEST_DATA.apellido)
     await expect(studentRegisterPage.carnetInput).toHaveValue(STUDENT_TEST_DATA.carnet)
@@ -25,6 +26,39 @@ test.describe('Módulo de Autenticación - Registro y Aprobación de Usuarios', 
 
     await studentRegisterPage.submit()
     await studentRegisterPage.expectRegistrationSuccess()
+  })
+
+  test('HU-22: el registro de estudiante exige fotografía y carnet en PDF', async ({ page }) => {
+    const studentRegisterPage = new StudentRegisterPage(page)
+    await studentRegisterPage.goto()
+
+    // Criterios 1 y 4: sin fotografía ni carnet PDF no se permite el registro.
+    await studentRegisterPage.fillForm({
+      ...STUDENT_TEST_DATA,
+      fotoPath: undefined,
+      carnetPdfPath: undefined
+    })
+    await studentRegisterPage.submit()
+    await expect(studentRegisterPage.photoError).toContainText('fotografía reciente es obligatoria')
+    await expect(studentRegisterPage.carnetPdfError).toContainText('PDF con tu carnet escaneado')
+    await expect(page).toHaveURL(/\/register\/student/)
+
+    // Criterio 2: el carnet solo acepta PDF, cualquier otro tipo de archivo se rechaza.
+    await studentRegisterPage.uploadCarnetPdf(STUDENT_TEST_DATA.fotoPath)
+    await expect(studentRegisterPage.carnetPdfError).toContainText('Solo se permiten archivos PDF')
+    await expect(page.getByText('estudiante.png', { exact: true })).toHaveCount(0)
+
+    // Criterio 3: se puede corregir el archivo elegido (cambiar y quitar).
+    await studentRegisterPage.uploadCarnetPdf(STUDENT_TEST_DATA.carnetPdfPath)
+    await expect(studentRegisterPage.carnetPdfError).toHaveCount(0)
+    await expect(page.getByText('carnet.pdf', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Quitar Carnet escaneado (PDF)' }).click()
+    await expect(page.getByText('carnet.pdf', { exact: true })).toHaveCount(0)
+
+    await studentRegisterPage.uploadPhoto(STUDENT_TEST_DATA.fotoPath)
+    await expect(studentRegisterPage.photoError).toHaveCount(0)
+    await page.getByRole('button', { name: 'Quitar fotografía' }).click()
+    await expect(studentRegisterPage.avatarImage).not.toHaveAttribute('src', /^blob:/)
   })
 
   test('Registro de tutor', async ({ page }) => {
