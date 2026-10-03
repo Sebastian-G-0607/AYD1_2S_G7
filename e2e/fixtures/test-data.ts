@@ -33,5 +33,6 @@ export const TUTOR_TEST_DATA = {
   correo: 'tutor.e2e@educonnect.com',
   password: 'Password123!',
   confirmPassword: 'Password123!',
-  fotoPath: path.resolve(__dirname, 'images/tutor.png')
+  fotoPath: path.resolve(__dirname, 'images/tutor.png'),
+  cvPdfPath: path.resolve(__dirname, 'documents/cv.pdf')
 }
