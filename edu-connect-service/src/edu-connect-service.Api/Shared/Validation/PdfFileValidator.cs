@@ -4,8 +4,6 @@ namespace edu_connect_service.Api.Shared.Validation;
 
 /// <summary>
 /// Valida que un archivo recibido por formulario sea realmente un documento PDF.
-/// No se confía solo en la extensión ni en el Content-Type (ambos los controla el cliente):
-/// también se verifica la firma "%PDF-" con la que empieza todo archivo PDF.
 /// </summary>
 public static class PdfFileValidator
 {
