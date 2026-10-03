@@ -28,7 +28,7 @@ public static class RegistrarEstudianteEndpoint
             .ExcludeFromDescription();
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         [FromForm] RegistrarEstudianteRequestDto request,
         edu_connect_serviceContext dbContext,
         IS3Service s3Service,
@@ -122,12 +122,48 @@ public static class RegistrarEstudianteEndpoint
             );
         }
 
-        if (request.Fotografia is not null && request.Fotografia.Length > 0 && !ImageFileValidator.IsValidImage(request.Fotografia))
+        if (request.Fotografia is null || request.Fotografia.Length == 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Fotografía obligatoria",
+                detail: "La fotografía reciente del estudiante es obligatoria para completar el registro."
+            );
+        }
+
+        if (!ImageFileValidator.IsValidImage(request.Fotografia))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Fotografía inválida",
                 detail: "El archivo de fotografía debe ser una imagen válida (.jpg, .jpeg, .png, .webp)."
+            );
+        }
+
+        if (request.DocumentoCarnet is null || request.DocumentoCarnet.Length == 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Documento PDF obligatorio",
+                detail: "El archivo PDF con el carnet escaneado es obligatorio para completar el registro."
+            );
+        }
+
+        if (!PdfFileValidator.IsValidPdf(request.DocumentoCarnet))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Documento PDF inválido",
+                detail: "El carnet escaneado debe ser un archivo PDF válido. No se aceptan otros tipos de archivo."
+            );
+        }
+
+        if (PdfFileValidator.ExceedsMaxSize(request.DocumentoCarnet))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Documento PDF demasiado grande",
+                detail: $"El archivo PDF del carnet escaneado no puede exceder {PdfFileValidator.MaxFileSizeBytes / (1024 * 1024)} MB."
             );
         }
 
@@ -211,20 +247,22 @@ public static class RegistrarEstudianteEndpoint
         }
 
         string? fotografiaKey = null;
-        if (request.Fotografia is not null && request.Fotografia.Length > 0)
+        string? documentoCarnetKey = null;
+        try
         {
-            try
-            {
-                fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia, "estudiantes", cancellationToken);
-            }
-            catch (Exception)
-            {
-                return Results.Problem(
-                    statusCode: StatusCodes.Status500InternalServerError,
-                    title: "Error al almacenar fotografía",
-                    detail: "No se pudo subir la fotografía de perfil al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
-                );
-            }
+            fotografiaKey = await s3Service.UploadImageAsync(request.Fotografia!, "estudiantes", cancellationToken);
+            documentoCarnetKey = await s3Service.UploadFileAsync(request.DocumentoCarnet!, "estudiantes/carnets", cancellationToken);
+        }
+        catch (Exception)
+        {
+            await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            await s3Service.DeleteImageAsync(documentoCarnetKey, CancellationToken.None);
+
+            return Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "Error al almacenar archivos",
+                detail: "No se pudieron subir la fotografía y el carnet escaneado al servicio de almacenamiento. La solicitud fue cancelada y ningún dato fue registrado."
+            );
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -248,7 +286,8 @@ public static class RegistrarEstudianteEndpoint
             Direccion = request.Direccion.Trim(),
             Telefono = request.Telefono.Trim(),
             FechaNacimiento = request.FechaNacimiento,
-            FotografiaUrl = fotografiaKey
+            FotografiaUrl = fotografiaKey,
+            DocumentoCarnetUrl = documentoCarnetKey
         };
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -266,10 +305,8 @@ public static class RegistrarEstudianteEndpoint
         catch (Exception)
         {
             await transaction.RollbackAsync(CancellationToken.None);
-            if (!string.IsNullOrWhiteSpace(fotografiaKey))
-            {
-                await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
-            }
+            await s3Service.DeleteImageAsync(fotografiaKey, CancellationToken.None);
+            await s3Service.DeleteImageAsync(documentoCarnetKey, CancellationToken.None);
 
             return Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
@@ -293,7 +330,8 @@ public static class RegistrarEstudianteEndpoint
             usuario.Correo,
             rolEstudiante.Nombre,
             estadoPendiente.Nombre,
-            usuario.FechaRegistro
+            usuario.FechaRegistro,
+            s3Service.GeneratePresignedUrl(estudiante.DocumentoCarnetUrl)
         );
 
         return Results.Created($"/api/estudiantes/{estudiante.UsuarioId}", response);
