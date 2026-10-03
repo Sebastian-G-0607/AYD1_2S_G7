@@ -4,7 +4,7 @@ import type { StudyPlan } from '../types'
 export const studentStudyPlanPdfService = {
   async downloadPdf(plan: StudyPlan): Promise<Blob> {
     const { data } = await api.post(
-      '/plan-estudio/pdf',
+      '/estudiantes/plan-estudio/pdf',
       {
         fechaUltimaSesion: plan.fechaUltimaSesion,
         tutorNombre: plan.tutorNombre,
