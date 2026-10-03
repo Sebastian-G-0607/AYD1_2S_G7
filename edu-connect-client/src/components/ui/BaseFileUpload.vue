@@ -40,7 +40,7 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const localError = ref<string | null>(null)
 const isDragging = ref(false)
 
-const displayError = computed(() => props.error || localError.value)
+const displayError = computed(() => localError.value || props.error)
 const errorId = computed(() => `${props.id}-error`)
 const hintId = computed(() => `${props.id}-hint`)
 
