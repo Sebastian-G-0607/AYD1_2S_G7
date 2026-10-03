@@ -75,6 +75,7 @@ export interface TutorRegisterData {
   telefono: string
   fechaNacimiento: string
   fotografia?: File | string | null
+  documentoCv?: File | null
   direccionTutoria: string
   anioInicio: number | string
   universidad: string
@@ -98,6 +99,7 @@ export interface TutorResponseDto {
   telefono: string
   fechaNacimiento: string
   fotografiaUrl: string
+  documentoCvUrl?: string
   direccionTutoria: string
   anioInicio: number
   universidad: string

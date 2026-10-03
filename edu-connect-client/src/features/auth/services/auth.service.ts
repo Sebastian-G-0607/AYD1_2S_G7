@@ -139,6 +139,10 @@ export const authService = {
       formData.append('fotografia', tutorData.fotografia)
     }
 
+    if (tutorData.documentoCv instanceof File) {
+      formData.append('documentoCv', tutorData.documentoCv)
+    }
+
     tutorData.materiasIds.forEach(id => {
       formData.append('materiasIds', String(id))
     })

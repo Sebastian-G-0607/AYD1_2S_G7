@@ -226,6 +226,18 @@ export function useAuth() {
       return false
     }
 
+    if (!(tutorData.documentoCv instanceof File)) {
+      errorMessage.value =
+        'El archivo PDF con tu currículum vitae (CV) es obligatorio para registrarte.'
+      return false
+    }
+
+    const cvPdfError = validatePdfFile(tutorData.documentoCv)
+    if (cvPdfError) {
+      errorMessage.value = cvPdfError
+      return false
+    }
+
     if (!tutorData.materiasIds || tutorData.materiasIds.length === 0) {
       errorMessage.value = 'Debes seleccionar al menos una materia de especialidad.'
       return false

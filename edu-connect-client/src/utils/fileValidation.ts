@@ -11,11 +11,6 @@ function getExtension(fileName: string): string {
   return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : ''
 }
 
-/**
- * Un archivo se considera PDF si su extensión es .pdf y su tipo MIME es de PDF
- * (algunos navegadores/sistemas no informan el tipo MIME, en ese caso se acepta solo por extensión).
- * La validación definitiva del contenido real la realiza el backend.
- */
 export function isPdfFile(file: File): boolean {
   const hasPdfExtension = getExtension(file.name) === '.pdf'
   const hasPdfMimeType = file.type === '' || PDF_MIME_TYPES.includes(file.type)
