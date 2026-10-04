@@ -19,9 +19,14 @@ export interface TutorDashboardStats {
 
 export interface CompleteSessionPayload {
   sesionId: number
-  resumen: string
-  recomendaciones?: string
-  enviarCopiaCorreo?: boolean
+  dificultadesIdentificadas: string
+  recursos: CompleteSessionResourcePayload[]
+}
+
+export interface CompleteSessionResourcePayload {
+  nombre: string
+  tipo: string
+  descripcionUso: string
 }
 
 export interface CancelSessionRequest {
