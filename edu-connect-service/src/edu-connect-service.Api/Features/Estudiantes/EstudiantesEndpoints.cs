@@ -1,6 +1,7 @@
 using edu_connect_service.Api.Features.Estudiantes.RegistrarEstudiante;
 using edu_connect_service.Api.Features.Estudiantes.HistorialSesiones;
 using edu_connect_service.Api.Features.Estudiantes.ImprimirPlanEstudio;
+using edu_connect_service.Api.Features.Estudiantes.ObtenerPlanEstudio;
 using edu_connect_service.Api.Features.Estudiantes.Perfil;
 using edu_connect_service.Api.Features.Sesiones.ObtenerSesionesActivas;
 using edu_connect_service.Api.Features.Sesiones.CancelarSesionEstudiante;
@@ -16,6 +17,7 @@ public static class EstudiantesEndpoints
         apiGroup.MapRegistrarEstudiante();
         apiGroup.MapHistorialSesionesEstudiante();
         apiGroup.MapImprimirPlanEstudio();
+        apiGroup.MapObtenerPlanEstudio();
         apiGroup.MapPerfilEstudiante();
         apiGroup.MapObtenerSesionesActivasEstudiante();
         apiGroup.MapCancelarSesionEstudianteSubruta();
@@ -25,6 +27,7 @@ public static class EstudiantesEndpoints
         rootGroup.MapRegistrarEstudiante();
         rootGroup.MapHistorialSesionesEstudiante();
         rootGroup.MapImprimirPlanEstudio();
+        rootGroup.MapObtenerPlanEstudio();
         rootGroup.MapPerfilEstudiante();
         rootGroup.MapObtenerSesionesActivasEstudiante();
         rootGroup.MapCancelarSesionEstudianteSubruta();
