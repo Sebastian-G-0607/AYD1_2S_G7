@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { BaseButton, BaseModal } from '@/components/ui'
 import type { TutorSession } from '../types'
+
+interface StudyResourceForm {
+  nombre: string
+  tipo: string
+  descripcionUso: string
+}
 
 interface Props {
   modelValue: boolean
@@ -14,9 +20,8 @@ interface Emits {
   (
     e: 'submit',
     payload: {
-      resumen: string
-      recomendaciones: string
-      enviarCopiaCorreo: boolean
+      dificultadesIdentificadas: string
+      recursos: StudyResourceForm[]
     }
   ): void
 }
@@ -24,26 +29,56 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+function createResource(): StudyResourceForm {
+  return { nombre: '', tipo: '', descripcionUso: '' }
+}
+
 const form = reactive({
-  resumen: '',
-  recomendaciones: '',
-  enviarCopiaCorreo: true
+  dificultadesIdentificadas: '',
+  recursos: [createResource()]
 })
+
+const isFormValid = computed(() =>
+  form.dificultadesIdentificadas.trim().length > 0 &&
+  form.recursos.length > 0 &&
+  form.recursos.every(
+    resource =>
+      resource.nombre.trim().length > 0 &&
+      resource.tipo.trim().length > 0 &&
+      resource.descripcionUso.trim().length > 0
+  )
+)
 
 watch(
   () => props.modelValue,
   isOpen => {
     if (isOpen) {
-      form.resumen = ''
-      form.recomendaciones = ''
-      form.enviarCopiaCorreo = true
+      form.dificultadesIdentificadas = ''
+      form.recursos.splice(0, form.recursos.length, createResource())
     }
   }
 )
 
+function addResource() {
+  form.recursos.push(createResource())
+}
+
+function removeResource(index: number) {
+  if (form.recursos.length > 1) {
+    form.recursos.splice(index, 1)
+  }
+}
+
 function handleSubmit() {
-  if (!form.resumen.trim()) return
-  emit('submit', { ...form })
+  if (!isFormValid.value) return
+  emit('submit', {
+    dificultadesIdentificadas: form.dificultadesIdentificadas.trim(),
+    recursos: form.recursos.map(resource => ({
+      nombre: resource.nombre.trim(),
+      tipo: resource.tipo.trim(),
+      descripcionUso: resource.descripcionUso.trim()
+    }))
+  })
 }
 </script>
 
@@ -71,52 +106,95 @@ function handleSubmit() {
         </div>
       </div>
 
-      <p class="text-sm text-on-surface-variant font-body">
-        Proporciona un breve resumen de la sesión y recomendaciones para el estudiante.
-      </p>
-
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label for="complete-resumen" class="text-xs font-semibold text-on-surface"
-            >Resumen de la sesión *</label
+          <label for="complete-difficulties" class="text-xs font-semibold text-on-surface"
+            >Dificultades identificadas *</label
           >
           <textarea
-            id="complete-resumen"
-            v-model="form.resumen"
+            id="complete-difficulties"
+            v-model="form.dificultadesIdentificadas"
             rows="3"
-            placeholder="Temas cubiertos, dudas resueltas..."
+            placeholder="Describe las dificultades observadas durante la tutoría..."
             required
             class="w-full bg-surface-container-low text-on-surface px-4 py-3 rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary text-sm resize-none"
           />
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label for="complete-recom" class="text-xs font-semibold text-on-surface"
-            >Recomendaciones para el estudiante</label
-          >
-          <textarea
-            id="complete-recom"
-            v-model="form.recomendaciones"
-            rows="3"
-            placeholder="Ejercicios sugeridos, lecturas adicionales..."
-            class="w-full bg-surface-container-low text-on-surface px-4 py-3 rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary text-sm resize-none"
-          />
-        </div>
+        <section class="flex flex-col gap-3" aria-labelledby="study-resources-title">
+          <div class="flex items-center justify-between gap-3">
+            <h5 id="study-resources-title" class="text-sm font-semibold text-on-surface">
+              Recursos recomendados
+            </h5>
+            <BaseButton variant="outline" size="sm" icon="add" @click="addResource">
+              Agregar recurso
+            </BaseButton>
+          </div>
 
-        <div class="flex items-center gap-2 pt-1">
-          <input
-            id="sendEmailCopy"
-            v-model="form.enviarCopiaCorreo"
-            type="checkbox"
-            class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/40 bg-surface-container cursor-pointer"
-          />
-          <label
-            for="sendEmailCopy"
-            class="text-xs text-on-surface-variant font-medium cursor-pointer"
+          <div
+            v-for="(resource, index) in form.recursos"
+            :key="index"
+            class="flex flex-col gap-3 border border-outline-variant/40 rounded-lg p-4"
           >
-            Enviar copia del resumen al estudiante
-          </label>
-        </div>
+            <div class="flex items-center justify-between gap-3">
+              <h6 class="text-sm font-semibold text-on-surface">Recurso {{ index + 1 }}</h6>
+              <button
+                type="button"
+                class="p-2 rounded-md text-on-surface-variant hover:text-error hover:bg-error-container/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="form.recursos.length === 1"
+                :aria-label="`Eliminar recurso ${index + 1}`"
+                :title="form.recursos.length === 1 ? 'Debe conservar al menos un recurso' : 'Eliminar recurso'"
+                @click="removeResource(index)"
+              >
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1.5">
+                <label :for="`resource-name-${index}`" class="text-xs font-semibold text-on-surface">
+                  Nombre del recurso {{ index + 1 }} *
+                </label>
+                <input
+                  :id="`resource-name-${index}`"
+                  v-model="resource.nombre"
+                  required
+                  type="text"
+                  class="w-full bg-surface-container-low text-on-surface px-3 py-2.5 rounded-md border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary text-sm"
+                />
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label :for="`resource-type-${index}`" class="text-xs font-semibold text-on-surface">
+                  Tipo de recurso {{ index + 1 }} *
+                </label>
+                <input
+                  :id="`resource-type-${index}`"
+                  v-model="resource.tipo"
+                  required
+                  type="text"
+                  class="w-full bg-surface-container-low text-on-surface px-3 py-2.5 rounded-md border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary text-sm"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label
+                :for="`resource-usage-${index}`"
+                class="text-xs font-semibold text-on-surface"
+              >
+                Descripción de uso del recurso {{ index + 1 }} *
+              </label>
+              <textarea
+                :id="`resource-usage-${index}`"
+                v-model="resource.descripcionUso"
+                required
+                rows="2"
+                class="w-full bg-surface-container-low text-on-surface px-3 py-2.5 rounded-md border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary text-sm resize-y"
+              />
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -133,7 +211,7 @@ function handleSubmit() {
         variant="primary"
         size="md"
         :loading="loading"
-        :disabled="!form.resumen.trim()"
+        :disabled="!isFormValid"
         @click="handleSubmit"
       >
         <template #iconLeft>
