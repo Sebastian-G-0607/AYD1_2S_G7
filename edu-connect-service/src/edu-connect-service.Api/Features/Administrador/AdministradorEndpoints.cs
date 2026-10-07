@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Features.Administrador.GestionEstudiantes;
+using edu_connect_service.Api.Features.Administrador.GestionReportesUsuarios;
 using edu_connect_service.Api.Features.Administrador.GestionTutores;
 using edu_connect_service.Api.Features.Administrador.GestionUsuarios;
 using edu_connect_service.Api.Features.Administrador.Reportes;
@@ -37,6 +38,14 @@ public static class AdministradorEndpoints
         // Reportes del Sistema (HU-08)
         apiGroup.MapReportes();
 
+        // Gestión de reportes hacia tutores (HU-36)
+        apiGroup.MapListarReportesTutores();
+        apiGroup.MapResolverReporteTutor();
+
+        // Gestión de reportes hacia estudiantes (HU-37)
+        apiGroup.MapListarReportesEstudiantes();
+        apiGroup.MapResolverReporteEstudiante();
+
         var rootGroup = app.MapGroup("/administrador")
             .RequireAuthorization(p => p.RequireRole(AppRoles.Administrador));
 
@@ -56,6 +65,13 @@ public static class AdministradorEndpoints
 
         // Reportes del Sistema (HU-08)
         rootGroup.MapReportes();
+
+        // Gestión de reportes hacia tutores (HU-36)
+        rootGroup.MapListarReportesTutores();
+        rootGroup.MapResolverReporteTutor();
+
+        // Gestión de reportes hacia estudiantes (HU-37)
+        rootGroup.MapListarReportesEstudiantes();
+        rootGroup.MapResolverReporteEstudiante();
     }
 }
-
