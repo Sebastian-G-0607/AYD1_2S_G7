@@ -117,6 +117,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/denuncias',
+    name: 'admin-user-reports',
+    component: () => import('@/pages/AdminUserReportsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Denuncias - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/2fa',
     name: 'admin-2fa',
     component: () => import('@/pages/AdminTwoFactorPage.vue'),
@@ -222,7 +234,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/historial',
     name: 'student-history',
@@ -235,7 +246,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/plan-estudio',
     name: 'student-study-plan',
@@ -248,7 +258,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/mi-perfil',
     name: 'student-profile',
