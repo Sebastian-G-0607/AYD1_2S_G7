@@ -105,6 +105,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/estudiantes/:id/editar',
+    name: 'admin-edit-student',
+    component: () => import('@/pages/AdminEditStudentPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Editar Estudiante - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/reportes',
     name: 'admin-reports',
     component: () => import('@/pages/AdminReportsPage.vue'),

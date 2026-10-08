@@ -18,8 +18,10 @@ public static class AdministradorEndpoints
         apiGroup.MapListarEstudiantesPendientes();
         apiGroup.MapActualizarEstadoEstudiante();
 
-        // Gestión de Estudiantes Activos (HU-07)
+        // Gestión de Estudiantes Activos (HU-07 / HU-34)
         apiGroup.MapListarEstudiantesActivos();
+        apiGroup.MapObtenerEstudiantePorId();
+        apiGroup.MapActualizarEstudiante();
         apiGroup.MapDarBajaEstudiante();
 
         // Gestión de Tutores Pendientes (HU-06)
@@ -52,6 +54,8 @@ public static class AdministradorEndpoints
         rootGroup.MapListarEstudiantesPendientes();
         rootGroup.MapActualizarEstadoEstudiante();
         rootGroup.MapListarEstudiantesActivos();
+        rootGroup.MapObtenerEstudiantePorId();
+        rootGroup.MapActualizarEstudiante();
         rootGroup.MapDarBajaEstudiante();
 
         rootGroup.MapListarTutoresPendientes();

@@ -23,7 +23,8 @@ const {
   dismissFeedback,
   getInitials,
   formatFecha,
-  navigateToEditTutor
+  navigateToEditTutor,
+  navigateToEditStudent
 } = useAdminActiveUsers()
 </script>
 
@@ -324,14 +325,24 @@ const {
 
               <!-- Acciones -->
               <td class="py-3 px-3 text-center whitespace-nowrap">
-                <button
-                  type="button"
-                  class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer whitespace-nowrap shrink-0"
-                  @click="openBajaModal(student, 'estudiante')"
-                >
-                  <span class="material-symbols-outlined text-[16px]">person_remove</span>
-                  <span>Dar de Baja</span>
-                </button>
+                <div class="inline-flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    class="font-label-sm text-label-sm text-primary hover:text-primary-container hover:bg-primary-fixed/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-primary/20 cursor-pointer whitespace-nowrap shrink-0"
+                    @click="navigateToEditStudent(student.id)"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="font-label-sm text-label-sm text-error hover:text-on-error-container hover:bg-error-container/50 px-2.5 py-1.5 rounded-md transition-all inline-flex items-center gap-1 border border-error-container cursor-pointer whitespace-nowrap shrink-0"
+                    @click="openBajaModal(student, 'estudiante')"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">person_remove</span>
+                    <span>Dar de Baja</span>
+                  </button>
+                </div>
               </td>
             </tr>
 

@@ -39,7 +39,8 @@ public record EstudianteActivoResponseDto(
     string? Direccion = null,
     string? Telefono = null,
     DateTime? FechaRegistro = null,
-    string Estado = "APROBADO"
+    string Estado = "APROBADO",
+    string? DocumentoCarnetUrl = null
 );
 
 public record DarBajaEstudianteRequestDto(
@@ -54,3 +55,30 @@ public record DarBajaEstudianteResponseDto(
     string? Motivo,
     string Mensaje
 );
+
+public record ActualizarEstudianteAdminRequestDto(
+    string Nombre,
+    string Apellido,
+    string Carnet,
+    string Genero,
+    DateOnly FechaNacimiento,
+    string Direccion,
+    string? Telefono = null,
+    string? FotografiaUrl = null,
+    string? DocumentoCarnetUrl = null
+);
+
+public record ActualizarEstudianteAdminResponseDto(
+    int Id,
+    string Nombre,
+    string Apellido,
+    string Carnet,
+    string Genero,
+    DateOnly FechaNacimiento,
+    string Correo,
+    string? FotografiaUrl,
+    string Direccion,
+    string? Telefono,
+    string Mensaje,
+    string? DocumentoCarnetUrl = null
+);
