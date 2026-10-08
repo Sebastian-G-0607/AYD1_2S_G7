@@ -140,6 +140,20 @@ export interface TutorAtencionesReporteItem {
   totalEstudiantesAtendidos: number
 }
 
+export interface EstudianteSesionesReporteItem {
+  estudianteId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string
+  totalSesionesProgramadas: number
+  sesionesAtendidas: number
+  sesionesCanceladas: number
+  sesionesPendientes: number
+}
+
 export interface MateriaDemandaReporteItem {
   materiaId: number
   nombreMateria: string
@@ -148,6 +162,27 @@ export interface MateriaDemandaReporteItem {
   sesionesPendientes: number
   sesionesCanceladas: number
   porcentajeDemanda: number
+}
+
+export interface MateriaCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesCanceladas: number
+  sesionesAtendidas: number
+  sesionesPendientes: number
+  tasaCancelacion: number
+}
+
+export interface MateriaAsistenciaVsCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesAtendidas: number
+  sesionesCanceladas: number
+  sesionesPendientes: number
+  tasaAsistencia: number
+  tasaCancelacion: number
 }
 
 export interface ReportesResumen {
@@ -177,11 +212,8 @@ export interface EstudianteCalificacionReporteItem {
   promedioCalificacion: number
 }
 
-export type ReportsTabType = 'todos' | 'tutores' | 'materias' | 'estudiantes'
+export type ReportsTabType = 'general' | 'todos' | 'tutores' | 'estudiantes' | 'materias'
 
-// ==========================================
-// HU-38: CALIFICACIÓN DE TUTORES
-// ==========================================
 export interface CalificacionTutorReporteItem {
   tutorId: number
   nombreCompleto: string

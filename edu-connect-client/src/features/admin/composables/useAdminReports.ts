@@ -3,15 +3,21 @@ import { adminService } from '../services/admin.service'
 import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
+  MateriaCancelacionReporteItem,
+  MateriaAsistenciaVsCancelacionReporteItem,
+  EstudianteSesionesReporteItem,
+  EstudianteCalificacionReporteItem,
   ReportesResumen,
-  ReportsTabType,
-  EstudianteCalificacionReporteItem
+  ReportsTabType
 } from '../types'
 
 export function useAdminReports() {
   const tutoresReport = ref<TutorAtencionesReporteItem[]>([])
   const materiasReport = ref<MateriaDemandaReporteItem[]>([])
-  const estudiantesReport = ref<EstudianteCalificacionReporteItem[]>([])
+  const cancelacionesReport = ref<MateriaCancelacionReporteItem[]>([])
+  const asistenciaVsCancelacionReport = ref<MateriaAsistenciaVsCancelacionReporteItem[]>([])
+  const estudiantesReport = ref<EstudianteSesionesReporteItem[]>([])
+  const estudiantesCalificacionesReport = ref<EstudianteCalificacionReporteItem[]>([])
   const resumen = ref<ReportesResumen>({
     totalSesiones: 0,
     totalSesionesAtendidas: 0,
@@ -29,22 +35,19 @@ export function useAdminReports() {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const selectedPeriod = ref<'7d' | '30d' | '90d' | 'all'>('30d')
-  const selectedTab = ref<ReportsTabType>('todos')
+  const selectedTab = ref<ReportsTabType>('general')
   const searchQuery = ref('')
 
-  // Máximo valor de atenciones para escalar las barras verticalmente (con mínimo de 1 para evitar división por cero)
   const maxAtencionesTutor = computed(() => {
     if (tutoresReport.value.length === 0) return 1
     return Math.max(...tutoresReport.value.map(t => t.totalSesionesAtendidas), 1)
   })
 
-  // Total acumulado de estudiantes atendidos
   const totalEstudiantesAtendidos = computed(() => {
     if (tutoresReport.value.length === 0) return 0
     return tutoresReport.value.reduce((acc, t) => acc + t.totalEstudiantesAtendidos, 0)
   })
 
-  // Paleta de colores para el gráfico Donut y Barras (Tokens de Stitch)
   const donutPalette = [
     {
       name: 'primary',
@@ -78,9 +81,8 @@ export function useAdminReports() {
     }
   ]
 
-  // Cálculo geométrico de los arcos del gráfico SVG Donut
   const donutSegments = computed(() => {
-    const circumference = 2 * Math.PI * 40 // ~251.327
+    const circumference = 2 * Math.PI * 40
     let accumulatedOffset = 0
 
     return materiasReport.value.map((item, idx) => {
@@ -100,7 +102,6 @@ export function useAdminReports() {
     })
   })
 
-  // Filtros de búsqueda para las tablas
   const filteredTutores = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return tutoresReport.value
@@ -118,10 +119,33 @@ export function useAdminReports() {
     return materiasReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
+  const filteredCancelaciones = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return cancelacionesReport.value
+    return cancelacionesReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
+  })
+
+  const filteredAsistenciaVsCancelacion = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return asistenciaVsCancelacionReport.value
+    return asistenciaVsCancelacionReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
+  })
+
   const filteredEstudiantes = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return estudiantesReport.value
     return estudiantesReport.value.filter(
+      e =>
+        e.nombreCompleto.toLowerCase().includes(q) ||
+        e.carnet.toLowerCase().includes(q) ||
+        e.correo.toLowerCase().includes(q)
+    )
+  })
+
+  const filteredEstudiantesCalificaciones = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return estudiantesCalificacionesReport.value
+    return estudiantesCalificacionesReport.value.filter(
       e =>
         e.nombreCompleto.toLowerCase().includes(q) ||
         e.carnet.toLowerCase().includes(q) ||
@@ -134,17 +158,31 @@ export function useAdminReports() {
     error.value = null
 
     try {
-      const [resumenData, tutoresData, materiasData, estudiantesData] = await Promise.all([
+      const [
+        resumenData,
+        tutoresData,
+        materiasData,
+        cancelacionesData,
+        asistenciaVsCancelacionData,
+        estudiantesData,
+        estudiantesCalificacionesData
+      ] = await Promise.all([
         adminService.getReportesResumen(),
         adminService.getTutoresMasAtendidos(10),
         adminService.getMateriasMayorDemanda(10),
+        adminService.getMateriasMayorCancelacion(10),
+        adminService.getMateriasAsistenciaVsCancelacion(10),
+        adminService.getEstudiantesMasSesiones(10),
         adminService.getEstudiantesCalificaciones()
       ])
 
       resumen.value = resumenData
       tutoresReport.value = tutoresData
       materiasReport.value = materiasData
+      cancelacionesReport.value = cancelacionesData
+      asistenciaVsCancelacionReport.value = asistenciaVsCancelacionData
       estudiantesReport.value = estudiantesData
+      estudiantesCalificacionesReport.value = estudiantesCalificacionesData
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Error al cargar los datos de reportes'
     } finally {
@@ -152,7 +190,6 @@ export function useAdminReports() {
     }
   }
 
-  // Exportar reporte a formato CSV
   function exportReport() {
     const rows = [
       ['=== REPORTE DE GESTIÓN ACADÉMICA EDUCONNECT ==='],
@@ -182,9 +219,44 @@ export function useAdminReports() {
         `${m.porcentajeDemanda}%`
       ]),
       [''],
+      ['=== MATERIAS CON MAYOR TASA DE CANCELACIÓN ==='],
+      ['Materia', 'Total Sesiones', 'Canceladas', 'Atendidas', 'Pendientes', '% Tasa Cancelación'],
+      ...cancelacionesReport.value.map(c => [
+        c.nombreMateria,
+        c.totalSesiones.toString(),
+        c.sesionesCanceladas.toString(),
+        c.sesionesAtendidas.toString(),
+        c.sesionesPendientes.toString(),
+        `${c.tasaCancelacion}%`
+      ]),
+      [''],
+      ['=== TASA DE ASISTENCIA VS. CANCELACIÓN POR MATERIA ==='],
+      ['Materia', 'Total Sesiones', 'Atendidas', 'Canceladas', 'Pendientes', '% Asistencia', '% Cancelación'],
+      ...asistenciaVsCancelacionReport.value.map(ac => [
+        ac.nombreMateria,
+        ac.totalSesiones.toString(),
+        ac.sesionesAtendidas.toString(),
+        ac.sesionesCanceladas.toString(),
+        ac.sesionesPendientes.toString(),
+        `${ac.tasaAsistencia}%`,
+        `${ac.tasaCancelacion}%`
+      ]),
+      [''],
+      ['=== ESTUDIANTES CON MÁS SESIONES PROGRAMADAS ==='],
+      ['Estudiante', 'Carnet', 'Correo', 'Sesiones Programadas', 'Sesiones Atendidas', 'Sesiones Canceladas', 'Sesiones Pendientes'],
+      ...estudiantesReport.value.map(e => [
+        e.nombreCompleto,
+        e.carnet,
+        e.correo,
+        e.totalSesionesProgramadas.toString(),
+        e.sesionesAtendidas.toString(),
+        e.sesionesCanceladas.toString(),
+        e.sesionesPendientes.toString()
+      ]),
+      [''],
       ['=== CALIFICACION CONSOLIDADA DE ESTUDIANTES ==='],
       ['Estudiante', 'Carnet', 'Correo', 'Sesiones Atendidas', 'Evaluaciones', 'Promedio Calificacion'],
-      ...estudiantesReport.value.map(e => [
+      ...estudiantesCalificacionesReport.value.map(e => [
         e.nombreCompleto,
         e.carnet,
         e.correo,
@@ -214,7 +286,10 @@ export function useAdminReports() {
   return {
     tutoresReport,
     materiasReport,
+    cancelacionesReport,
+    asistenciaVsCancelacionReport,
     estudiantesReport,
+    estudiantesCalificacionesReport,
     resumen,
     isLoading,
     error,
@@ -226,7 +301,10 @@ export function useAdminReports() {
     donutSegments,
     filteredTutores,
     filteredMaterias,
+    filteredCancelaciones,
+    filteredAsistenciaVsCancelacion,
     filteredEstudiantes,
+    filteredEstudiantesCalificaciones,
     loadReports,
     exportReport
   }
