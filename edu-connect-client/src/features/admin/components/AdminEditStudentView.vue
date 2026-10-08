@@ -348,43 +348,46 @@ const {
               </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="flex flex-col gap-2">
-                <label class="font-label-md text-label-md text-on-surface" for="fotografiaUrl">
-                  URL de Fotografía
-                </label>
-                <input
-                  id="fotografiaUrl"
-                  v-model="formData.fotografiaUrl"
-                  type="url"
-                  placeholder="https://..."
-                  class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all border-none"
-                />
+            <div class="flex flex-col gap-2">
+              <label class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[18px]">badge</span>
+                Carnet Escaneado (Documento de Identificación)
+                <span class="text-xs text-on-surface-variant font-normal">(Solo lectura)</span>
+              </label>
+
+              <div
+                v-if="formData.documentoCarnetUrl"
+                class="flex items-center justify-between p-3.5 bg-surface-container-low rounded-xl border border-surface-container"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-error text-[24px]">picture_as_pdf</span>
+                  <div class="flex flex-col">
+                    <span class="font-label-md text-label-md text-on-surface font-semibold">
+                      Documento PDF de carnet
+                    </span>
+                    <span class="text-xs text-on-surface-variant">
+                      Archivo adjunto por el estudiante durante el registro inicial.
+                    </span>
+                  </div>
+                </div>
+
+                <a
+                  :href="formData.documentoCarnetUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all font-label-sm text-label-sm font-semibold cursor-pointer whitespace-nowrap"
+                >
+                  <span class="material-symbols-outlined text-[16px]">visibility</span>
+                  <span>Ver documento</span>
+                </a>
               </div>
 
-              <div class="flex flex-col gap-2">
-                <label class="font-label-md text-label-md text-on-surface" for="documentoCarnetUrl">
-                  Carnet Escaneado (PDF)
-                </label>
-                <div class="flex items-center gap-2">
-                  <input
-                    id="documentoCarnetUrl"
-                    v-model="formData.documentoCarnetUrl"
-                    type="url"
-                    placeholder="URL del documento PDF"
-                    class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all border-none text-xs"
-                  />
-                  <a
-                    v-if="formData.documentoCarnetUrl"
-                    :href="formData.documentoCarnetUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="p-3 bg-surface-container-low hover:bg-surface-container text-primary rounded-lg transition-colors flex items-center justify-center shrink-0"
-                    title="Ver carnet escaneado"
-                  >
-                    <span class="material-symbols-outlined text-[20px]">visibility</span>
-                  </a>
-                </div>
+              <div
+                v-else
+                class="p-3.5 bg-surface-container-low rounded-xl border border-surface-container text-xs text-on-surface-variant flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-[18px] text-outline-variant">info</span>
+                <span>No hay documento de carnet en formato PDF registrado para este estudiante.</span>
               </div>
             </div>
 
