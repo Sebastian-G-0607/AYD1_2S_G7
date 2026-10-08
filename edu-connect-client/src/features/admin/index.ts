@@ -4,6 +4,7 @@ export { default as AdminApprovalsTutorList } from './components/AdminApprovalsT
 export { default as AdminActiveUsersView } from './components/AdminActiveUsersView.vue'
 export { default as AdminEditTutorView } from './components/AdminEditTutorView.vue'
 export { default as AdminReportsView } from './components/AdminReportsView.vue'
+export { default as AdminUserReportsView } from './components/AdminUserReportsView.vue'
 export { useAdminApprovals } from './composables/useAdminApprovals'
 export { useStudentApprovals } from './composables/useStudentApprovals'
 export { useAdminActiveUsers } from './composables/useAdminActiveUsers'
