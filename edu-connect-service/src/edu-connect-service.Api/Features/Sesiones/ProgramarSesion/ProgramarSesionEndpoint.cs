@@ -74,6 +74,8 @@ public static class ProgramarSesionEndpoint
 
         var estudiante = await dbContext.Estudiantes
             .AsNoTracking()
+            .Include(e => e.Usuario)
+                .ThenInclude(u => u.Estado)
             .FirstOrDefaultAsync(
                 estudiante => estudiante.UsuarioId == idUsuario,
                 cancellationToken
@@ -85,6 +87,15 @@ public static class ProgramarSesionEndpoint
                 statusCode: StatusCodes.Status404NotFound,
                 title: "Estudiante no encontrado",
                 detail: "No existe información de estudiante asociada al usuario autenticado."
+            );
+        }
+
+        if (estudiante.Usuario != null && estudiante.Usuario.Estado != null && estudiante.Usuario.Estado.Nombre != "APROBADO")
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Estudiante inactivo",
+                detail: "Su cuenta no se encuentra activa para programar sesiones."
             );
         }
 
