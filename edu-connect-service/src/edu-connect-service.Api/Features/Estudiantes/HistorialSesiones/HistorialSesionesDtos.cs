@@ -8,5 +8,6 @@ public record HistorialSesionEstudianteResponseDto(
     string DireccionTutoria,
     string Motivo,
     string? Resumen,
-    string Estado
+    string Estado,
+    bool YaReportada = false
 );

@@ -18,6 +18,7 @@ import type {
   UpdateStudentAdminPayload,
   UpdateStudentAdminResponse,
   EstudianteCalificacionReporteItem,
+  CalificacionTutorReporteItem,
   TutorReportItem,
   StudentReportItem,
   ResolveReportResponse
@@ -546,6 +547,21 @@ export const adminService = {
           materiaTopSesiones: 350
         }
       }
+    }
+  },
+
+  async getCalificacionTutores(): Promise<CalificacionTutorReporteItem[]> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.get<CalificacionTutorReporteItem[]>(
+        `${basePath}/reportes/calificacion-tutores`
+      )
+      return data
+    } catch {
+      const { data } = await api.get<CalificacionTutorReporteItem[]>(
+        '/administrador/reportes/calificacion-tutores'
+      )
+      return data
     }
   },
 

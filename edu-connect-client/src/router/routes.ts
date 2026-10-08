@@ -141,6 +141,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/calificaciones-tutores',
+    name: 'admin-tutor-ratings',
+    component: () => import('@/pages/AdminTutorRatingsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Calificación de Tutores - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/2fa',
     name: 'admin-2fa',
     component: () => import('@/pages/AdminTwoFactorPage.vue'),
