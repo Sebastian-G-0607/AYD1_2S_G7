@@ -72,6 +72,7 @@ export interface ActiveStudentItem {
   telefono?: string
   fechaRegistro?: string
   estado?: string
+  documentoCarnetUrl?: string | null
 }
 
 export interface ActiveTutorItem {
@@ -203,4 +204,34 @@ export interface UpdateTutorAdminResponse {
   direccion?: string
   telefono?: string
   mensaje: string
+}
+
+// ==========================================
+// HU-34: VER Y ACTUALIZAR ESTUDIANTE (ADMIN)
+// ==========================================
+export interface UpdateStudentAdminPayload {
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  direccion: string
+  telefono?: string
+  fotografiaUrl?: string
+  documentoCarnetUrl?: string
+}
+
+export interface UpdateStudentAdminResponse {
+  id: number
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  correo: string
+  fotografiaUrl?: string
+  direccion: string
+  telefono?: string
+  mensaje: string
+  documentoCarnetUrl?: string
 }

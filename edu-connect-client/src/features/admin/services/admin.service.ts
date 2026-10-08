@@ -13,7 +13,9 @@ import type {
   ReportesResumen,
   InactiveUserItem,
   UpdateTutorAdminPayload,
-  UpdateTutorAdminResponse
+  UpdateTutorAdminResponse,
+  UpdateStudentAdminPayload,
+  UpdateStudentAdminResponse
 } from '../types'
 
 function getAdminBasePath(): string {
@@ -228,6 +230,40 @@ export const adminService = {
     } catch {
       const { data } = await api.put<UpdateTutorAdminResponse>(
         `/administrador/tutores/${tutorId}`,
+        payload
+      )
+      return data
+    }
+  },
+
+  // ==========================================
+  // HU-34: VER Y ACTUALIZAR ESTUDIANTE (ADMIN)
+  // ==========================================
+  async getStudentById(studentId: number): Promise<ActiveStudentItem> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.get<ActiveStudentItem>(`${basePath}/estudiantes/${studentId}`)
+      return data
+    } catch {
+      const { data } = await api.get<ActiveStudentItem>(`/administrador/estudiantes/${studentId}`)
+      return data
+    }
+  },
+
+  async updateStudent(
+    studentId: number,
+    payload: UpdateStudentAdminPayload
+  ): Promise<UpdateStudentAdminResponse> {
+    const basePath = getAdminBasePath()
+    try {
+      const { data } = await api.put<UpdateStudentAdminResponse>(
+        `${basePath}/estudiantes/${studentId}`,
+        payload
+      )
+      return data
+    } catch {
+      const { data } = await api.put<UpdateStudentAdminResponse>(
+        `/administrador/estudiantes/${studentId}`,
         payload
       )
       return data
