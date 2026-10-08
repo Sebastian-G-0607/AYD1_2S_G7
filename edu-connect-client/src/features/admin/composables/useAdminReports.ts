@@ -4,12 +4,14 @@ import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
   ReportesResumen,
-  ReportsTabType
+  ReportsTabType,
+  EstudianteCalificacionReporteItem
 } from '../types'
 
 export function useAdminReports() {
   const tutoresReport = ref<TutorAtencionesReporteItem[]>([])
   const materiasReport = ref<MateriaDemandaReporteItem[]>([])
+  const estudiantesReport = ref<EstudianteCalificacionReporteItem[]>([])
   const resumen = ref<ReportesResumen>({
     totalSesiones: 0,
     totalSesionesAtendidas: 0,
@@ -116,21 +118,33 @@ export function useAdminReports() {
     return materiasReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
-  // Carga de datos
+  const filteredEstudiantes = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return estudiantesReport.value
+    return estudiantesReport.value.filter(
+      e =>
+        e.nombreCompleto.toLowerCase().includes(q) ||
+        e.carnet.toLowerCase().includes(q) ||
+        e.correo.toLowerCase().includes(q)
+    )
+  })
+
   async function loadReports() {
     isLoading.value = true
     error.value = null
 
     try {
-      const [resumenData, tutoresData, materiasData] = await Promise.all([
+      const [resumenData, tutoresData, materiasData, estudiantesData] = await Promise.all([
         adminService.getReportesResumen(),
         adminService.getTutoresMasAtendidos(10),
-        adminService.getMateriasMayorDemanda(10)
+        adminService.getMateriasMayorDemanda(10),
+        adminService.getEstudiantesCalificaciones()
       ])
 
       resumen.value = resumenData
       tutoresReport.value = tutoresData
       materiasReport.value = materiasData
+      estudiantesReport.value = estudiantesData
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Error al cargar los datos de reportes'
     } finally {
@@ -166,6 +180,17 @@ export function useAdminReports() {
         m.sesionesPendientes.toString(),
         m.sesionesCanceladas.toString(),
         `${m.porcentajeDemanda}%`
+      ]),
+      [''],
+      ['=== CALIFICACION CONSOLIDADA DE ESTUDIANTES ==='],
+      ['Estudiante', 'Carnet', 'Correo', 'Sesiones Atendidas', 'Evaluaciones', 'Promedio Calificacion'],
+      ...estudiantesReport.value.map(e => [
+        e.nombreCompleto,
+        e.carnet,
+        e.correo,
+        e.totalSesionesAtendidas.toString(),
+        e.totalEvaluaciones.toString(),
+        e.promedioCalificacion.toFixed(2)
       ])
     ]
 
@@ -189,6 +214,7 @@ export function useAdminReports() {
   return {
     tutoresReport,
     materiasReport,
+    estudiantesReport,
     resumen,
     isLoading,
     error,
@@ -200,6 +226,7 @@ export function useAdminReports() {
     donutSegments,
     filteredTutores,
     filteredMaterias,
+    filteredEstudiantes,
     loadReports,
     exportReport
   }
