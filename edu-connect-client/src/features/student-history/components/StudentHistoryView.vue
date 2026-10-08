@@ -2,7 +2,9 @@
 import { ref } from 'vue'
 import { BaseAlert, BaseBadge, BaseModal } from '@/components/ui'
 import { useStudentHistory } from '../composables/useStudentHistory'
-import type { StudentHistorySession } from '../types'
+import { useReportTutor } from '../composables/useReportTutor'
+import type { ReportTutorPayload, StudentHistorySession } from '../types'
+import ReportTutorModal from './ReportTutorModal.vue'
 
 const {
   filteredSessions,
@@ -12,8 +14,22 @@ const {
   attendedSessions,
   cancelledSessions,
   isLoading,
-  errorMessage
+  errorMessage,
+  markAsReported
 } = useStudentHistory()
+
+const {
+  categories,
+  isSubmitting: isReporting,
+  errorMessage: reportError,
+  loadCategories,
+  submitReport,
+  clearError: clearReportError
+} = useReportTutor()
+
+const reportSession = ref<StudentHistorySession | null>(null)
+const isReportOpen = ref(false)
+const reportSuccess = ref('')
 
 const selectedSession = ref<StudentHistorySession | null>(null)
 const isSummaryOpen = ref(false)
@@ -47,6 +63,29 @@ function getStatusVariant(
   status: string
 ): 'primary' | 'secondary' | 'neutral' | 'success' | 'error' {
   return status?.toUpperCase() === 'ATENDIDA' ? 'success' : 'error'
+}
+
+async function openReport(session: StudentHistorySession) {
+  if (session.estado.toUpperCase() !== 'ATENDIDA' || session.yaReportada) return
+
+  reportSession.value = session
+  reportSuccess.value = ''
+  clearReportError()
+  isReportOpen.value = true
+  await loadCategories()
+}
+
+async function handleReportSubmit(payload: ReportTutorPayload) {
+  if (!reportSession.value) return
+
+  const sesionId = reportSession.value.sesionId
+  const ok = await submitReport(sesionId, payload)
+
+  if (ok) {
+    markAsReported(sesionId)
+    isReportOpen.value = false
+    reportSuccess.value = 'Tu reporte fue enviado al administrador.'
+  }
 }
 
 function openSummary(session: StudentHistorySession) {
@@ -147,6 +186,14 @@ function openSummary(session: StudentHistorySession) {
 
     <BaseAlert v-if="errorMessage" type="error" :message="errorMessage" />
 
+    <BaseAlert
+      v-if="reportSuccess"
+      type="success"
+      :message="reportSuccess"
+      dismissible
+      @dismiss="reportSuccess = ''"
+    />
+
     <!-- Tabla -->
     <div
       class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden"
@@ -201,6 +248,10 @@ function openSummary(session: StudentHistorySession) {
 
               <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
                 Resumen
+              </th>
+
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
+                Reporte
               </th>
             </tr>
           </thead>
@@ -277,6 +328,26 @@ function openSummary(session: StudentHistorySession) {
 
                 <span v-else class="text-xs text-on-surface-variant"> No aplica </span>
               </td>
+
+              <td class="py-5 px-6 text-right">
+                <template v-if="session.estado.toUpperCase() === 'ATENDIDA'">
+                  <BaseBadge v-if="session.yaReportada" variant="neutral" size="sm">
+                    Reportada
+                  </BaseBadge>
+
+                  <button
+                    v-else
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-error hover:bg-error-container/40 transition-colors"
+                    @click="openReport(session)"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">flag</span>
+                    Reportar
+                  </button>
+                </template>
+
+                <span v-else class="text-xs text-on-surface-variant"> No aplica </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -299,6 +370,16 @@ function openSummary(session: StudentHistorySession) {
         </p>
       </div>
     </div>
+
+    <!-- Modal reportar tutor -->
+    <ReportTutorModal
+      v-model="isReportOpen"
+      :session="reportSession"
+      :categories="categories"
+      :loading="isReporting"
+      :error-message="reportError"
+      @submit="handleReportSubmit"
+    />
 
     <!-- Modal resumen -->
     <BaseModal v-model="isSummaryOpen" title="Resumen de la sesión" max-width="lg">

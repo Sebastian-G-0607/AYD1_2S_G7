@@ -180,6 +180,19 @@ export interface EstudianteCalificacionReporteItem {
 export type ReportsTabType = 'todos' | 'tutores' | 'materias' | 'estudiantes'
 
 // ==========================================
+// HU-38: CALIFICACIÓN DE TUTORES
+// ==========================================
+export interface CalificacionTutorReporteItem {
+  tutorId: number
+  nombreCompleto: string
+  especialidad: string
+  promedioCalificacion: number | null
+  totalCalificaciones: number
+}
+
+export type RatingSortDirection = 'desc' | 'asc'
+
+// ==========================================
 // HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)
 // ==========================================
 export interface UpdateTutorAdminPayload {

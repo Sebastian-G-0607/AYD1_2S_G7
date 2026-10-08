@@ -107,6 +107,11 @@ const navItems = computed<NavItem[]>(() => {
         name: 'Denuncias',
         icon: 'report',
         to: '/admin/denuncias'
+      },
+      {
+        name: 'Calificaciones',
+        icon: 'star',
+        to: '/admin/calificaciones-tutores'
       }
     ]
   }
