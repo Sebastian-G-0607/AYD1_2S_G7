@@ -5,6 +5,7 @@ import { useAdminReports } from '../composables/useAdminReports'
 const {
   tutoresReport,
   materiasReport,
+  cancelacionesReport,
   estudiantesReport,
   resumen,
   isLoading,
@@ -17,6 +18,7 @@ const {
   donutSegments,
   filteredTutores,
   filteredMaterias,
+  filteredCancelaciones,
   filteredEstudiantes,
   loadReports,
   exportReport
@@ -880,7 +882,7 @@ const tabs = [
           </button>
           <button
             type="button"
-            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap"
             :class="
               selectedMateriaSubTab === 'cancelaciones'
                 ? 'bg-primary text-on-primary shadow-xs font-semibold'
@@ -888,8 +890,7 @@ const tabs = [
             "
             @click="selectedMateriaSubTab = 'cancelaciones'"
           >
-            <span>Tasa de Cancelación</span>
-            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full" :class="selectedMateriaSubTab === 'cancelaciones' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'">Próx.</span>
+            Tasa de Cancelación
           </button>
           <button
             type="button"
@@ -1003,21 +1004,100 @@ const tabs = [
               </p>
             </div>
           </div>
-          <span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-3 py-1 rounded-full font-semibold">
-            Próximamente
+          <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">
+            {{ filteredCancelaciones.length }} materias registradas
           </span>
         </div>
 
-        <div class="rounded-xl border border-surface-container-high overflow-hidden bg-surface-container-low/20 p-8 flex flex-col items-center text-center">
-          <div class="w-14 h-14 rounded-2xl bg-error-container/40 text-on-error-container flex items-center justify-center mb-3">
-            <span class="material-symbols-outlined text-[30px]">event_busy</span>
-          </div>
-          <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-1">
-            Reporte preparado para integración
-          </h4>
-          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">
-            El cálculo de materias con mayor proporción de cancelaciones se reflejará aquí con sus alertas visuales correspondientes.
-          </p>
+        <div class="overflow-x-auto overflow-y-auto max-h-[300px] rounded-xl border border-surface-container-high">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-surface-container-low shadow-xs">
+              <tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high">
+                <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
+                <th class="py-3.5 px-4 font-semibold">Materia / Asignatura</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Total Sesiones</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Canceladas</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Atendidas</th>
+                <th class="py-3.5 px-4 font-semibold">Tasa de Cancelación</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
+              <tr
+                v-for="(item, idx) in filteredCancelaciones"
+                :key="item.materiaId"
+                class="hover:bg-surface-container-low/60 transition-colors"
+              >
+                <td class="py-3 px-4 text-center">
+                  <span
+                    class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs"
+                    :class="[
+                      idx === 0
+                        ? 'bg-rose-100 text-rose-800'
+                        : idx === 1
+                          ? 'bg-orange-100 text-orange-800'
+                          : idx === 2
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-surface-container text-on-surface-variant'
+                    ]"
+                  >
+                    #{{ idx + 1 }}
+                  </span>
+                </td>
+
+                <td class="py-3 px-4 font-semibold text-on-surface">
+                  {{ item.nombreMateria }}
+                </td>
+
+                <td class="py-3 px-4 text-center font-medium text-on-surface">
+                  {{ item.totalSesiones }}
+                </td>
+
+                <td class="py-3 px-4 text-center font-bold text-rose-600">
+                  {{ item.sesionesCanceladas }}
+                </td>
+
+                <td class="py-3 px-4 text-center text-emerald-700 font-medium">
+                  {{ item.sesionesAtendidas }}
+                </td>
+
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="flex-1 bg-surface-container rounded-full h-2.5 overflow-hidden">
+                      <div
+                        class="h-2.5 rounded-full transition-all duration-500"
+                        :class="[
+                          item.tasaCancelacion >= 40
+                            ? 'bg-rose-600'
+                            : item.tasaCancelacion >= 20
+                              ? 'bg-amber-500'
+                              : 'bg-slate-400'
+                        ]"
+                        :style="{ width: `${Math.min(100, item.tasaCancelacion)}%` }"
+                      />
+                    </div>
+                    <span
+                      class="font-label-sm text-label-sm font-semibold w-16 text-right"
+                      :class="[
+                        item.tasaCancelacion >= 40
+                          ? 'text-rose-600 font-bold'
+                          : item.tasaCancelacion >= 20
+                            ? 'text-amber-600'
+                            : 'text-on-surface-variant'
+                      ]"
+                    >
+                      {{ item.tasaCancelacion }}%
+                    </span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr v-if="filteredCancelaciones.length === 0">
+                <td colspan="6" class="py-8 text-center text-on-surface-variant">
+                  No se encontraron materias con cancelaciones registradas.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

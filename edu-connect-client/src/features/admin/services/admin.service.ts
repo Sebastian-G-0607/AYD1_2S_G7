@@ -10,6 +10,7 @@ import type {
   DarBajaResponse,
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
+  MateriaCancelacionReporteItem,
   EstudianteSesionesReporteItem,
   ReportesResumen,
   InactiveUserItem,
@@ -388,6 +389,26 @@ export const adminService = {
       try {
         const { data } = await api.get<EstudianteSesionesReporteItem[]>(
           `/administrador/reportes/estudiantes-mas-sesiones${query}`
+        )
+        return data
+      } catch {
+        return []
+      }
+    }
+  },
+
+  async getMateriasMayorCancelacion(limit?: number): Promise<MateriaCancelacionReporteItem[]> {
+    const basePath = getAdminBasePath()
+    const query = limit && limit > 0 ? `?limit=${limit}` : ''
+    try {
+      const { data } = await api.get<MateriaCancelacionReporteItem[]>(
+        `${basePath}/reportes/materias-mayor-cancelacion${query}`
+      )
+      return data
+    } catch {
+      try {
+        const { data } = await api.get<MateriaCancelacionReporteItem[]>(
+          `/administrador/reportes/materias-mayor-cancelacion${query}`
         )
         return data
       } catch {

@@ -3,6 +3,7 @@ import { adminService } from '../services/admin.service'
 import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
+  MateriaCancelacionReporteItem,
   EstudianteSesionesReporteItem,
   ReportesResumen,
   ReportsTabType
@@ -11,6 +12,7 @@ import type {
 export function useAdminReports() {
   const tutoresReport = ref<TutorAtencionesReporteItem[]>([])
   const materiasReport = ref<MateriaDemandaReporteItem[]>([])
+  const cancelacionesReport = ref<MateriaCancelacionReporteItem[]>([])
   const estudiantesReport = ref<EstudianteSesionesReporteItem[]>([])
   const resumen = ref<ReportesResumen>({
     totalSesiones: 0,
@@ -118,6 +120,12 @@ export function useAdminReports() {
     return materiasReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
+  const filteredCancelaciones = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return cancelacionesReport.value
+    return cancelacionesReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
+  })
+
   const filteredEstudiantes = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return estudiantesReport.value
@@ -135,16 +143,18 @@ export function useAdminReports() {
     error.value = null
 
     try {
-      const [resumenData, tutoresData, materiasData, estudiantesData] = await Promise.all([
+      const [resumenData, tutoresData, materiasData, cancelacionesData, estudiantesData] = await Promise.all([
         adminService.getReportesResumen(),
         adminService.getTutoresMasAtendidos(10),
         adminService.getMateriasMayorDemanda(10),
+        adminService.getMateriasMayorCancelacion(10),
         adminService.getEstudiantesMasSesiones(10)
       ])
 
       resumen.value = resumenData
       tutoresReport.value = tutoresData
       materiasReport.value = materiasData
+      cancelacionesReport.value = cancelacionesData
       estudiantesReport.value = estudiantesData
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Error al cargar los datos de reportes'
@@ -183,6 +193,17 @@ export function useAdminReports() {
         `${m.porcentajeDemanda}%`
       ]),
       [''],
+      ['=== MATERIAS CON MAYOR TASA DE CANCELACIÓN ==='],
+      ['Materia', 'Total Sesiones', 'Canceladas', 'Atendidas', 'Pendientes', '% Tasa Cancelación'],
+      ...cancelacionesReport.value.map(c => [
+        c.nombreMateria,
+        c.totalSesiones.toString(),
+        c.sesionesCanceladas.toString(),
+        c.sesionesAtendidas.toString(),
+        c.sesionesPendientes.toString(),
+        `${c.tasaCancelacion}%`
+      ]),
+      [''],
       ['=== ESTUDIANTES CON MÁS SESIONES PROGRAMADAS ==='],
       ['Estudiante', 'Carnet', 'Correo', 'Sesiones Programadas', 'Sesiones Atendidas', 'Sesiones Canceladas', 'Sesiones Pendientes'],
       ...estudiantesReport.value.map(e => [
@@ -216,6 +237,7 @@ export function useAdminReports() {
   return {
     tutoresReport,
     materiasReport,
+    cancelacionesReport,
     estudiantesReport,
     resumen,
     isLoading,
@@ -228,6 +250,7 @@ export function useAdminReports() {
     donutSegments,
     filteredTutores,
     filteredMaterias,
+    filteredCancelaciones,
     filteredEstudiantes,
     loadReports,
     exportReport

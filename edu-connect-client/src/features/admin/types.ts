@@ -163,6 +163,16 @@ export interface MateriaDemandaReporteItem {
   porcentajeDemanda: number
 }
 
+export interface MateriaCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesCanceladas: number
+  sesionesAtendidas: number
+  sesionesPendientes: number
+  tasaCancelacion: number
+}
+
 export interface ReportesResumen {
   totalSesiones: number
   totalSesionesAtendidas: number
