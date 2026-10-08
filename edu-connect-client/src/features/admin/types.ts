@@ -164,7 +164,20 @@ export interface ReportesResumen {
   materiaTopSesiones: number
 }
 
-export type ReportsTabType = 'todos' | 'tutores' | 'materias'
+export interface EstudianteCalificacionReporteItem {
+  estudianteId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string | null
+  totalSesionesAtendidas: number
+  totalEvaluaciones: number
+  promedioCalificacion: number
+}
+
+export type ReportsTabType = 'todos' | 'tutores' | 'materias' | 'estudiantes'
 
 // ==========================================
 // HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)

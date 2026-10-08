@@ -15,6 +15,7 @@ const {
   donutSegments,
   filteredTutores,
   filteredMaterias,
+  filteredEstudiantes,
   loadReports,
   exportReport
 } = useAdminReports()
@@ -567,6 +568,18 @@ function formatTutorName(name: string): { first: string; last: string } {
           >
             Materias de Mayor Demanda
           </button>
+          <button
+            type="button"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer"
+            :class="
+              selectedTab === 'estudiantes'
+                ? 'bg-primary text-on-primary shadow-sm font-semibold'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+            "
+            @click="selectedTab = 'estudiantes'"
+          >
+            Calificación de Estudiantes
+          </button>
         </div>
 
         <!-- Búsqueda rápida -->
@@ -705,7 +718,10 @@ function formatTutorName(name: string): { first: string; last: string } {
       </div>
 
       <!-- TABLA 2: MATERIAS CON MAYOR DEMANDA -->
-      <div v-if="selectedTab === 'todos' || selectedTab === 'materias'">
+      <div
+        v-if="selectedTab === 'todos' || selectedTab === 'materias'"
+        :class="{ 'mb-8': selectedTab === 'todos' }"
+      >
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-secondary text-[22px]">analytics</span>
@@ -785,6 +801,123 @@ function formatTutorName(name: string): { first: string; last: string } {
               <tr v-if="filteredMaterias.length === 0">
                 <td colspan="6" class="py-8 text-center text-on-surface-variant">
                   No se encontraron materias que coincidan con la búsqueda.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div v-if="selectedTab === 'todos' || selectedTab === 'estudiantes'">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-500 text-[22px]">star</span>
+            <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
+              Consolidado de Calificación de Estudiantes
+            </h3>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">
+            {{ filteredEstudiantes.length }} estudiantes registrados
+          </span>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-surface-container-high">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr
+                class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high"
+              >
+                <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
+                <th class="py-3.5 px-4 font-semibold">Estudiante</th>
+                <th class="py-3.5 px-4 font-semibold">Carnet / ID</th>
+                <th class="py-3.5 px-4 font-semibold">Correo Electrónico</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Sesiones Atendidas</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Evaluaciones</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Promedio de Calificación</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
+              <tr
+                v-for="(estudiante, idx) in filteredEstudiantes"
+                :key="estudiante.estudianteId"
+                class="hover:bg-surface-container-low/60 transition-colors"
+              >
+                <td class="py-3 px-4 text-center">
+                  <span
+                    class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs"
+                    :class="[
+                      idx === 0
+                        ? 'bg-amber-100 text-amber-800'
+                        : idx === 1
+                          ? 'bg-slate-200 text-slate-800'
+                          : idx === 2
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-surface-container text-on-surface-variant'
+                    ]"
+                  >
+                    #{{ idx + 1 }}
+                  </span>
+                </td>
+
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs overflow-hidden shrink-0"
+                    >
+                      <img
+                        v-if="estudiante.fotografiaUrl"
+                        :src="estudiante.fotografiaUrl"
+                        :alt="estudiante.nombreCompleto"
+                        class="w-full h-full object-cover"
+                      />
+                      <span v-else>{{ getInitials(estudiante.nombreCompleto) }}</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-on-surface">{{ estudiante.nombreCompleto }}</p>
+                      <p class="text-[12px] text-on-surface-variant">Estudiante Activo</p>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-4 text-on-surface font-mono text-[13px]">
+                  {{ estudiante.carnet }}
+                </td>
+
+                <td class="py-3 px-4 text-on-surface-variant">
+                  {{ estudiante.correo }}
+                </td>
+
+                <td class="py-3 px-4 text-center">
+                  <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary"
+                  >
+                    {{ estudiante.totalSesionesAtendidas }} atendidas
+                  </span>
+                </td>
+
+                <td class="py-3 px-4 text-center font-medium text-on-surface-variant">
+                  {{ estudiante.totalEvaluaciones }}
+                </td>
+
+                <td class="py-3 px-4 text-center">
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-low rounded-lg">
+                    <span
+                      class="material-symbols-outlined text-[18px] text-amber-500"
+                      style="font-variation-settings: 'FILL' 1;"
+                    >
+                      star
+                    </span>
+                    <span class="font-bold text-on-surface text-[14px]">
+                      {{ estudiante.promedioCalificacion.toFixed(1) }}
+                    </span>
+                    <span class="text-xs text-on-surface-variant">/ 5.0</span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr v-if="filteredEstudiantes.length === 0">
+                <td colspan="7" class="py-8 text-center text-on-surface-variant">
+                  No se encontraron estudiantes que coincidan con la búsqueda.
                 </td>
               </tr>
             </tbody>
