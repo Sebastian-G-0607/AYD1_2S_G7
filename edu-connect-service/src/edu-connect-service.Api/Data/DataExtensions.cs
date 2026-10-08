@@ -105,6 +105,12 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!context.Set<CategoriaReporteEstudiante>().Any())
+        {
+            SeedCategoriasReporteEstudiante(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             context.SaveChanges();
@@ -145,6 +151,12 @@ public static class DataExtensions
         if (!await context.Set<Materia>().AnyAsync(cancellationToken))
         {
             SeedMaterias(context);
+            hasChanges = true;
+        }
+
+        if (!await context.Set<CategoriaReporteEstudiante>().AnyAsync(cancellationToken))
+        {
+            SeedCategoriasReporteEstudiante(context);
             hasChanges = true;
         }
 
@@ -280,6 +292,17 @@ public static class DataExtensions
 
         context.Set<Materia>().AddRange(
             materias.Select(nombre => new Materia { Nombre = nombre })
+        );
+    }
+
+    private static void SeedCategoriasReporteEstudiante(DbContext context)
+    {
+        context.Set<CategoriaReporteEstudiante>().AddRange(
+            new CategoriaReporteEstudiante { Nombre = "Conducta inapropiada" },
+            new CategoriaReporteEstudiante { Nombre = "Falsificación de documentos" },
+            new CategoriaReporteEstudiante { Nombre = "Agresión verbal o física" },
+            new CategoriaReporteEstudiante { Nombre = "Robo o daño a las instalaciones" },
+            new CategoriaReporteEstudiante { Nombre = "Incumplimiento reiterado de citas" }
         );
     }
 
