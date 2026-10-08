@@ -7,5 +7,6 @@ public static class ReportesEndpoints
         app.MapTutoresMasAtenciones();
         app.MapMateriasMayorDemanda();
         app.MapResumenReportes();
+        app.MapEstudiantesCalificaciones();
     }
 }
