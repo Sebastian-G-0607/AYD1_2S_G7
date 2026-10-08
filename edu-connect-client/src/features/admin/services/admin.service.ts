@@ -1,4 +1,5 @@
 import api from '@/services/api'
+
 import type {
   StudentApprovalItem,
   TutorApprovalItem,
@@ -16,7 +17,10 @@ import type {
   UpdateTutorAdminResponse,
   UpdateStudentAdminPayload,
   UpdateStudentAdminResponse,
-  EstudianteCalificacionReporteItem
+  EstudianteCalificacionReporteItem,
+  TutorReportItem,
+  StudentReportItem,
+  ResolveReportResponse
 } from '../types'
 
 function getAdminBasePath(): string {
@@ -30,50 +34,70 @@ export const adminService = {
   // ==========================================
   async getPendingStudents(): Promise<StudentApprovalItem[]> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<StudentApprovalItem[]>(`${basePath}/estudiantes/pendientes`)
+      const { data } = await api.get<StudentApprovalItem[]>(
+        `${basePath}/estudiantes/pendientes`
+      )
       return data
     } catch {
-      const { data } = await api.get<StudentApprovalItem[]>('/administrador/estudiantes/pendientes')
+      const { data } = await api.get<StudentApprovalItem[]>(
+        '/administrador/estudiantes/pendientes'
+      )
       return data
     }
   },
 
-  async approveStudent(estudianteId: number): Promise<ApprovalActionResponse> {
+  async approveStudent(
+    estudianteId: number
+  ): Promise<ApprovalActionResponse> {
     const basePath = getAdminBasePath()
-    const payload: ApprovalActionPayload = { estado: 'APROBADO' }
+
+    const payload: ApprovalActionPayload = {
+      estado: 'APROBADO'
+    }
+
     try {
       const { data } = await api.put<ApprovalActionResponse>(
         `${basePath}/estudiantes/${estudianteId}/estado`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<ApprovalActionResponse>(
         `/administrador/estudiantes/${estudianteId}/estado`,
         payload
       )
+
       return data
     }
   },
 
-  async rejectStudent(estudianteId: number, motivo?: string): Promise<ApprovalActionResponse> {
+  async rejectStudent(
+    estudianteId: number,
+    motivo?: string
+  ): Promise<ApprovalActionResponse> {
     const basePath = getAdminBasePath()
+
     const payload: ApprovalActionPayload = {
       estado: 'RECHAZADO',
       motivo: motivo || 'Solicitud rechazada por el administrador'
     }
+
     try {
       const { data } = await api.put<ApprovalActionResponse>(
         `${basePath}/estudiantes/${estudianteId}/estado`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<ApprovalActionResponse>(
         `/administrador/estudiantes/${estudianteId}/estado`,
         payload
       )
+
       return data
     }
   },
@@ -83,50 +107,70 @@ export const adminService = {
   // ==========================================
   async getPendingTutors(): Promise<TutorApprovalItem[]> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<TutorApprovalItem[]>(`${basePath}/tutores/pendientes`)
+      const { data } = await api.get<TutorApprovalItem[]>(
+        `${basePath}/tutores/pendientes`
+      )
+
       return data
     } catch {
-      const { data } = await api.get<TutorApprovalItem[]>('/administrador/tutores/pendientes')
+      const { data } = await api.get<TutorApprovalItem[]>(
+        '/administrador/tutores/pendientes'
+      )
+
       return data
     }
   },
 
   async approveTutor(tutorId: number): Promise<ApprovalActionResponse> {
     const basePath = getAdminBasePath()
-    const payload: ApprovalActionPayload = { estado: 'APROBADO' }
+
+    const payload: ApprovalActionPayload = {
+      estado: 'APROBADO'
+    }
+
     try {
       const { data } = await api.put<ApprovalActionResponse>(
         `${basePath}/tutores/${tutorId}/estado`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<ApprovalActionResponse>(
         `/administrador/tutores/${tutorId}/estado`,
         payload
       )
+
       return data
     }
   },
 
-  async rejectTutor(tutorId: number, motivo?: string): Promise<ApprovalActionResponse> {
+  async rejectTutor(
+    tutorId: number,
+    motivo?: string
+  ): Promise<ApprovalActionResponse> {
     const basePath = getAdminBasePath()
+
     const payload: ApprovalActionPayload = {
       estado: 'RECHAZADO',
       motivo: motivo || 'Solicitud de tutor rechazada por el administrador'
     }
+
     try {
       const { data } = await api.put<ApprovalActionResponse>(
         `${basePath}/tutores/${tutorId}/estado`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<ApprovalActionResponse>(
         `/administrador/tutores/${tutorId}/estado`,
         payload
       )
+
       return data
     }
   },
@@ -136,69 +180,108 @@ export const adminService = {
   // ==========================================
   async getActiveStudents(): Promise<ActiveStudentItem[]> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<ActiveStudentItem[]>(`${basePath}/estudiantes/activos`)
+      const { data } = await api.get<ActiveStudentItem[]>(
+        `${basePath}/estudiantes/activos`
+      )
+
       return data
     } catch {
-      const { data } = await api.get<ActiveStudentItem[]>('/administrador/estudiantes/activos')
+      const { data } = await api.get<ActiveStudentItem[]>(
+        '/administrador/estudiantes/activos'
+      )
+
       return data
     }
   },
 
   async getInactiveUsers(): Promise<InactiveUserItem[]> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<InactiveUserItem[]>(`${basePath}/usuarios/dados-de-baja`)
+      const { data } = await api.get<InactiveUserItem[]>(
+        `${basePath}/usuarios/dados-de-baja`
+      )
+
       return data
     } catch {
-      const { data } = await api.get<InactiveUserItem[]>('/administrador/usuarios/dados-de-baja')
+      const { data } = await api.get<InactiveUserItem[]>(
+        '/administrador/usuarios/dados-de-baja'
+      )
+
       return data
     }
   },
 
-  async deactivateStudent(studentId: number, motivo?: string): Promise<DarBajaResponse> {
+  async deactivateStudent(
+    studentId: number,
+    motivo?: string
+  ): Promise<DarBajaResponse> {
     const basePath = getAdminBasePath()
-    const payload: DarBajaPayload = { motivo: motivo || 'Cuenta dada de baja por el administrador' }
+
+    const payload: DarBajaPayload = {
+      motivo: motivo || 'Cuenta dada de baja por el administrador'
+    }
+
     try {
       const { data } = await api.put<DarBajaResponse>(
         `${basePath}/estudiantes/${studentId}/dar-baja`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<DarBajaResponse>(
         `/administrador/estudiantes/${studentId}/dar-baja`,
         payload
       )
+
       return data
     }
   },
 
   async getActiveTutors(): Promise<ActiveTutorItem[]> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<ActiveTutorItem[]>(`${basePath}/tutores/activos`)
+      const { data } = await api.get<ActiveTutorItem[]>(
+        `${basePath}/tutores/activos`
+      )
+
       return data
     } catch {
-      const { data } = await api.get<ActiveTutorItem[]>('/administrador/tutores/activos')
+      const { data } = await api.get<ActiveTutorItem[]>(
+        '/administrador/tutores/activos'
+      )
+
       return data
     }
   },
 
-  async deactivateTutor(tutorId: number, motivo?: string): Promise<DarBajaResponse> {
+  async deactivateTutor(
+    tutorId: number,
+    motivo?: string
+  ): Promise<DarBajaResponse> {
     const basePath = getAdminBasePath()
-    const payload: DarBajaPayload = { motivo: motivo || 'Cuenta dada de baja por el administrador' }
+
+    const payload: DarBajaPayload = {
+      motivo: motivo || 'Cuenta dada de baja por el administrador'
+    }
+
     try {
       const { data } = await api.put<DarBajaResponse>(
         `${basePath}/tutores/${tutorId}/dar-baja`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<DarBajaResponse>(
         `/administrador/tutores/${tutorId}/dar-baja`,
         payload
       )
+
       return data
     }
   },
@@ -208,11 +291,18 @@ export const adminService = {
   // ==========================================
   async getTutorById(tutorId: number): Promise<ActiveTutorItem> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<ActiveTutorItem>(`${basePath}/tutores/${tutorId}`)
+      const { data } = await api.get<ActiveTutorItem>(
+        `${basePath}/tutores/${tutorId}`
+      )
+
       return data
     } catch {
-      const { data } = await api.get<ActiveTutorItem>(`/administrador/tutores/${tutorId}`)
+      const { data } = await api.get<ActiveTutorItem>(
+        `/administrador/tutores/${tutorId}`
+      )
+
       return data
     }
   },
@@ -222,17 +312,20 @@ export const adminService = {
     payload: UpdateTutorAdminPayload
   ): Promise<UpdateTutorAdminResponse> {
     const basePath = getAdminBasePath()
+
     try {
       const { data } = await api.put<UpdateTutorAdminResponse>(
         `${basePath}/tutores/${tutorId}`,
         payload
       )
+
       return data
     } catch {
       const { data } = await api.put<UpdateTutorAdminResponse>(
         `/administrador/tutores/${tutorId}`,
         payload
       )
+
       return data
     }
   },
@@ -274,19 +367,24 @@ export const adminService = {
   // ==========================================
   // HU-08: REPORTES Y ESTADÍSTICAS
   // ==========================================
-  async getTutoresMasAtendidos(limit?: number): Promise<TutorAtencionesReporteItem[]> {
+  async getTutoresMasAtendidos(
+    limit?: number
+  ): Promise<TutorAtencionesReporteItem[]> {
     const basePath = getAdminBasePath()
     const query = limit && limit > 0 ? `?limit=${limit}` : ''
+
     try {
       const { data } = await api.get<TutorAtencionesReporteItem[]>(
         `${basePath}/reportes/tutores-mas-atendidos${query}`
       )
+
       return data
     } catch {
       try {
         const { data } = await api.get<TutorAtencionesReporteItem[]>(
           `/administrador/reportes/tutores-mas-atendidos${query}`
         )
+
         return data
       } catch {
         return [
@@ -355,19 +453,24 @@ export const adminService = {
     }
   },
 
-  async getMateriasMayorDemanda(limit?: number): Promise<MateriaDemandaReporteItem[]> {
+  async getMateriasMayorDemanda(
+    limit?: number
+  ): Promise<MateriaDemandaReporteItem[]> {
     const basePath = getAdminBasePath()
     const query = limit && limit > 0 ? `?limit=${limit}` : ''
+
     try {
       const { data } = await api.get<MateriaDemandaReporteItem[]>(
         `${basePath}/reportes/materias-mayor-demanda${query}`
       )
+
       return data
     } catch {
       try {
         const { data } = await api.get<MateriaDemandaReporteItem[]>(
           `/administrador/reportes/materias-mayor-demanda${query}`
         )
+
         return data
       } catch {
         return [
@@ -414,12 +517,19 @@ export const adminService = {
 
   async getReportesResumen(): Promise<ReportesResumen> {
     const basePath = getAdminBasePath()
+
     try {
-      const { data } = await api.get<ReportesResumen>(`${basePath}/reportes/resumen`)
+      const { data } = await api.get<ReportesResumen>(
+        `${basePath}/reportes/resumen`
+      )
+
       return data
     } catch {
       try {
-        const { data } = await api.get<ReportesResumen>('/administrador/reportes/resumen')
+        const { data } = await api.get<ReportesResumen>(
+          '/administrador/reportes/resumen'
+        )
+
         return data
       } catch {
         return {
@@ -503,6 +613,124 @@ export const adminService = {
         ]
       }
     }
+  },
+
+  // ==========================================
+  // HU-36 / HU-37: GESTIÓN DE DENUNCIAS
+  // ==========================================
+  async getTutorReports(): Promise<TutorReportItem[]> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.get<TutorReportItem[]>(
+        `${basePath}/reportes/tutores`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.get<TutorReportItem[]>(
+        '/administrador/reportes/tutores'
+      )
+
+      return data
+    }
+  },
+
+  async getStudentReports(): Promise<StudentReportItem[]> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.get<StudentReportItem[]>(
+        `${basePath}/reportes/estudiantes`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.get<StudentReportItem[]>(
+        '/administrador/reportes/estudiantes'
+      )
+
+      return data
+    }
+  },
+
+  async deactivateTutorFromReport(
+    reportId: number
+  ): Promise<ResolveReportResponse> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.put<ResolveReportResponse>(
+        `${basePath}/reportes/tutores/${reportId}/dar-baja`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.put<ResolveReportResponse>(
+        `/administrador/reportes/tutores/${reportId}/dar-baja`
+      )
+
+      return data
+    }
+  },
+
+  async rejectTutorReport(
+    reportId: number
+  ): Promise<ResolveReportResponse> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.put<ResolveReportResponse>(
+        `${basePath}/reportes/tutores/${reportId}/rechazar`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.put<ResolveReportResponse>(
+        `/administrador/reportes/tutores/${reportId}/rechazar`
+      )
+
+      return data
+    }
+  },
+
+  async deactivateStudentFromReport(
+    reportId: number
+  ): Promise<ResolveReportResponse> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.put<ResolveReportResponse>(
+        `${basePath}/reportes/estudiantes/${reportId}/dar-baja`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.put<ResolveReportResponse>(
+        `/administrador/reportes/estudiantes/${reportId}/dar-baja`
+      )
+
+      return data
+    }
+  },
+
+  async rejectStudentReport(
+    reportId: number
+  ): Promise<ResolveReportResponse> {
+    const basePath = getAdminBasePath()
+
+    try {
+      const { data } = await api.put<ResolveReportResponse>(
+        `${basePath}/reportes/estudiantes/${reportId}/rechazar`
+      )
+
+      return data
+    } catch {
+      const { data } = await api.put<ResolveReportResponse>(
+        `/administrador/reportes/estudiantes/${reportId}/rechazar`
+      )
+
+      return data
+    }
   }
 }
-

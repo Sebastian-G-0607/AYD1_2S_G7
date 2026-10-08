@@ -248,3 +248,48 @@ export interface UpdateStudentAdminResponse {
   mensaje: string
   documentoCarnetUrl?: string
 }
+
+// ==========================================
+// HU-36 / HU-37: GESTIÓN DE DENUNCIAS
+// ==========================================
+export interface TutorReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  tutorId: number
+  tutorNombreCompleto: string
+  tutorCorreo: string
+  estudianteDenuncianteId: number
+  estudianteDenuncianteNombreCompleto: string
+  estudianteDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface StudentReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  estudianteId: number
+  estudianteNombreCompleto: string
+  estudianteCorreo: string
+  tutorDenuncianteId: number
+  tutorDenuncianteNombreCompleto: string
+  tutorDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface ResolveReportResponse {
+  reporteId: number
+  estadoReporte: string
+  usuarioId: number
+  estadoUsuario: string
+  mensaje: string
+}
+
+export type UserReportsTab = 'tutores' | 'estudiantes'

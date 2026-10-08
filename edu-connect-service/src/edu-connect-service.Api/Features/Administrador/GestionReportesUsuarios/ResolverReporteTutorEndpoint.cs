@@ -31,7 +31,7 @@ public static class ResolverReporteTutorEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> DarBajaTutorAsync(
+    public static async Task<IResult> DarBajaTutorAsync(
         int id,
         edu_connect_serviceContext dbContext,
         IEmailService emailService,
@@ -142,7 +142,7 @@ public static class ResolverReporteTutorEndpoint
         );
     }
 
-    private static async Task<IResult> RechazarReporteAsync(
+    public static async Task<IResult> RechazarReporteAsync(
         int id,
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
