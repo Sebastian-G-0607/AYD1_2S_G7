@@ -173,6 +173,17 @@ export interface MateriaCancelacionReporteItem {
   tasaCancelacion: number
 }
 
+export interface MateriaAsistenciaVsCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesAtendidas: number
+  sesionesCanceladas: number
+  sesionesPendientes: number
+  tasaAsistencia: number
+  tasaCancelacion: number
+}
+
 export interface ReportesResumen {
   totalSesiones: number
   totalSesionesAtendidas: number

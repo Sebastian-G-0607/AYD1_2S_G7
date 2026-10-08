@@ -6,6 +6,7 @@ const {
   tutoresReport,
   materiasReport,
   cancelacionesReport,
+  asistenciaVsCancelacionReport,
   estudiantesReport,
   resumen,
   isLoading,
@@ -19,6 +20,7 @@ const {
   filteredTutores,
   filteredMaterias,
   filteredCancelaciones,
+  filteredAsistenciaVsCancelacion,
   filteredEstudiantes,
   loadReports,
   exportReport
@@ -894,7 +896,7 @@ const tabs = [
           </button>
           <button
             type="button"
-            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap"
             :class="
               selectedMateriaSubTab === 'efectividad'
                 ? 'bg-primary text-on-primary shadow-xs font-semibold'
@@ -902,8 +904,7 @@ const tabs = [
             "
             @click="selectedMateriaSubTab = 'efectividad'"
           >
-            <span>Asistencia vs. Cancelación</span>
-            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full" :class="selectedMateriaSubTab === 'efectividad' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'">Próx.</span>
+            Asistencia vs. Cancelación
           </button>
         </div>
       </div>
@@ -1115,21 +1116,88 @@ const tabs = [
               </p>
             </div>
           </div>
-          <span class="font-label-sm text-label-sm bg-secondary/10 text-secondary px-3 py-1 rounded-full font-semibold">
-            Próximamente
+          <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">
+            {{ filteredAsistenciaVsCancelacion.length }} materias registradas
           </span>
         </div>
 
-        <div class="rounded-xl border border-surface-container-high overflow-hidden bg-surface-container-low/20 p-8 flex flex-col items-center text-center">
-          <div class="w-14 h-14 rounded-2xl bg-secondary-container/40 text-on-secondary-container flex items-center justify-center mb-3">
-            <span class="material-symbols-outlined text-[30px]">analytics</span>
-          </div>
-          <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-1">
-            Reporte preparado para integración
-          </h4>
-          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">
-            La comparativa cruzada de efectividad por materia mostrará la relación directa entre asistencias y cancelaciones.
-          </p>
+        <div class="overflow-x-auto overflow-y-auto max-h-[300px] rounded-xl border border-surface-container-high">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-surface-container-low shadow-xs">
+              <tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high">
+                <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
+                <th class="py-3.5 px-4 font-semibold">Materia / Asignatura</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Total Sesiones</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Atendidas</th>
+                <th class="py-3.5 px-4 font-semibold text-center">Canceladas</th>
+                <th class="py-3.5 px-4 font-semibold text-center">% Asistencia</th>
+                <th class="py-3.5 px-4 font-semibold text-center">% Cancelación</th>
+                <th class="py-3.5 px-4 font-semibold">Comparativa Asistencia / Cancelación</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
+              <tr
+                v-for="(item, idx) in filteredAsistenciaVsCancelacion"
+                :key="item.materiaId"
+                class="hover:bg-surface-container-low/60 transition-colors"
+              >
+                <td class="py-3 px-4 text-center font-bold text-xs text-on-surface-variant">
+                  #{{ idx + 1 }}
+                </td>
+
+                <td class="py-3 px-4 font-semibold text-on-surface">
+                  {{ item.nombreMateria }}
+                </td>
+
+                <td class="py-3 px-4 text-center font-bold text-primary">
+                  {{ item.totalSesiones }}
+                </td>
+
+                <td class="py-3 px-4 text-center text-emerald-700 font-semibold">
+                  {{ item.sesionesAtendidas }}
+                </td>
+
+                <td class="py-3 px-4 text-center text-rose-600 font-semibold">
+                  {{ item.sesionesCanceladas }}
+                </td>
+
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {{ item.tasaAsistencia }}%
+                  </span>
+                </td>
+
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                    {{ item.tasaCancelacion }}%
+                  </span>
+                </td>
+
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-surface-container rounded-full h-3 overflow-hidden flex">
+                      <div
+                        class="bg-emerald-600 h-full transition-all duration-500"
+                        :style="{ width: `${item.tasaAsistencia}%` }"
+                        :title="`Asistencia: ${item.tasaAsistencia}%`"
+                      />
+                      <div
+                        class="bg-rose-500 h-full transition-all duration-500"
+                        :style="{ width: `${item.tasaCancelacion}%` }"
+                        :title="`Cancelación: ${item.tasaCancelacion}%`"
+                      />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr v-if="filteredAsistenciaVsCancelacion.length === 0">
+                <td colspan="8" class="py-8 text-center text-on-surface-variant">
+                  No se encontraron materias con sesiones registradas.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

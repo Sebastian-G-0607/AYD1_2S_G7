@@ -4,6 +4,7 @@ import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
   MateriaCancelacionReporteItem,
+  MateriaAsistenciaVsCancelacionReporteItem,
   EstudianteSesionesReporteItem,
   ReportesResumen,
   ReportsTabType
@@ -13,6 +14,7 @@ export function useAdminReports() {
   const tutoresReport = ref<TutorAtencionesReporteItem[]>([])
   const materiasReport = ref<MateriaDemandaReporteItem[]>([])
   const cancelacionesReport = ref<MateriaCancelacionReporteItem[]>([])
+  const asistenciaVsCancelacionReport = ref<MateriaAsistenciaVsCancelacionReporteItem[]>([])
   const estudiantesReport = ref<EstudianteSesionesReporteItem[]>([])
   const resumen = ref<ReportesResumen>({
     totalSesiones: 0,
@@ -126,6 +128,12 @@ export function useAdminReports() {
     return cancelacionesReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
+  const filteredAsistenciaVsCancelacion = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return asistenciaVsCancelacionReport.value
+    return asistenciaVsCancelacionReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
+  })
+
   const filteredEstudiantes = computed(() => {
     const q = searchQuery.value.trim().toLowerCase()
     if (!q) return estudiantesReport.value
@@ -143,11 +151,19 @@ export function useAdminReports() {
     error.value = null
 
     try {
-      const [resumenData, tutoresData, materiasData, cancelacionesData, estudiantesData] = await Promise.all([
+      const [
+        resumenData,
+        tutoresData,
+        materiasData,
+        cancelacionesData,
+        asistenciaVsCancelacionData,
+        estudiantesData
+      ] = await Promise.all([
         adminService.getReportesResumen(),
         adminService.getTutoresMasAtendidos(10),
         adminService.getMateriasMayorDemanda(10),
         adminService.getMateriasMayorCancelacion(10),
+        adminService.getMateriasAsistenciaVsCancelacion(10),
         adminService.getEstudiantesMasSesiones(10)
       ])
 
@@ -155,6 +171,7 @@ export function useAdminReports() {
       tutoresReport.value = tutoresData
       materiasReport.value = materiasData
       cancelacionesReport.value = cancelacionesData
+      asistenciaVsCancelacionReport.value = asistenciaVsCancelacionData
       estudiantesReport.value = estudiantesData
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Error al cargar los datos de reportes'
@@ -204,6 +221,18 @@ export function useAdminReports() {
         `${c.tasaCancelacion}%`
       ]),
       [''],
+      ['=== TASA DE ASISTENCIA VS. CANCELACIÓN POR MATERIA ==='],
+      ['Materia', 'Total Sesiones', 'Atendidas', 'Canceladas', 'Pendientes', '% Asistencia', '% Cancelación'],
+      ...asistenciaVsCancelacionReport.value.map(ac => [
+        ac.nombreMateria,
+        ac.totalSesiones.toString(),
+        ac.sesionesAtendidas.toString(),
+        ac.sesionesCanceladas.toString(),
+        ac.sesionesPendientes.toString(),
+        `${ac.tasaAsistencia}%`,
+        `${ac.tasaCancelacion}%`
+      ]),
+      [''],
       ['=== ESTUDIANTES CON MÁS SESIONES PROGRAMADAS ==='],
       ['Estudiante', 'Carnet', 'Correo', 'Sesiones Programadas', 'Sesiones Atendidas', 'Sesiones Canceladas', 'Sesiones Pendientes'],
       ...estudiantesReport.value.map(e => [
@@ -238,6 +267,7 @@ export function useAdminReports() {
     tutoresReport,
     materiasReport,
     cancelacionesReport,
+    asistenciaVsCancelacionReport,
     estudiantesReport,
     resumen,
     isLoading,
@@ -251,6 +281,7 @@ export function useAdminReports() {
     filteredTutores,
     filteredMaterias,
     filteredCancelaciones,
+    filteredAsistenciaVsCancelacion,
     filteredEstudiantes,
     loadReports,
     exportReport

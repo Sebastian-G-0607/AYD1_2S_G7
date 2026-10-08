@@ -11,6 +11,7 @@ import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
   MateriaCancelacionReporteItem,
+  MateriaAsistenciaVsCancelacionReporteItem,
   EstudianteSesionesReporteItem,
   ReportesResumen,
   InactiveUserItem,
@@ -409,6 +410,28 @@ export const adminService = {
       try {
         const { data } = await api.get<MateriaCancelacionReporteItem[]>(
           `/administrador/reportes/materias-mayor-cancelacion${query}`
+        )
+        return data
+      } catch {
+        return []
+      }
+    }
+  },
+
+  async getMateriasAsistenciaVsCancelacion(
+    limit?: number
+  ): Promise<MateriaAsistenciaVsCancelacionReporteItem[]> {
+    const basePath = getAdminBasePath()
+    const query = limit && limit > 0 ? `?limit=${limit}` : ''
+    try {
+      const { data } = await api.get<MateriaAsistenciaVsCancelacionReporteItem[]>(
+        `${basePath}/reportes/materias-asistencia-vs-cancelacion${query}`
+      )
+      return data
+    } catch {
+      try {
+        const { data } = await api.get<MateriaAsistenciaVsCancelacionReporteItem[]>(
+          `/administrador/reportes/materias-asistencia-vs-cancelacion${query}`
         )
         return data
       } catch {

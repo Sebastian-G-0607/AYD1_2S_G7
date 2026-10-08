@@ -59,3 +59,14 @@ public record MateriaCancelacionReporteDto(
     int SesionesPendientes,
     double TasaCancelacion
 );
+
+public record MateriaAsistenciaVsCancelacionReporteDto(
+    int MateriaId,
+    string NombreMateria,
+    int TotalSesiones,
+    int SesionesAtendidas,
+    int SesionesCanceladas,
+    int SesionesPendientes,
+    double TasaAsistencia,
+    double TasaCancelacion
+);
