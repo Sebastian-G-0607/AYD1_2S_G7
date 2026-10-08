@@ -3,6 +3,7 @@ import { adminService } from '../services/admin.service'
 import type {
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
+  EstudianteSesionesReporteItem,
   ReportesResumen,
   ReportsTabType
 } from '../types'
@@ -10,6 +11,7 @@ import type {
 export function useAdminReports() {
   const tutoresReport = ref<TutorAtencionesReporteItem[]>([])
   const materiasReport = ref<MateriaDemandaReporteItem[]>([])
+  const estudiantesReport = ref<EstudianteSesionesReporteItem[]>([])
   const resumen = ref<ReportesResumen>({
     totalSesiones: 0,
     totalSesionesAtendidas: 0,
@@ -27,7 +29,7 @@ export function useAdminReports() {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const selectedPeriod = ref<'7d' | '30d' | '90d' | 'all'>('30d')
-  const selectedTab = ref<ReportsTabType>('todos')
+  const selectedTab = ref<ReportsTabType>('general')
   const searchQuery = ref('')
 
   // Máximo valor de atenciones para escalar las barras verticalmente (con mínimo de 1 para evitar división por cero)
@@ -116,21 +118,34 @@ export function useAdminReports() {
     return materiasReport.value.filter(m => m.nombreMateria.toLowerCase().includes(q))
   })
 
+  const filteredEstudiantes = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase()
+    if (!q) return estudiantesReport.value
+    return estudiantesReport.value.filter(
+      e =>
+        e.nombreCompleto.toLowerCase().includes(q) ||
+        e.carnet.toLowerCase().includes(q) ||
+        e.correo.toLowerCase().includes(q)
+    )
+  })
+
   // Carga de datos
   async function loadReports() {
     isLoading.value = true
     error.value = null
 
     try {
-      const [resumenData, tutoresData, materiasData] = await Promise.all([
+      const [resumenData, tutoresData, materiasData, estudiantesData] = await Promise.all([
         adminService.getReportesResumen(),
         adminService.getTutoresMasAtendidos(10),
-        adminService.getMateriasMayorDemanda(10)
+        adminService.getMateriasMayorDemanda(10),
+        adminService.getEstudiantesMasSesiones(10)
       ])
 
       resumen.value = resumenData
       tutoresReport.value = tutoresData
       materiasReport.value = materiasData
+      estudiantesReport.value = estudiantesData
     } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Error al cargar los datos de reportes'
     } finally {
@@ -166,6 +181,18 @@ export function useAdminReports() {
         m.sesionesPendientes.toString(),
         m.sesionesCanceladas.toString(),
         `${m.porcentajeDemanda}%`
+      ]),
+      [''],
+      ['=== ESTUDIANTES CON MÁS SESIONES PROGRAMADAS ==='],
+      ['Estudiante', 'Carnet', 'Correo', 'Sesiones Programadas', 'Sesiones Atendidas', 'Sesiones Canceladas', 'Sesiones Pendientes'],
+      ...estudiantesReport.value.map(e => [
+        e.nombreCompleto,
+        e.carnet,
+        e.correo,
+        e.totalSesionesProgramadas.toString(),
+        e.sesionesAtendidas.toString(),
+        e.sesionesCanceladas.toString(),
+        e.sesionesPendientes.toString()
       ])
     ]
 
@@ -189,6 +216,7 @@ export function useAdminReports() {
   return {
     tutoresReport,
     materiasReport,
+    estudiantesReport,
     resumen,
     isLoading,
     error,
@@ -200,6 +228,7 @@ export function useAdminReports() {
     donutSegments,
     filteredTutores,
     filteredMaterias,
+    filteredEstudiantes,
     loadReports,
     exportReport
   }

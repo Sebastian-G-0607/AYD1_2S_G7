@@ -35,3 +35,17 @@ public record ReportesResumenDto(
     string? MateriaTopNombre,
     int MateriaTopSesiones
 );
+
+public record EstudianteSesionesReporteDto(
+    int EstudianteId,
+    string Nombre,
+    string Apellido,
+    string NombreCompleto,
+    string Carnet,
+    string Correo,
+    string? FotografiaUrl,
+    int TotalSesionesProgramadas,
+    int SesionesAtendidas,
+    int SesionesCanceladas,
+    int SesionesPendientes
+);

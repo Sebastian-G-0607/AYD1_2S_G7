@@ -4,6 +4,8 @@ import { useAdminReports } from '../composables/useAdminReports'
 
 const {
   tutoresReport,
+  materiasReport,
+  estudiantesReport,
   resumen,
   isLoading,
   error,
@@ -15,6 +17,7 @@ const {
   donutSegments,
   filteredTutores,
   filteredMaterias,
+  filteredEstudiantes,
   loadReports,
   exportReport
 } = useAdminReports()
@@ -67,6 +70,15 @@ function formatTutorName(name: string): { first: string; last: string } {
   }
   return { first: parts[0], last: parts.slice(1).join(' ') }
 }
+
+const selectedMateriaSubTab = ref<'demanda' | 'cancelaciones' | 'efectividad'>('demanda')
+
+const tabs = [
+  { key: 'general' as const, label: 'General', icon: 'dashboard' },
+  { key: 'tutores' as const, label: 'Tutores', icon: 'school' },
+  { key: 'estudiantes' as const, label: 'Estudiantes', icon: 'groups' },
+  { key: 'materias' as const, label: 'Materias y Efectividad', icon: 'auto_stories' }
+]
 </script>
 
 <template>
@@ -339,391 +351,585 @@ function formatTutorName(name: string): { first: string; last: string } {
       </div>
     </div>
 
-    <!-- CHARTS SECTION (STITCH TEMPLATE) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mt-6">
-      <!-- BAR CHART: Tutores con más estudiantes -->
-      <div
-        class="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col justify-between"
-      >
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h2 class="font-headline-md text-headline-md text-on-surface">
-              Tutores con más estudiantes
-            </h2>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
-              Volumen de atención en el periodo seleccionado (conteo de sesiones ATENDIDAS)
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Más opciones"
-            class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors"
-            @click="selectedTab = 'tutores'"
-          >
-            <span class="material-symbols-outlined text-on-surface-variant">table_chart</span>
-          </button>
-        </div>
-
-        <!-- Gráfico de Barras -->
-        <div
-          v-if="tutoresReport.length > 0"
-          class="w-full h-[340px] relative flex items-end justify-between px-4 pb-16 pt-4"
+    <!-- NAVEGACIÓN POR PESTAÑAS Y BÚSQUEDA -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-2">
+      <div class="flex items-center gap-1.5 p-1.5 bg-surface-container-low rounded-2xl overflow-x-auto">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          type="button"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl font-label-md text-label-md transition-all whitespace-nowrap cursor-pointer"
+          :class="
+            selectedTab === tab.key
+              ? 'bg-surface-container-lowest text-primary shadow-xs font-semibold'
+              : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container/60'
+          "
+          @click="selectedTab = tab.key"
         >
-          <!-- Y-Axis Grid Lines -->
-          <div class="absolute inset-0 flex flex-col justify-between pb-16 pointer-events-none">
-            <div class="w-full h-px bg-surface-container-high"></div>
-            <div class="w-full h-px bg-surface-container-high"></div>
-            <div class="w-full h-px bg-surface-container-high"></div>
-            <div class="w-full h-px bg-surface-container-high"></div>
-            <div class="w-full h-px bg-surface-container-high"></div>
+          <span class="material-symbols-outlined text-[18px]">{{ tab.icon }}</span>
+          <span>{{ tab.label }}</span>
+        </button>
+      </div>
+
+      <div v-if="selectedTab !== 'general'" class="relative w-full sm:w-72">
+        <span
+          class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none"
+        >
+          search
+        </span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="
+            selectedTab === 'tutores'
+              ? 'Buscar tutor...'
+              : selectedTab === 'estudiantes'
+                ? 'Buscar estudiante...'
+                : 'Buscar materia...'
+          "
+          class="w-full bg-surface-container-lowest text-on-surface font-body-sm text-body-sm rounded-xl pl-9 pr-8 py-2.5 border border-surface-container-high/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-xs"
+        />
+        <button
+          v-if="searchQuery"
+          type="button"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
+          @click="searchQuery = ''"
+        >
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 1: GENERAL -->
+    <div v-if="selectedTab === 'general'" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <!-- BAR CHART: Tutores con más estudiantes -->
+        <div
+          class="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col justify-between"
+        >
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface">
+                Tutores con más estudiantes
+              </h2>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                Volumen de atención en el periodo seleccionado (conteo de sesiones ATENDIDAS)
+              </p>
+            </div>
+            <button
+              type="button"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm cursor-pointer"
+              @click="selectedTab = 'tutores'"
+            >
+              <span>Ver tabla</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
           </div>
 
-          <!-- Columnas dinámicas -->
+          <!-- Gráfico de Barras -->
           <div
-            v-for="(tutor, idx) in tutoresReport.slice(0, 6)"
-            :key="tutor.tutorId"
-            class="relative z-10 w-10 sm:w-12 rounded-t-lg mx-auto flex flex-col justify-end group transition-all cursor-pointer"
-            :class="getBarColor(idx)"
-            :style="{
-              height: `${Math.max(12, Math.round((tutor.totalSesionesAtendidas / maxAtencionesTutor) * 88))}%`
-            }"
+            v-if="tutoresReport.length > 0"
+            class="w-full h-[340px] relative flex items-end justify-between px-4 pb-16 pt-4"
           >
-            <!-- Tooltip al pasar el mouse -->
+            <div class="absolute inset-0 flex flex-col justify-between pb-16 pointer-events-none">
+              <div class="w-full h-px bg-surface-container-high"></div>
+              <div class="w-full h-px bg-surface-container-high"></div>
+              <div class="w-full h-px bg-surface-container-high"></div>
+              <div class="w-full h-px bg-surface-container-high"></div>
+              <div class="w-full h-px bg-surface-container-high"></div>
+            </div>
+
             <div
-              class="opacity-0 group-hover:opacity-100 absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-3 py-1 rounded-lg font-label-sm text-label-sm whitespace-nowrap transition-opacity shadow-lg z-30 pointer-events-none"
+              v-for="(tutor, idx) in tutoresReport.slice(0, 6)"
+              :key="tutor.tutorId"
+              class="relative z-10 w-10 sm:w-12 rounded-t-lg mx-auto flex flex-col justify-end group transition-all cursor-pointer"
+              :class="getBarColor(idx)"
+              :style="{
+                height: `${Math.max(12, Math.round((tutor.totalSesionesAtendidas / maxAtencionesTutor) * 88))}%`
+              }"
             >
-              <div class="font-semibold">{{ tutor.totalSesionesAtendidas }} sesiones</div>
-              <div class="text-[11px] text-inverse-on-surface/80">
-                {{ tutor.totalEstudiantesAtendidos }} estudiantes
+              <div
+                class="opacity-0 group-hover:opacity-100 absolute -top-12 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-3 py-1 rounded-lg font-label-sm text-label-sm whitespace-nowrap transition-opacity shadow-lg z-30 pointer-events-none"
+              >
+                <div class="font-semibold">{{ tutor.totalSesionesAtendidas }} sesiones</div>
+                <div class="text-[11px] text-inverse-on-surface/80">
+                  {{ tutor.totalEstudiantesAtendidos }} estudiantes
+                </div>
+              </div>
+
+              <div
+                class="absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-start text-center w-20 sm:w-24 pointer-events-none"
+                :title="tutor.nombreCompleto"
+              >
+                <span class="text-[11px] font-semibold text-on-surface leading-tight truncate w-full">
+                  {{ formatTutorName(tutor.nombreCompleto).first }}
+                </span>
+                <span class="text-[10px] text-on-surface-variant leading-tight truncate w-full">
+                  {{ formatTutorName(tutor.nombreCompleto).last }}
+                </span>
               </div>
             </div>
+          </div>
 
-            <!-- Etiqueta con nombre a doble fila centrado horizontalmente -->
-            <div
-              class="absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-start text-center w-20 sm:w-24 pointer-events-none"
-              :title="tutor.nombreCompleto"
-            >
-              <span class="text-[11px] font-semibold text-on-surface leading-tight truncate w-full">
-                {{ formatTutorName(tutor.nombreCompleto).first }}
-              </span>
-              <span class="text-[10px] text-on-surface-variant leading-tight truncate w-full">
-                {{ formatTutorName(tutor.nombreCompleto).last }}
-              </span>
-            </div>
+          <div
+            v-else
+            class="h-[340px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-surface-container-high rounded-xl"
+          >
+            <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-2">person_off</span>
+            <p class="font-label-md text-label-md text-on-surface">
+              No hay registros de atenciones completadas
+            </p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Las sesiones deben estar en estado ATENDIDA para figurar en este reporte.
+            </p>
           </div>
         </div>
 
-        <!-- Empty state si no hay tutores con atenciones -->
+        <!-- DONUT CHART: Materias con mayor demanda -->
         <div
-          v-else
-          class="h-[340px] flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-surface-container-high rounded-xl"
+          class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col"
         >
-          <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-2"
-            >person_off</span
-          >
-          <p class="font-label-md text-label-md text-on-surface">
-            No hay registros de atenciones completadas
-          </p>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">
-            Las sesiones deben estar en estado ATENDIDA para figurar en este reporte.
-          </p>
+          <div class="flex justify-between items-start mb-1">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface">
+                Materias con mayor demanda
+              </h2>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+                Distribución por solicitudes y sesiones
+              </p>
+            </div>
+            <button
+              type="button"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm cursor-pointer"
+              @click="selectedTab = 'materias'"
+            >
+              <span>Ver tabla</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
+
+          <div class="relative w-48 h-48 mx-auto mb-6 shrink-0">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle
+                class="stroke-surface-container-high"
+                cx="50"
+                cy="50"
+                fill="transparent"
+                r="40"
+                stroke-width="20"
+              />
+              <circle
+                v-for="seg in donutSegments"
+                :key="seg.materiaId"
+                :class="seg.strokeClass"
+                cx="50"
+                cy="50"
+                fill="transparent"
+                r="40"
+                stroke-width="20"
+                :stroke-dasharray="seg.dashArray"
+                :stroke-dashoffset="seg.dashOffset"
+              />
+            </svg>
+
+            <div
+              class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+            >
+              <span class="font-headline-md text-headline-md text-on-surface">
+                {{
+                  resumen.totalSesiones > 999
+                    ? (resumen.totalSesiones / 1000).toFixed(1) + 'k'
+                    : resumen.totalSesiones
+                }}
+              </span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Sesiones</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 mt-auto">
+            <div
+              v-for="seg in donutSegments.slice(0, 4)"
+              :key="seg.materiaId"
+              class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
+              @click="selectedTab = 'materias'"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-3 h-3 rounded-full shrink-0" :class="seg.bgClass"></div>
+                <span
+                  class="font-label-md text-label-md text-on-surface truncate group-hover:text-primary"
+                >
+                  {{ seg.nombreMateria }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="font-body-sm text-body-sm text-on-surface-variant font-semibold">
+                  {{ seg.porcentajeDemanda }}%
+                </span>
+                <span class="text-[11px] text-on-surface-variant/70">({{ seg.totalSesiones }})</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- DONUT CHART: Materias con mayor demanda -->
-      <div
-        class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 flex flex-col"
-      >
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h2 class="font-headline-md text-headline-md text-on-surface">
-              Materias con mayor demanda
-            </h2>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
-              Distribución por solicitudes y sesiones
-            </p>
+      <!-- Resumen Ejecutivo de Acceso Rápido -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-6">
+        <div
+          class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high/40 shadow-xs flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[24px]">school</span>
+            </div>
+            <div class="min-w-0">
+              <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Top Tutor</p>
+              <p class="font-label-lg text-label-lg font-semibold text-on-surface truncate">{{ resumen.tutorTopNombre || 'Sin registros' }}</p>
+              <p class="text-[12px] text-on-surface-variant">{{ resumen.tutorTopAtenciones }} sesiones</p>
+            </div>
           </div>
           <button
             type="button"
-            aria-label="Ver tabla de materias"
-            class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors"
-            @click="selectedTab = 'materias'"
+            class="p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+            @click="selectedTab = 'tutores'"
           >
-            <span class="material-symbols-outlined text-on-surface-variant">table_chart</span>
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>
         </div>
 
-        <!-- SVG Donut Chart (Stitch Template) -->
-        <div class="relative w-48 h-48 mx-auto mb-6 flex-shrink-0">
-          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <!-- Background circle -->
-            <circle
-              class="stroke-surface-container-high"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="40"
-              stroke-width="20"
-            />
-
-            <!-- Dynamic segments calculated from backend data -->
-            <circle
-              v-for="seg in donutSegments"
-              :key="seg.materiaId"
-              :class="seg.strokeClass"
-              cx="50"
-              cy="50"
-              fill="transparent"
-              r="40"
-              stroke-width="20"
-              :stroke-dasharray="seg.dashArray"
-              :stroke-dashoffset="seg.dashOffset"
-            />
-          </svg>
-
-          <!-- Centro del Donut con total de sesiones -->
-          <div
-            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-          >
-            <span class="font-headline-md text-headline-md text-on-surface">
-              {{
-                resumen.totalSesiones > 999
-                  ? (resumen.totalSesiones / 1000).toFixed(1) + 'k'
-                  : resumen.totalSesiones
-              }}
-            </span>
-            <span class="font-label-sm text-label-sm text-on-surface-variant">Sesiones</span>
+        <div
+          class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high/40 shadow-xs flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[24px]">auto_stories</span>
+            </div>
+            <div class="min-w-0">
+              <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Materia Líder</p>
+              <p class="font-label-lg text-label-lg font-semibold text-on-surface truncate">{{ resumen.materiaTopNombre || 'Sin registros' }}</p>
+              <p class="text-[12px] text-on-surface-variant">{{ resumen.materiaTopSesiones }} sesiones</p>
+            </div>
           </div>
+          <button
+            type="button"
+            class="p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer"
+            @click="selectedTab = 'materias'"
+          >
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+          </button>
         </div>
 
-        <!-- Leyenda con porcentaje (Stitch Template) -->
-        <div class="space-y-2 mt-auto">
-          <div
-            v-for="seg in donutSegments.slice(0, 4)"
-            :key="seg.materiaId"
-            class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
-          >
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-3 h-3 rounded-full shrink-0" :class="seg.bgClass"></div>
-              <span
-                class="font-label-md text-label-md text-on-surface truncate group-hover:text-primary"
-              >
-                {{ seg.nombreMateria }}
-              </span>
+        <div
+          class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high/40 shadow-xs flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[24px]">groups</span>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="font-body-sm text-body-sm text-on-surface-variant font-semibold">
-                {{ seg.porcentajeDemanda }}%
-              </span>
-              <span class="text-[11px] text-on-surface-variant/70">({{ seg.totalSesiones }})</span>
+            <div class="min-w-0">
+              <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Participación</p>
+              <p class="font-label-lg text-label-lg font-semibold text-on-surface truncate">{{ totalEstudiantesAtendidos.toLocaleString() }} Estudiantes</p>
+              <p class="text-[12px] text-on-surface-variant">Con tutorías completadas</p>
             </div>
           </div>
+          <button
+            type="button"
+            class="p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-tertiary transition-colors cursor-pointer"
+            @click="selectedTab = 'estudiantes'"
+          >
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- SECCIÓN DE TABLAS DETALLADAS (Criterio de Aceptación HU-08) -->
+    <!-- PESTAÑA 2: TUTORES -->
     <div
-      class="bg-surface-container-lowest rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 p-6 mt-6"
+      v-else-if="selectedTab === 'tutores'"
+      class="bg-surface-container-lowest rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 p-6"
     >
-      <!-- Pestañas y Búsqueda -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-surface-container-high pb-4 mb-6"
-      >
+      <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer"
-            :class="
-              selectedTab === 'todos'
-                ? 'bg-primary text-on-primary shadow-sm font-semibold'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            "
-            @click="selectedTab = 'todos'"
-          >
-            Todos los Reportes
-          </button>
-          <button
-            type="button"
-            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer"
-            :class="
-              selectedTab === 'tutores'
-                ? 'bg-primary text-on-primary shadow-sm font-semibold'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            "
-            @click="selectedTab = 'tutores'"
-          >
-            Tutores con Más Atenciones
-          </button>
-          <button
-            type="button"
-            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer"
-            :class="
-              selectedTab === 'materias'
-                ? 'bg-primary text-on-primary shadow-sm font-semibold'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-            "
-            @click="selectedTab = 'materias'"
-          >
-            Materias de Mayor Demanda
-          </button>
-        </div>
-
-        <!-- Búsqueda rápida -->
-        <div class="relative w-full sm:w-72">
-          <span
-            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none"
-          >
-            search
-          </span>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Buscar en reportes..."
-            class="w-full bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded-lg pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all"
-          />
-          <button
-            v-if="searchQuery"
-            type="button"
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
-            @click="searchQuery = ''"
-          >
-            <span class="material-symbols-outlined text-[16px]">close</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- TABLA 1: TUTORES CON MÁS ATENCIONES -->
-      <div v-if="selectedTab === 'todos' || selectedTab === 'tutores'" class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary text-[22px]"
-              >workspace_premium</span
-            >
+          <span class="material-symbols-outlined text-primary text-[22px]">workspace_premium</span>
+          <div>
             <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
-              Ranking de Tutores por Estudiantes Atendidos
+              Top 10 tutores por estudiantes atendidos
             </h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Ranking ordenado por volumen de sesiones completadas y estudiantes únicos atendidos
+            </p>
           </div>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">
-            {{ filteredTutores.length }} tutores registrados
-          </span>
         </div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">
+          {{ filteredTutores.length }} tutores registrados
+        </span>
+      </div>
 
-        <div class="overflow-x-auto rounded-xl border border-surface-container-high">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr
-                class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high"
-              >
-                <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
-                <th class="py-3.5 px-4 font-semibold">Tutor Académico</th>
-                <th class="py-3.5 px-4 font-semibold">Carnet / ID</th>
-                <th class="py-3.5 px-4 font-semibold">Correo Electrónico</th>
-                <th class="py-3.5 px-4 font-semibold text-center">Sesiones Atendidas</th>
-                <th class="py-3.5 px-4 font-semibold text-center">Estudiantes Únicos</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
-              <tr
-                v-for="(tutor, idx) in filteredTutores"
-                :key="tutor.tutorId"
-                class="hover:bg-surface-container-low/60 transition-colors"
-              >
-                <!-- Posición / Medalla -->
-                <td class="py-3 px-4 text-center">
-                  <span
-                    class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs"
-                    :class="[
-                      idx === 0
-                        ? 'bg-amber-100 text-amber-800'
-                        : idx === 1
-                          ? 'bg-slate-200 text-slate-800'
-                          : idx === 2
-                            ? 'bg-orange-100 text-orange-800'
-                            : 'bg-surface-container text-on-surface-variant'
-                    ]"
+      <div class="overflow-x-auto overflow-y-auto max-h-[360px] rounded-xl border border-surface-container-high">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 z-10 bg-surface-container-low shadow-xs">
+            <tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high">
+              <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
+              <th class="py-3.5 px-4 font-semibold">Tutor Académico</th>
+              <th class="py-3.5 px-4 font-semibold">Carnet / ID</th>
+              <th class="py-3.5 px-4 font-semibold">Correo Electrónico</th>
+              <th class="py-3.5 px-4 font-semibold text-center">Sesiones Atendidas</th>
+              <th class="py-3.5 px-4 font-semibold text-center">Estudiantes Únicos</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
+            <tr
+              v-for="(tutor, idx) in filteredTutores"
+              :key="tutor.tutorId"
+              class="hover:bg-surface-container-low/60 transition-colors"
+            >
+              <td class="py-3 px-4 text-center">
+                <span
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs"
+                  :class="[
+                    idx === 0
+                      ? 'bg-amber-100 text-amber-800'
+                      : idx === 1
+                        ? 'bg-slate-200 text-slate-800'
+                        : idx === 2
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-surface-container text-on-surface-variant'
+                  ]"
+                >
+                  #{{ idx + 1 }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs overflow-hidden shrink-0"
                   >
-                    #{{ idx + 1 }}
-                  </span>
-                </td>
-
-                <!-- Tutor info con avatar -->
-                <td class="py-3 px-4">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs overflow-hidden shrink-0"
-                    >
-                      <img
-                        v-if="tutor.fotografiaUrl"
-                        :src="tutor.fotografiaUrl"
-                        :alt="tutor.nombreCompleto"
-                        class="w-full h-full object-cover"
-                      />
-                      <span v-else>{{ getInitials(tutor.nombreCompleto) }}</span>
-                    </div>
-                    <div>
-                      <p class="font-semibold text-on-surface">{{ tutor.nombreCompleto }}</p>
-                      <p class="text-[12px] text-on-surface-variant">Tutor Activo</p>
-                    </div>
+                    <img
+                      v-if="tutor.fotografiaUrl"
+                      :src="tutor.fotografiaUrl"
+                      :alt="tutor.nombreCompleto"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else>{{ getInitials(tutor.nombreCompleto) }}</span>
                   </div>
-                </td>
+                  <div>
+                    <p class="font-semibold text-on-surface">{{ tutor.nombreCompleto }}</p>
+                    <p class="text-[12px] text-on-surface-variant">Tutor Activo</p>
+                  </div>
+                </div>
+              </td>
 
-                <!-- Carnet -->
-                <td class="py-3 px-4 text-on-surface font-mono text-[13px]">
-                  {{ tutor.carnet }}
-                </td>
+              <td class="py-3 px-4 text-on-surface font-mono text-[13px]">
+                {{ tutor.carnet }}
+              </td>
 
-                <!-- Correo -->
-                <td class="py-3 px-4 text-on-surface-variant">
-                  {{ tutor.correo }}
-                </td>
+              <td class="py-3 px-4 text-on-surface-variant">
+                {{ tutor.correo }}
+              </td>
 
-                <!-- Sesiones Atendidas -->
-                <td class="py-3 px-4 text-center">
-                  <span
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary"
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                  {{ tutor.totalSesionesAtendidas }} atendidas
+                </span>
+              </td>
+
+              <td class="py-3 px-4 text-center font-semibold text-secondary">
+                {{ tutor.totalEstudiantesAtendidos }}
+              </td>
+            </tr>
+
+            <tr v-if="filteredTutores.length === 0">
+              <td colspan="6" class="py-8 text-center text-on-surface-variant">
+                No se encontraron tutores que coincidan con la búsqueda.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: ESTUDIANTES -->
+    <div
+      v-else-if="selectedTab === 'estudiantes'"
+      class="bg-surface-container-lowest rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 p-6"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[22px]">groups</span>
+          <div>
+            <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
+              Top 10 estudiantes con más sesiones programadas
+            </h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Ranking ordenado por volumen de sesiones reservadas en el sistema
+            </p>
+          </div>
+        </div>
+        <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">
+          {{ filteredEstudiantes.length }} estudiantes registrados
+        </span>
+      </div>
+
+      <div class="overflow-x-auto overflow-y-auto max-h-[360px] rounded-xl border border-surface-container-high">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 z-10 bg-surface-container-low shadow-xs">
+            <tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high">
+              <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
+              <th class="py-3.5 px-4 font-semibold">Estudiante</th>
+              <th class="py-3.5 px-4 font-semibold">Carnet / ID</th>
+              <th class="py-3.5 px-4 font-semibold">Correo Electrónico</th>
+              <th class="py-3.5 px-4 font-semibold text-center">Sesiones Programadas</th>
+              <th class="py-3.5 px-4 font-semibold text-center">Atendidas</th>
+              <th class="py-3.5 px-4 font-semibold text-center">Canceladas</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-high font-body-sm text-body-sm">
+            <tr
+              v-for="(estudiante, idx) in filteredEstudiantes"
+              :key="estudiante.estudianteId"
+              class="hover:bg-surface-container-low/60 transition-colors"
+            >
+              <td class="py-3 px-4 text-center">
+                <span
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs"
+                  :class="[
+                    idx === 0
+                      ? 'bg-amber-100 text-amber-800'
+                      : idx === 1
+                        ? 'bg-slate-200 text-slate-800'
+                        : idx === 2
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-surface-container text-on-surface-variant'
+                  ]"
+                >
+                  #{{ idx + 1 }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs overflow-hidden shrink-0"
                   >
-                    {{ tutor.totalSesionesAtendidas }} atendidas
-                  </span>
-                </td>
+                    <img
+                      v-if="estudiante.fotografiaUrl"
+                      :src="estudiante.fotografiaUrl"
+                      :alt="estudiante.nombreCompleto"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else>{{ getInitials(estudiante.nombreCompleto) }}</span>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-on-surface">{{ estudiante.nombreCompleto }}</p>
+                    <p class="text-[12px] text-on-surface-variant">Estudiante Activo</p>
+                  </div>
+                </div>
+              </td>
 
-                <!-- Estudiantes Atendidos -->
-                <td class="py-3 px-4 text-center font-semibold text-secondary">
-                  {{ tutor.totalEstudiantesAtendidos }}
-                </td>
-              </tr>
+              <td class="py-3 px-4 text-on-surface font-mono text-[13px]">
+                {{ estudiante.carnet }}
+              </td>
 
-              <!-- Fila vacía -->
-              <tr v-if="filteredTutores.length === 0">
-                <td colspan="6" class="py-8 text-center text-on-surface-variant">
-                  No se encontraron tutores que coincidan con la búsqueda.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              <td class="py-3 px-4 text-on-surface-variant">
+                {{ estudiante.correo }}
+              </td>
+
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                  {{ estudiante.totalSesionesProgramadas }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4 text-center font-semibold text-emerald-700">
+                {{ estudiante.sesionesAtendidas }}
+              </td>
+
+              <td class="py-3 px-4 text-center font-semibold text-amber-700">
+                {{ estudiante.sesionesCanceladas }}
+              </td>
+            </tr>
+
+            <tr v-if="filteredEstudiantes.length === 0">
+              <td colspan="7" class="py-8 text-center text-on-surface-variant">
+                No se encontraron estudiantes que coincidan con la búsqueda.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 4: MATERIAS Y EFECTIVIDAD -->
+    <div
+      v-else-if="selectedTab === 'materias'"
+      class="bg-surface-container-lowest rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-surface-container-high/40 p-6"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-container-high pb-4 mb-6">
+        <div class="flex items-center gap-2 overflow-x-auto">
+          <button
+            type="button"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap"
+            :class="
+              selectedMateriaSubTab === 'demanda'
+                ? 'bg-primary text-on-primary shadow-xs font-semibold'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+            "
+            @click="selectedMateriaSubTab = 'demanda'"
+          >
+            Mayor Demanda
+          </button>
+          <button
+            type="button"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            :class="
+              selectedMateriaSubTab === 'cancelaciones'
+                ? 'bg-primary text-on-primary shadow-xs font-semibold'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+            "
+            @click="selectedMateriaSubTab = 'cancelaciones'"
+          >
+            <span>Tasa de Cancelación</span>
+            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full" :class="selectedMateriaSubTab === 'cancelaciones' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'">Próx.</span>
+          </button>
+          <button
+            type="button"
+            class="font-label-sm text-label-sm px-4 py-2 rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+            :class="
+              selectedMateriaSubTab === 'efectividad'
+                ? 'bg-primary text-on-primary shadow-xs font-semibold'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+            "
+            @click="selectedMateriaSubTab = 'efectividad'"
+          >
+            <span>Asistencia vs. Cancelación</span>
+            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full" :class="selectedMateriaSubTab === 'efectividad' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'">Próx.</span>
+          </button>
         </div>
       </div>
 
-      <!-- TABLA 2: MATERIAS CON MAYOR DEMANDA -->
-      <div v-if="selectedTab === 'todos' || selectedTab === 'materias'">
+      <!-- Sub-pestaña 1: Mayor Demanda -->
+      <div v-if="selectedMateriaSubTab === 'demanda'">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-secondary text-[22px]">analytics</span>
-            <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
-              Demanda de Materias y Asignaturas
-            </h3>
+            <div>
+              <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
+                Top 10 materias con mayor demanda
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Distribución por solicitudes acumuladas y cumplimiento de sesiones
+              </p>
+            </div>
           </div>
-          <span class="font-label-sm text-label-sm text-on-surface-variant">
+          <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">
             {{ filteredMaterias.length }} materias registradas
           </span>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-surface-container-high">
+        <div class="overflow-x-auto overflow-y-auto max-h-[300px] rounded-xl border border-surface-container-high">
           <table class="w-full text-left border-collapse">
-            <thead>
-              <tr
-                class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high"
-              >
+            <thead class="sticky top-0 z-10 bg-surface-container-low shadow-xs">
+              <tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high">
                 <th class="py-3.5 px-4 font-semibold w-16 text-center">Pos.</th>
                 <th class="py-3.5 px-4 font-semibold">Materia / Asignatura</th>
                 <th class="py-3.5 px-4 font-semibold text-center">Total Sesiones</th>
@@ -738,32 +944,26 @@ function formatTutorName(name: string): { first: string; last: string } {
                 :key="materia.materiaId"
                 class="hover:bg-surface-container-low/60 transition-colors"
               >
-                <!-- Posición -->
                 <td class="py-3 px-4 text-center font-bold text-xs text-on-surface-variant">
                   #{{ idx + 1 }}
                 </td>
 
-                <!-- Nombre de Materia -->
                 <td class="py-3 px-4 font-semibold text-on-surface">
                   {{ materia.nombreMateria }}
                 </td>
 
-                <!-- Total Sesiones -->
                 <td class="py-3 px-4 text-center font-bold text-primary">
                   {{ materia.totalSesiones }}
                 </td>
 
-                <!-- Atendidas -->
                 <td class="py-3 px-4 text-center text-emerald-700 font-medium">
                   {{ materia.sesionesAtendidas }}
                 </td>
 
-                <!-- Pendientes -->
                 <td class="py-3 px-4 text-center text-amber-700 font-medium">
                   {{ materia.sesionesPendientes }}
                 </td>
 
-                <!-- Barra de Progreso de Demanda -->
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-3">
                     <div class="flex-1 bg-surface-container rounded-full h-2.5 overflow-hidden">
@@ -772,16 +972,13 @@ function formatTutorName(name: string): { first: string; last: string } {
                         :style="{ width: `${materia.porcentajeDemanda}%` }"
                       />
                     </div>
-                    <span
-                      class="font-label-sm text-label-sm font-semibold text-on-surface w-12 text-right"
-                    >
+                    <span class="font-label-sm text-label-sm font-semibold text-on-surface w-12 text-right">
                       {{ materia.porcentajeDemanda }}%
                     </span>
                   </div>
                 </td>
               </tr>
 
-              <!-- Fila vacía -->
               <tr v-if="filteredMaterias.length === 0">
                 <td colspan="6" class="py-8 text-center text-on-surface-variant">
                   No se encontraron materias que coincidan con la búsqueda.
@@ -789,6 +986,70 @@ function formatTutorName(name: string): { first: string; last: string } {
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Sub-pestaña 2: Mayor Tasa de Cancelación -->
+      <div v-else-if="selectedMateriaSubTab === 'cancelaciones'">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-error text-[22px]">event_busy</span>
+            <div>
+              <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
+                Top 10 materias con mayor tasa de cancelación
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Materias con mayor índice porcentual de cancelaciones sobre el total programado
+              </p>
+            </div>
+          </div>
+          <span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-3 py-1 rounded-full font-semibold">
+            Próximamente
+          </span>
+        </div>
+
+        <div class="rounded-xl border border-surface-container-high overflow-hidden bg-surface-container-low/20 p-8 flex flex-col items-center text-center">
+          <div class="w-14 h-14 rounded-2xl bg-error-container/40 text-on-error-container flex items-center justify-center mb-3">
+            <span class="material-symbols-outlined text-[30px]">event_busy</span>
+          </div>
+          <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-1">
+            Reporte preparado para integración
+          </h4>
+          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">
+            El cálculo de materias con mayor proporción de cancelaciones se reflejará aquí con sus alertas visuales correspondientes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sub-pestaña 3: Asistencia vs. Cancelación -->
+      <div v-else-if="selectedMateriaSubTab === 'efectividad'">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[22px]">compare_arrows</span>
+            <div>
+              <h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">
+                Tasa de asistencia vs. cancelación por materia
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Comparativo porcentual de efectividad y asistencia exitosa contra cancelaciones
+              </p>
+            </div>
+          </div>
+          <span class="font-label-sm text-label-sm bg-secondary/10 text-secondary px-3 py-1 rounded-full font-semibold">
+            Próximamente
+          </span>
+        </div>
+
+        <div class="rounded-xl border border-surface-container-high overflow-hidden bg-surface-container-low/20 p-8 flex flex-col items-center text-center">
+          <div class="w-14 h-14 rounded-2xl bg-secondary-container/40 text-on-secondary-container flex items-center justify-center mb-3">
+            <span class="material-symbols-outlined text-[30px]">analytics</span>
+          </div>
+          <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-1">
+            Reporte preparado para integración
+          </h4>
+          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">
+            La comparativa cruzada de efectividad por materia mostrará la relación directa entre asistencias y cancelaciones.
+          </p>
         </div>
       </div>
     </div>

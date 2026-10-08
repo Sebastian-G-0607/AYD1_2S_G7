@@ -10,6 +10,7 @@ import type {
   DarBajaResponse,
   TutorAtencionesReporteItem,
   MateriaDemandaReporteItem,
+  EstudianteSesionesReporteItem,
   ReportesResumen,
   InactiveUserItem,
   UpdateTutorAdminPayload,
@@ -371,6 +372,26 @@ export const adminService = {
             porcentajeDemanda: 10
           }
         ]
+      }
+    }
+  },
+
+  async getEstudiantesMasSesiones(limit?: number): Promise<EstudianteSesionesReporteItem[]> {
+    const basePath = getAdminBasePath()
+    const query = limit && limit > 0 ? `?limit=${limit}` : ''
+    try {
+      const { data } = await api.get<EstudianteSesionesReporteItem[]>(
+        `${basePath}/reportes/estudiantes-mas-sesiones${query}`
+      )
+      return data
+    } catch {
+      try {
+        const { data } = await api.get<EstudianteSesionesReporteItem[]>(
+          `/administrador/reportes/estudiantes-mas-sesiones${query}`
+        )
+        return data
+      } catch {
+        return []
       }
     }
   },
