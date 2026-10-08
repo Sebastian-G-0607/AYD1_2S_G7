@@ -105,6 +105,18 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/estudiantes/:id/editar',
+    name: 'admin-edit-student',
+    component: () => import('@/pages/AdminEditStudentPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Editar Estudiante - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/reportes',
     name: 'admin-reports',
     component: () => import('@/pages/AdminReportsPage.vue'),
@@ -113,6 +125,30 @@ export const routes: RouteRecordRaw[] = [
       guestOnly: false,
       roles: ['Administrador', 'Admin'],
       title: 'Visión General y Reportes - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/denuncias',
+    name: 'admin-user-reports',
+    component: () => import('@/pages/AdminUserReportsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Denuncias - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/calificaciones-tutores',
+    name: 'admin-tutor-ratings',
+    component: () => import('@/pages/AdminTutorRatingsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Calificación de Tutores - EduConnect Admin',
       layout: 'dashboard'
     }
   },
@@ -222,7 +258,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/historial',
     name: 'student-history',
@@ -235,7 +270,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/plan-estudio',
     name: 'student-study-plan',
@@ -248,7 +282,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/mi-perfil',
     name: 'student-profile',

@@ -53,6 +53,11 @@ export function useStudentHistory() {
     }
   }
 
+  function markAsReported(sesionId: number) {
+    const session = sessions.value.find(item => item.sesionId === sesionId)
+    if (session) session.yaReportada = true
+  }
+
   onMounted(fetchHistory)
 
   return {
@@ -65,6 +70,7 @@ export function useStudentHistory() {
     cancelledSessions,
     isLoading,
     errorMessage,
-    fetchHistory
+    fetchHistory,
+    markAsReported
   }
 }

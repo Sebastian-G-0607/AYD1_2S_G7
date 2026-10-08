@@ -72,6 +72,7 @@ export interface ActiveStudentItem {
   telefono?: string
   fechaRegistro?: string
   estado?: string
+  documentoCarnetUrl?: string | null
 }
 
 export interface ActiveTutorItem {
@@ -198,7 +199,30 @@ export interface ReportesResumen {
   materiaTopSesiones: number
 }
 
-export type ReportsTabType = 'general' | 'tutores' | 'estudiantes' | 'materias'
+export interface EstudianteCalificacionReporteItem {
+  estudianteId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string | null
+  totalSesionesAtendidas: number
+  totalEvaluaciones: number
+  promedioCalificacion: number
+}
+
+export type ReportsTabType = 'general' | 'todos' | 'tutores' | 'estudiantes' | 'materias'
+
+export interface CalificacionTutorReporteItem {
+  tutorId: number
+  nombreCompleto: string
+  especialidad: string
+  promedioCalificacion: number | null
+  totalCalificaciones: number
+}
+
+export type RatingSortDirection = 'desc' | 'asc'
 
 // ==========================================
 // HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)
@@ -239,3 +263,78 @@ export interface UpdateTutorAdminResponse {
   telefono?: string
   mensaje: string
 }
+
+// ==========================================
+// HU-34: VER Y ACTUALIZAR ESTUDIANTE (ADMIN)
+// ==========================================
+export interface UpdateStudentAdminPayload {
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  direccion: string
+  telefono?: string
+  fotografiaUrl?: string
+  documentoCarnetUrl?: string
+}
+
+export interface UpdateStudentAdminResponse {
+  id: number
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  correo: string
+  fotografiaUrl?: string
+  direccion: string
+  telefono?: string
+  mensaje: string
+  documentoCarnetUrl?: string
+}
+
+// ==========================================
+// HU-36 / HU-37: GESTIÓN DE DENUNCIAS
+// ==========================================
+export interface TutorReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  tutorId: number
+  tutorNombreCompleto: string
+  tutorCorreo: string
+  estudianteDenuncianteId: number
+  estudianteDenuncianteNombreCompleto: string
+  estudianteDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface StudentReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  estudianteId: number
+  estudianteNombreCompleto: string
+  estudianteCorreo: string
+  tutorDenuncianteId: number
+  tutorDenuncianteNombreCompleto: string
+  tutorDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface ResolveReportResponse {
+  reporteId: number
+  estadoReporte: string
+  usuarioId: number
+  estadoUsuario: string
+  mensaje: string
+}
+
+export type UserReportsTab = 'tutores' | 'estudiantes'

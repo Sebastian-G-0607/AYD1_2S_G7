@@ -15,7 +15,7 @@ public static class ListarReportesTutoresEndpoint
             .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         edu_connect_serviceContext dbContext,
         CancellationToken cancellationToken)
     {

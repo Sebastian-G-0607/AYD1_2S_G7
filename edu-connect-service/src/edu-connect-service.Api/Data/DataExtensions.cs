@@ -105,6 +105,18 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!context.Set<CategoriaReporteTutor>().Any())
+        {
+            SeedCategoriasReporteTutor(context);
+            hasChanges = true;
+        }
+
+        if (!context.Set<CategoriaReporteEstudiante>().Any())
+        {
+            SeedCategoriasReporteEstudiante(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             context.SaveChanges();
@@ -145,6 +157,18 @@ public static class DataExtensions
         if (!await context.Set<Materia>().AnyAsync(cancellationToken))
         {
             SeedMaterias(context);
+            hasChanges = true;
+        }
+
+        if (!await context.Set<CategoriaReporteTutor>().AnyAsync(cancellationToken))
+        {
+            SeedCategoriasReporteTutor(context);
+            hasChanges = true;
+        }
+
+        if (!await context.Set<CategoriaReporteEstudiante>().AnyAsync(cancellationToken))
+        {
+            SeedCategoriasReporteEstudiante(context);
             hasChanges = true;
         }
 
@@ -222,6 +246,37 @@ public static class DataExtensions
         );
     }
 
+    public static void SeedCategoriasReporteTutor(DbContext context)
+    {
+        context.Set<CategoriaReporteTutor>().AddRange(
+            new CategoriaReporteTutor
+            {
+                Nombre = "Ética y profesionalismo",
+                Descripcion = "Falta de respeto, impuntualidad o conducta poco profesional durante la tutoría"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Negligencia académica",
+                Descripcion = "Explicaciones incorrectas, falta de preparación o desinterés en la tutoría"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Abuso y conducta inapropiada",
+                Descripcion = "Acoso, discriminación, comentarios ofensivos o trato indebido"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Falsificación de información",
+                Descripcion = "Datos, títulos o experiencia que no corresponden con la realidad"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Incumplimiento de la sesión",
+                Descripcion = "No se presentó, terminó antes de tiempo o no atendió lo acordado"
+            }
+        );
+    }
+
     private static void SeedMaterias(DbContext context)
     {
         string[] materias =
@@ -280,6 +335,17 @@ public static class DataExtensions
 
         context.Set<Materia>().AddRange(
             materias.Select(nombre => new Materia { Nombre = nombre })
+        );
+    }
+
+    private static void SeedCategoriasReporteEstudiante(DbContext context)
+    {
+        context.Set<CategoriaReporteEstudiante>().AddRange(
+            new CategoriaReporteEstudiante { Nombre = "Conducta inapropiada" },
+            new CategoriaReporteEstudiante { Nombre = "Falsificación de documentos" },
+            new CategoriaReporteEstudiante { Nombre = "Agresión verbal o física" },
+            new CategoriaReporteEstudiante { Nombre = "Robo o daño a las instalaciones" },
+            new CategoriaReporteEstudiante { Nombre = "Incumplimiento reiterado de citas" }
         );
     }
 

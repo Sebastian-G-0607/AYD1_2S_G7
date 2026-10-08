@@ -90,7 +90,8 @@ public static class HistorialSesionesEndpoint
                     ? sesion.Resumen
                     : null,
 
-                sesion.Estado.Nombre
+                sesion.Estado.Nombre,
+                sesion.ReportesTutor.Any()
             ))
             .ToListAsync(cancellationToken);
 

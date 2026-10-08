@@ -238,6 +238,10 @@ export function useAdminActiveUsers() {
     router.push(`/admin/tutores/${tutorId}/editar`)
   }
 
+  function navigateToEditStudent(studentId: number) {
+    router.push(`/admin/estudiantes/${studentId}/editar`)
+  }
+
   onMounted(() => {
     fetchAll()
   })
@@ -279,6 +283,7 @@ export function useAdminActiveUsers() {
     dismissFeedback,
     getInitials,
     formatFecha,
-    navigateToEditTutor
+    navigateToEditTutor,
+    navigateToEditStudent
   }
 }

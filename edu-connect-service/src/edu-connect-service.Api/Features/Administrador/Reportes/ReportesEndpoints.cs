@@ -10,5 +10,7 @@ public static class ReportesEndpoints
         app.MapEstudiantesMasSesiones();
         app.MapMateriasMayorCancelacion();
         app.MapMateriasAsistenciaVsCancelacion();
+        app.MapEstudiantesCalificaciones();
+        app.MapCalificacionTutores();
     }
 }
