@@ -105,6 +105,12 @@ public static class DataExtensions
             hasChanges = true;
         }
 
+        if (!context.Set<CategoriaReporteTutor>().Any())
+        {
+            SeedCategoriasReporteTutor(context);
+            hasChanges = true;
+        }
+
         if (hasChanges)
         {
             context.SaveChanges();
@@ -145,6 +151,12 @@ public static class DataExtensions
         if (!await context.Set<Materia>().AnyAsync(cancellationToken))
         {
             SeedMaterias(context);
+            hasChanges = true;
+        }
+
+        if (!await context.Set<CategoriaReporteTutor>().AnyAsync(cancellationToken))
+        {
+            SeedCategoriasReporteTutor(context);
             hasChanges = true;
         }
 
@@ -219,6 +231,37 @@ public static class DataExtensions
             new EstadoSesion { Nombre = "ATENDIDA", Descripcion = "Sesion atendida con exito" },
             new EstadoSesion { Nombre = "CANCELADA_TUTOR", Descripcion = "Sesion cancelada por el tutor" },
             new EstadoSesion { Nombre = "CANCELADA_ESTUDIANTE", Descripcion = "Sesion cancelada por el estudiante" }
+        );
+    }
+
+    public static void SeedCategoriasReporteTutor(DbContext context)
+    {
+        context.Set<CategoriaReporteTutor>().AddRange(
+            new CategoriaReporteTutor
+            {
+                Nombre = "Ética y profesionalismo",
+                Descripcion = "Falta de respeto, impuntualidad o conducta poco profesional durante la tutoría"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Negligencia académica",
+                Descripcion = "Explicaciones incorrectas, falta de preparación o desinterés en la tutoría"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Abuso y conducta inapropiada",
+                Descripcion = "Acoso, discriminación, comentarios ofensivos o trato indebido"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Falsificación de información",
+                Descripcion = "Datos, títulos o experiencia que no corresponden con la realidad"
+            },
+            new CategoriaReporteTutor
+            {
+                Nombre = "Incumplimiento de la sesión",
+                Descripcion = "No se presentó, terminó antes de tiempo o no atendió lo acordado"
+            }
         );
     }
 
