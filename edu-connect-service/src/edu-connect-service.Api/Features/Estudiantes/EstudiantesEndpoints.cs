@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Features.Estudiantes.RegistrarEstudiante;
+using edu_connect_service.Api.Features.Estudiantes.CalificarTutor;
 using edu_connect_service.Api.Features.Estudiantes.HistorialSesiones;
 using edu_connect_service.Api.Features.Estudiantes.ImprimirPlanEstudio;
 using edu_connect_service.Api.Features.Estudiantes.ObtenerPlanEstudio;
@@ -16,6 +17,7 @@ public static class EstudiantesEndpoints
         var apiGroup = app.MapGroup("/api/estudiantes");
 
         apiGroup.MapRegistrarEstudiante();
+        apiGroup.MapCalificarTutor();
         apiGroup.MapHistorialSesionesEstudiante();
         apiGroup.MapImprimirPlanEstudio();
         apiGroup.MapObtenerPlanEstudio();
@@ -27,6 +29,7 @@ public static class EstudiantesEndpoints
         var rootGroup = app.MapGroup("/estudiantes");
 
         rootGroup.MapRegistrarEstudiante();
+        rootGroup.MapCalificarTutor();
         rootGroup.MapHistorialSesionesEstudiante();
         rootGroup.MapImprimirPlanEstudio();
         rootGroup.MapObtenerPlanEstudio();
