@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import { BaseAlert, BaseBadge, BaseModal } from '@/components/ui'
 import { useStudentHistory } from '../composables/useStudentHistory'
 import { useReportTutor } from '../composables/useReportTutor'
-import type { ReportTutorPayload, StudentHistorySession } from '../types'
+import { useRateTutor } from '../composables/useRateTutor'
+import type { RateTutorPayload, ReportTutorPayload, StudentHistorySession } from '../types'
 import ReportTutorModal from './ReportTutorModal.vue'
+import RateTutorModal from './RateTutorModal.vue'
 
 const {
   filteredSessions,
@@ -15,7 +17,8 @@ const {
   cancelledSessions,
   isLoading,
   errorMessage,
-  markAsReported
+  markAsReported,
+  markAsRated
 } = useStudentHistory()
 
 const {
@@ -27,9 +30,20 @@ const {
   clearError: clearReportError
 } = useReportTutor()
 
+const {
+  isSubmitting: isRating,
+  errorMessage: ratingError,
+  submitRating,
+  clearError: clearRatingError
+} = useRateTutor()
+
 const reportSession = ref<StudentHistorySession | null>(null)
 const isReportOpen = ref(false)
 const reportSuccess = ref('')
+
+const ratingSession = ref<StudentHistorySession | null>(null)
+const isRatingOpen = ref(false)
+const ratingSuccess = ref('')
 
 const selectedSession = ref<StudentHistorySession | null>(null)
 const isSummaryOpen = ref(false)
@@ -85,6 +99,29 @@ async function handleReportSubmit(payload: ReportTutorPayload) {
     markAsReported(sesionId)
     isReportOpen.value = false
     reportSuccess.value = 'Tu reporte fue enviado al administrador.'
+  }
+}
+
+function openRating(session: StudentHistorySession) {
+  if (session.estado.toUpperCase() !== 'ATENDIDA' || session.yaCalificada) return
+
+  ratingSession.value = session
+  ratingSuccess.value = ''
+  clearRatingError()
+  isRatingOpen.value = true
+}
+
+async function handleRatingSubmit(payload: RateTutorPayload) {
+  if (!ratingSession.value) return
+
+  const sesionId = ratingSession.value.sesionId
+  const ok = await submitRating(sesionId, payload)
+
+  if (ok) {
+    markAsRated(sesionId, payload.estrellas)
+    isRatingOpen.value = false
+    ratingSession.value = null
+    ratingSuccess.value = 'Gracias por calificar la atención recibida.'
   }
 }
 
@@ -194,6 +231,14 @@ function openSummary(session: StudentHistorySession) {
       @dismiss="reportSuccess = ''"
     />
 
+    <BaseAlert
+      v-if="ratingSuccess"
+      type="success"
+      :message="ratingSuccess"
+      dismissible
+      @dismiss="ratingSuccess = ''"
+    />
+
     <!-- Tabla -->
     <div
       class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden"
@@ -248,6 +293,10 @@ function openSummary(session: StudentHistorySession) {
 
               <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
                 Resumen
+              </th>
+
+              <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
+                Calificación
               </th>
 
               <th class="py-4 px-6 text-sm font-semibold text-on-surface-variant text-right">
@@ -331,6 +380,24 @@ function openSummary(session: StudentHistorySession) {
 
               <td class="py-5 px-6 text-right">
                 <template v-if="session.estado.toUpperCase() === 'ATENDIDA'">
+                  <BaseBadge v-if="session.yaCalificada" variant="neutral" size="sm">
+                    {{ session.calificacionEstrellas }} / 5 estrellas
+                  </BaseBadge>
+                  <button
+                    v-else
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+                    @click="openRating(session)"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">star</span>
+                    Calificar atención
+                  </button>
+                </template>
+                <span v-else class="text-xs text-on-surface-variant"> No aplica </span>
+              </td>
+
+              <td class="py-5 px-6 text-right">
+                <template v-if="session.estado.toUpperCase() === 'ATENDIDA'">
                   <BaseBadge v-if="session.yaReportada" variant="neutral" size="sm">
                     Reportada
                   </BaseBadge>
@@ -379,6 +446,14 @@ function openSummary(session: StudentHistorySession) {
       :loading="isReporting"
       :error-message="reportError"
       @submit="handleReportSubmit"
+    />
+
+    <RateTutorModal
+      v-model="isRatingOpen"
+      :session="ratingSession"
+      :loading="isRating"
+      :error-message="ratingError"
+      @submit="handleRatingSubmit"
     />
 
     <!-- Modal resumen -->
