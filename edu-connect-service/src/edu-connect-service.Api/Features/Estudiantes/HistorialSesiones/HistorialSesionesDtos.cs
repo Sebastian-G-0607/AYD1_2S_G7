@@ -9,5 +9,7 @@ public record HistorialSesionEstudianteResponseDto(
     string Motivo,
     string? Resumen,
     string Estado,
-    bool YaReportada = false
+    bool YaReportada,
+    bool YaCalificada,
+    int? CalificacionEstrellas
 );
