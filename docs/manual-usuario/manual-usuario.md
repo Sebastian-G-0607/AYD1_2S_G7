@@ -27,6 +27,8 @@ Universidad, Año de Inicio, Dirección/Salón de Tutoría, Materias de Especial
 ![Formulario de registro de tutor](./capturas/inicio4.PNG)
 ---
 
+- **Verificación del correo electrónico:** después del registro, el usuario puede acceder a una pantalla para introducir el código de verificación enviado a su correo electrónico. La pantalla muestra la dirección de correo de forma parcialmente oculta y permite solicitar el reenvío del código cuando sea necesario.
+
 ## Parte 1: Panel de Administrador
 
 El rol de Administrador gestiona el ingreso de nuevos usuarios a la plataforma, supervisa las cuentas activas y consulta reportes generales del sistema. Para acceder a este panel es necesario iniciar sesión con las credenciales de administrador y completar un segundo factor de autenticación.
@@ -61,13 +63,16 @@ Pantalla principal donde el administrador revisa las solicitudes de registro de 
 
 ### 1.3 Gestión de Usuarios
 
-Permite administrar a los usuarios ya aprobados.
+Permite al administrador consultar y gestionar los usuarios registrados en la plataforma.
 
-- **Pestañas superiores "Usuarios Activos" / "Usuarios Dados de Baja":** alternan entre ambos listados.
-- **Sub-pestañas "Estudiantes" / "Tutores":** filtran el listado por tipo de usuario.
-- **Buscador:** filtra por nombre o correo electrónico.
-- **Contador de totales:** muestra la cantidad de usuarios en la categoría seleccionada.
-- **Opción "Dar de baja":** disponible en cada fila de usuario activo. Abre una ventana de confirmación que solicita un motivo obligatorio. Al confirmar, el usuario pierde acceso de inmediato, recibe un correo de notificación y pasa al listado de dados de baja, donde queda registrada la fecha y el motivo.
+- **Pestañas superiores "Usuarios Activos" / "Usuarios Dados de Baja":** permiten alternar entre los usuarios activos y aquellos que han sido dados de baja.
+- **Subpestañas "Estudiantes" / "Tutores":** filtran el listado según el tipo de usuario seleccionado.
+- **Buscador:** permite localizar usuarios por nombre o correo electrónico.
+- **Contador de totales:** muestra la cantidad de usuarios correspondientes a la categoría seleccionada.
+- **Opción "Editar":** abre el formulario correspondiente para modificar la información de un estudiante o tutor. En el caso de los tutores, se pueden actualizar datos personales y profesionales, así como su información académica y materias de especialidad.
+- **Opción "Dar de baja":** permite iniciar el proceso de baja de un usuario activo. Se solicita un motivo y una confirmación antes de completar la acción.
+- **Listado de usuarios dados de baja:** permite consultar los registros de usuarios que ya no tienen acceso a la plataforma.
+
 
 ![Gestión de Usuarios activos y dados de baja](./capturas/adminusuarios.PNG)
 
@@ -82,19 +87,53 @@ Presenta métricas generales del uso de la plataforma.
 - **Pestañas "Todos" / "Tutores" / "Materias":** alternan las tablas de detalle mostradas debajo de los gráficos.
 - **Tabla "Ranking de Tutores por Estudiantes Atendidos":** listado ordenado de tutores según su volumen de atención.
 - **Tabla "Demanda de Materias y Asignaturas":** listado ordenado de materias según su demanda.
-- **Botón "Exportar Reporte":** botón visual reservado para exportar la información; actualmente no tiene función activa.
 
-![Reportes con gráficos y tablas de detalle](./capturas/adminreporte.PNG)
+
+- **Resumen de actividad:** muestra indicadores relacionados con las sesiones registradas, los estudiantes atendidos y el impacto de los tutores.
+- **Gráficos estadísticos:** permiten consultar información sobre las atenciones realizadas y la demanda de materias.
+- **Tablas de reportes:** presentan información detallada sobre tutores, estudiantes, materias, sesiones atendidas, pendientes y canceladas.
+- **Reporte de estudiantes:** permite consultar las sesiones programadas, atendidas y canceladas, así como sus evaluaciones y promedio de calificación cuando corresponda.
+- **Comparativas de materias:** muestran datos de asistencia y cancelación para analizar el comportamiento de las tutorías.
+- **Botón "Exportar Reporte":** permite acceder a la opción de exportación disponible en la pantalla.
+
+
+![Reportes con gráficos y tablas de detalle](./capturas/adminReportes.PNG)
 
 ---
+
+### 1.5 Gestión de Denuncias
+
+Permite al administrador consultar los reportes realizados entre estudiantes y tutores para darles el seguimiento correspondiente.
+
+- **Pestañas de reportes:** permiten alternar entre las denuncias realizadas contra tutores y las realizadas contra estudiantes. Cada pestaña muestra su contador de reportes pendientes.
+- **Buscador:** permite localizar denuncias mediante texto.
+- **Tarjetas de denuncia:** muestran el número de reporte, la categoría, el estado, las personas involucradas, el motivo y las fechas relacionadas con la denuncia.
+- **Información de la sesión:** permite identificar la sesión asociada al reporte mediante su fecha e identificador.
+- **Acciones de gestión:** permiten procesar la denuncia mediante las opciones disponibles en la pantalla, con confirmación cuando corresponde.
+
+![Reportes con gráficos y tablas de detalle](./capturas/adminDenuncias.PNG)
+
+### 1.6 Calificaciones de Tutores
+
+Permite al administrador consultar las calificaciones que los estudiantes han otorgado a los tutores.
+
+- **Tarjeta de tutores:** muestra la cantidad de tutores incluidos en el listado.
+- **Tarjeta de tutores calificados:** indica cuántos tutores cuentan con calificaciones registradas.
+- **Buscador:** permite localizar tutores por nombre o especialidad.
+- **Tabla de calificaciones:** muestra el nombre del tutor, su especialidad, la puntuación promedio representada mediante estrellas y la cantidad de calificaciones recibidas.
+- **Ordenamiento por promedio:** permite ordenar los resultados de acuerdo con el promedio de calificación.
+
+![Calificaciones y promedios de los tutores](./capturas/adminCalificar.PNG)
 
 ### Resumen de navegación — Administrador
 
 | Sección | Ruta | Descripción |
 |---|---|---|
 | Aprobaciones Pendientes | `/admin/aprobaciones` | Aceptar o rechazar registros de estudiantes y tutores |
-| Gestión de Usuarios | `/admin/usuarios` | Ver usuarios activos, darlos de baja y consultar bajas anteriores |
-| Reportes | `/admin/reportes` | Consultar métricas y estadísticas generales de la plataforma |
+| Gestión de Usuarios | `/admin/usuarios` | Consultar usuarios activos y dados de baja, y editar sus datos |
+| Reportes | `/admin/reportes` | Consultar estadísticas académicas, sesiones y calificaciones |
+| Gestión de Denuncias | `/admin/denuncias` | Consultar y gestionar reportes entre estudiantes y tutores |
+| Calificaciones de Tutores | `/admin/calificaciones-tutores` | Consultar promedios y cantidad de calificaciones de los tutores |
 
 ## Parte 2: Panel de Tutor
 
@@ -137,14 +176,16 @@ Permite al tutor definir y modificar los días y el rango de horas en que atiend
 
 ### 2.3 Historial de Sesiones
 
-Muestra el registro completo de tutorías atendidas y canceladas del tutor.
+Muestra el registro de las sesiones de tutoría del tutor, incluidas las atendidas y las canceladas.
 
-- **Filtro por Fecha:** muestra únicamente las sesiones de la fecha seleccionada.
-- **Filtro por Estudiante o Correo:** busca por nombre, apellido o correo del estudiante.
-- **Indicador de filtros activos:** muestra cuántos filtros están aplicados, con opción de quitarlos individualmente o limpiarlos todos.
-- **Tabla de historial:** columnas de Fecha, Hora, Estudiante, Correo y Estado (Atendida, Cancelada por el tutor, Cancelada por el estudiante).
+- **Filtro por fecha:** permite consultar las sesiones correspondientes a una fecha específica.
+- **Buscador de estudiantes:** permite buscar por nombre, apellido o correo electrónico del estudiante.
+- **Indicador de filtros activos:** muestra cuántos filtros están aplicados y permite eliminarlos individualmente o limpiar todos los filtros.
+- **Tabla de historial:** presenta la fecha, hora, estudiante, correo electrónico, estado y las acciones disponibles para cada sesión.
+- **Detalle de la sesión:** permite consultar información adicional de los registros mediante las acciones disponibles en la tabla.
+- **Calificar y Reportar** permite realizar las dichas acciones hacia un estudiante por parte del tutor en caso de algun conflicto.
 
-![Historial de sesiones con filtros por fecha y estudiante](./capturas/tutor3.PNG)
+![Historial de sesiones del tutor con filtros y acciones](./capturas/tutorHistorial.PNG)
 
 ---
 
@@ -201,17 +242,19 @@ Pantalla principal del estudiante tras iniciar sesión. Muestra el listado de tu
 
 ---
 
-### 3.2 Horarios y Disponibilidad (ventana emergente)
+### 3.5 Historial de Sesiones
 
-Se abre desde el ícono de reloj en la tarjeta del tutor, o desde el botón "Ver horarios disponibles" dentro de la pantalla de programar sesión.
+Muestra el registro de las tutorías pasadas del estudiante, tanto atendidas como canceladas.
 
-- **Selector de fecha:** al cambiarlo, consulta automáticamente la disponibilidad del tutor para ese día.
-- **Resumen del tutor:** muestra los días que atiende y su rango de horario general.
-- **Cuadrícula de bloques horarios:** cada bloque representa un horario del día seleccionado, marcado como "Disponible" u "Ocupado" según corresponda.
-- Si el tutor no atiende en la fecha elegida, se muestra un aviso indicándolo en lugar de la cuadrícula.
+- **Tarjetas de resumen:** presentan el total de sesiones, las sesiones atendidas y las canceladas.
+- **Selector de estado:** permite filtrar entre todos los estados, sesiones atendidas, canceladas por el estudiante y canceladas por el tutor.
+- **Buscador:** permite localizar sesiones por tutor, materia o motivo.
+- **Tabla de historial:** presenta la fecha, tutor, materia, motivo, dirección de tutoría y estado de cada sesión.
+- **Consulta del resumen:** permite abrir el detalle de una sesión atendida para consultar el resumen registrado por el tutor.
+- **Calificación:** muestra la puntuación otorgada cuando existe una evaluación registrada.
 
-![Ventana de Horarios y Disponibilidad de un tutor](./capturas/estudiante6.PNG)
 
+![Historial de sesiones del estudiante con filtros y evaluaciones](./capturas/usuarioHistorial.PNG)
 ---
 
 ### 3.3 Programar Sesión
@@ -267,15 +310,27 @@ Permite al estudiante consultar y actualizar su información.
 
 ---
 
+### 3.7 Plan de Estudio
+
+Permite al estudiante consultar las dificultades identificadas durante su última tutoría y los recursos recomendados para reforzar su aprendizaje.
+
+- **Información de la sesión:** muestra la fecha de la última sesión registrada y los datos del tutor, incluida su especialidad e identificación.
+- **Dificultades identificadas:** presenta las dificultades académicas registradas para orientar el estudio del estudiante.
+- **Recursos recomendados:** muestra los materiales sugeridos para reforzar los temas tratados, con su nombre, tipo y descripción de uso.
+- **Estado vacío:** si todavía no existe un plan de estudio disponible, se muestra un mensaje indicándolo.
+
+![Plan de estudio del estudiante con dificultades y recursos recomendados](./capturas/usuarioPlan.PNG)
+
 ### Resumen de navegación — Estudiante
 
 | Sección | Ruta | Descripción |
 |---|---|---|
 | Explorar Tutores | `/estudiante/explorar-tutores` | Buscar y filtrar tutores disponibles |
-| Programar Sesión | `/estudiante/tutores/:tutorId` | Consultar disponibilidad y agendar sesión con un tutor |
-| Mis Sesiones | `/estudiante/mis-sesiones` | Ver y cancelar sesiones activas |
-| Historial | `/estudiante/historial` | Consultar sesiones pasadas y resúmenes de tutorías atendidas |
-| Mi Perfil | `/estudiante/mi-perfil` | Ver y actualizar datos personales y contraseña |
+| Programar Sesión | `/estudiante/tutores/:tutorId` | Consultar disponibilidad y programar una tutoría |
+| Mis Sesiones | `/estudiante/mis-sesiones` | Consultar y cancelar sesiones activas |
+| Historial | `/estudiante/historial` | Consultar sesiones pasadas, resúmenes y calificaciones |
+| Mi Perfil | `/estudiante/mi-perfil` | Consultar y actualizar datos personales y contraseña |
+| Plan de Estudio | `/estudiante/plan-estudio` | Consultar dificultades identificadas y recursos recomendados |
 
 ---
 
