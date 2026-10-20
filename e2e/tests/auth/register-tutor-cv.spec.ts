@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { TutorRegisterPage } from '../../pages/tutor-register.page'
-import { STUDENT_TEST_DATA, TUTOR_TEST_DATA } from '../../fixtures/test-data'
+import { crearDatosEstudianteRegistro, crearDatosTutorRegistro } from '../../fixtures/test-data'
+import { identificadorUnico } from '../../fixtures/identificador'
+
+const STUDENT_TEST_DATA = crearDatosEstudianteRegistro(identificadorUnico(`${__filename}:estudiante`))
+const TUTOR_TEST_DATA = crearDatosTutorRegistro(identificadorUnico(`${__filename}:tutor`))
 
 test.describe('HU-23 - Registro de tutor con currículum en PDF', () => {
   test('exige el CV, solo acepta PDF y permite corregir el archivo', async ({ page }) => {

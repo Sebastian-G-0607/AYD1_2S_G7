@@ -1,5 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test'
 import { BasePage } from './base.page'
+import { E2E_TUTOR_USER } from '../fixtures/test-data'
 
 export class StudentStudyPlanPage extends BasePage {
   readonly heading: Locator
@@ -10,7 +11,7 @@ export class StudentStudyPlanPage extends BasePage {
     super(page)
     this.heading = page.locator('h1', { hasText: 'Plan de Estudio' })
     this.downloadButton = page.locator('button', { hasText: 'Descargar constancia' })
-    this.tutorName = page.getByText('Ana Lucía Pérez')
+    this.tutorName = page.getByText(E2E_TUTOR_USER.nombreCompleto)
   }
 
   async goto(): Promise<void> {

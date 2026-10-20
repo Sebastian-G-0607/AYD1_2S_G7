@@ -48,6 +48,20 @@ services:
     env_file:
       - .env.e2e
 
+  db-seed:
+    image: gvenzl/oracle-xe:latest
+    container_name: edu-connect-db-seed
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+      api:
+        condition: service_started
+    networks:
+      - app-network
+    volumes:
+      - ./e2e/sql:/seed:ro
+    entrypoint: ["/bin/sh", "/seed/run-seed.sh"]
+
   e2e:
     build:
       context: ./e2e
@@ -55,9 +69,13 @@ services:
     container_name: edu-connect-e2e
     network_mode: host
     depends_on:
-      - frontend
+      frontend:
+        condition: service_started
+      db-seed:
+        condition: service_completed_successfully
     environment:
       - E2E_BASE_URL=http://localhost:5173
+      - E2E_API_URL=http://localhost:5000/api
       - E2E_ADMIN_EMAIL=admin@educonnect.com
       - E2E_ADMIN_PASSWORD=admin123
       - DISPLAY=${DISPLAY}

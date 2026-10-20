@@ -1,13 +1,12 @@
 import { expect, test } from '@playwright/test'
+import { iniciarSesion } from '../../fixtures/auth'
+import { E2E_TUTOR_USER } from '../../fixtures/test-data'
 
 test.describe('Atender sesión de tutoría', () => {
   test('envía el plan de estudio y quita la sesión de pendientes', async ({ page }) => {
     let submittedPlan: unknown
 
-    await page.addInitScript(() => {
-      localStorage.setItem('edu_auth_token', 'e2e-tutor-token')
-      localStorage.setItem('edu_auth_user', JSON.stringify({ rol: 'Tutor' }))
-    })
+    await iniciarSesion(page, E2E_TUTOR_USER)
 
     await page.route('**/tutores/dashboard/estadisticas', route =>
       route.fulfill({

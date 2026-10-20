@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { iniciarSesion } from '../../fixtures/auth'
+import { E2E_STUDENT_USER } from '../../fixtures/test-data'
 
 const sesiones = [
   {
@@ -36,10 +38,7 @@ test.describe('Reportar tutor desde el historial de sesiones', () => {
   test('valida el formulario y envía el reporte de una sesión atendida', async ({ page }) => {
     let submitted: unknown
 
-    await page.addInitScript(() => {
-      localStorage.setItem('edu_auth_token', 'e2e-student-token')
-      localStorage.setItem('edu_auth_user', JSON.stringify({ rol: 'Estudiante' }))
-    })
+    await iniciarSesion(page, E2E_STUDENT_USER)
 
     await page.route('**/estudiantes/historial', route =>
       route.fulfill({

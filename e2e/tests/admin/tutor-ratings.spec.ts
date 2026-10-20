@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { LoginPage } from '../../pages/login.page'
 
 const calificaciones = [
   {
@@ -26,10 +27,8 @@ const calificaciones = [
 
 test.describe('Reporte de calificación de tutores (admin)', () => {
   test('muestra promedios, marca los tutores sin calificar y permite ordenar', async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('edu_auth_token', 'e2e-admin-token')
-      localStorage.setItem('edu_auth_user', JSON.stringify({ rol: 'Administrador' }))
-    })
+    const loginPage = new LoginPage(page)
+    await loginPage.loginAsAdmin()
 
     await page.route('**/administrador/reportes/calificacion-tutores', route =>
       route.fulfill({

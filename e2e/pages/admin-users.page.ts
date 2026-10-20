@@ -41,6 +41,14 @@ export class AdminUsersPage extends BasePage {
   }
 
   async hasTutors(): Promise<boolean> {
+    // La tabla se carga de forma asíncrona: se espera a que aparezca alguna fila para no
+    // confundir "aún no ha cargado" con "no hay tutores aprobados".
+    await this.page
+      .waitForFunction(() => document.querySelectorAll('tbody tr').length > 0, undefined, {
+        timeout: 10000
+      })
+      .catch(() => undefined)
+
     const rows = this.page.locator('tbody tr')
     const count = await rows.count()
     if (count === 0) return false

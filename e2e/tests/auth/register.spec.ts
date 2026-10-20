@@ -3,7 +3,11 @@ import { LoginPage } from '../../pages/login.page'
 import { StudentRegisterPage } from '../../pages/student-register.page'
 import { TutorRegisterPage } from '../../pages/tutor-register.page'
 import { AdminApprovalsPage } from '../../pages/admin-approvals.page'
-import { STUDENT_TEST_DATA, TUTOR_TEST_DATA } from '../../fixtures/test-data'
+import { crearDatosEstudianteRegistro, crearDatosTutorRegistro } from '../../fixtures/test-data'
+import { identificadorUnico } from '../../fixtures/identificador'
+
+const STUDENT_TEST_DATA = crearDatosEstudianteRegistro(identificadorUnico(`${__filename}:estudiante`))
+const TUTOR_TEST_DATA = crearDatosTutorRegistro(identificadorUnico(`${__filename}:tutor`))
 
 test.describe('Módulo de Autenticación - Registro y Aprobación de Usuarios', () => {
   test('Registro de estudiante', async ({ page }) => {
