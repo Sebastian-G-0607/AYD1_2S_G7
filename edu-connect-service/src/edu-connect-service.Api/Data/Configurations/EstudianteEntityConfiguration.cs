@@ -62,6 +62,10 @@ public class EstudianteEntityConfiguration : IEntityTypeConfiguration<Estudiante
             .HasColumnName("fotografia_url")
             .HasMaxLength(255);
 
+        builder.Property(e => e.DocumentoCarnetUrl)
+            .HasColumnName("documento_carnet_url")
+            .HasMaxLength(255);
+
         builder.HasOne(e => e.Usuario)
             .WithOne(u => u.Estudiante)
             .HasForeignKey<Estudiante>(e => e.UsuarioId)

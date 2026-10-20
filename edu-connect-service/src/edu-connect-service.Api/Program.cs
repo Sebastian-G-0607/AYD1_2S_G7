@@ -14,6 +14,9 @@ using edu_connect_service.Api.Shared.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using edu_connect_service.Api.Features.Sesiones;
 using edu_connect_service.Api.Shared.Storage;
+using edu_connect_service.Api.Shared.BackgroundTasks;
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +39,7 @@ builder.Addedu_connect_serviceCors();
 
 builder.Services.AddValidation();
 builder.Services.AddEmailService(builder.Configuration);
+builder.Services.AddBackgroundTasks();
 builder.Services.AddS3Storage(builder.Configuration);
 builder.Services.AddCustomJwtAuthentication(builder.Configuration);
 builder.Services.AddCustomAuthorization();

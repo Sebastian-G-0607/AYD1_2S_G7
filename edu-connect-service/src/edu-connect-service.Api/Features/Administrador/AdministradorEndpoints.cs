@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Features.Administrador.GestionEstudiantes;
+using edu_connect_service.Api.Features.Administrador.GestionReportesUsuarios;
 using edu_connect_service.Api.Features.Administrador.GestionTutores;
 using edu_connect_service.Api.Features.Administrador.GestionUsuarios;
 using edu_connect_service.Api.Features.Administrador.Reportes;
@@ -17,16 +18,20 @@ public static class AdministradorEndpoints
         apiGroup.MapListarEstudiantesPendientes();
         apiGroup.MapActualizarEstadoEstudiante();
 
-        // Gestión de Estudiantes Activos (HU-07)
+        // Gestión de Estudiantes Activos (HU-07 / HU-34)
         apiGroup.MapListarEstudiantesActivos();
+        apiGroup.MapObtenerEstudiantePorId();
+        apiGroup.MapActualizarEstudiante();
         apiGroup.MapDarBajaEstudiante();
 
         // Gestión de Tutores Pendientes (HU-06)
         apiGroup.MapListarTutoresPendientes();
         apiGroup.MapActualizarEstadoTutor();
 
-        // Gestión de Tutores Activos (HU-07)
+        // Gestión de Tutores Activos (HU-07 / HU-35)
         apiGroup.MapListarTutoresActivos();
+        apiGroup.MapObtenerTutorPorId();
+        apiGroup.MapActualizarTutor();
         apiGroup.MapDarBajaTutor();
 
         // Gestión de usuarios dados de baja
@@ -35,23 +40,42 @@ public static class AdministradorEndpoints
         // Reportes del Sistema (HU-08)
         apiGroup.MapReportes();
 
+        // Gestión de reportes hacia tutores (HU-36)
+        apiGroup.MapListarReportesTutores();
+        apiGroup.MapResolverReporteTutor();
+
+        // Gestión de reportes hacia estudiantes (HU-37)
+        apiGroup.MapListarReportesEstudiantes();
+        apiGroup.MapResolverReporteEstudiante();
+
         var rootGroup = app.MapGroup("/administrador")
             .RequireAuthorization(p => p.RequireRole(AppRoles.Administrador));
 
         rootGroup.MapListarEstudiantesPendientes();
         rootGroup.MapActualizarEstadoEstudiante();
         rootGroup.MapListarEstudiantesActivos();
+        rootGroup.MapObtenerEstudiantePorId();
+        rootGroup.MapActualizarEstudiante();
         rootGroup.MapDarBajaEstudiante();
 
         rootGroup.MapListarTutoresPendientes();
         rootGroup.MapActualizarEstadoTutor();
         rootGroup.MapListarTutoresActivos();
+        rootGroup.MapObtenerTutorPorId();
+        rootGroup.MapActualizarTutor();
         rootGroup.MapDarBajaTutor();
 
         rootGroup.MapGestionUsuarios();
 
         // Reportes del Sistema (HU-08)
         rootGroup.MapReportes();
+
+        // Gestión de reportes hacia tutores (HU-36)
+        rootGroup.MapListarReportesTutores();
+        rootGroup.MapResolverReporteTutor();
+
+        // Gestión de reportes hacia estudiantes (HU-37)
+        rootGroup.MapListarReportesEstudiantes();
+        rootGroup.MapResolverReporteEstudiante();
     }
 }
-

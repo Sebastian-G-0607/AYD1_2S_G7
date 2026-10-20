@@ -41,6 +41,11 @@ public class UsuarioEntityConfiguration : IEntityTypeConfiguration<Usuario>
             .HasColumnName("fecha_registro")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+        builder.Property(u => u.CorreoValidado)
+            .HasColumnName("correo_validado")
+            .HasColumnType("NUMBER(1)")
+            .HasDefaultValue(false);
+
         builder.Property(u => u.FechaBaja)
             .HasColumnName("fecha_baja");
 

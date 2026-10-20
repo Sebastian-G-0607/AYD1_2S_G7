@@ -1,4 +1,5 @@
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { extractApiErrorMessage } from '@/utils/apiError'
 import { adminService } from '../services/admin.service'
 import type {
@@ -17,6 +18,7 @@ export interface SelectedBajaUser {
 }
 
 export function useAdminActiveUsers() {
+  const router = useRouter()
   const students = ref<ActiveStudentItem[]>([])
   const tutors = ref<ActiveTutorItem[]>([])
   const inactiveUsers = ref<InactiveUserItem[]>([])
@@ -217,7 +219,7 @@ export function useAdminActiveUsers() {
     return `${f}${l}`.toUpperCase() || 'U'
   }
 
-  function formatFecha(dateStr?: string): string {
+  function formatFecha(dateStr?: string | null): string {
     if (!dateStr) return '-'
     try {
       const d = new Date(dateStr)
@@ -230,6 +232,14 @@ export function useAdminActiveUsers() {
     } catch {
       return dateStr
     }
+  }
+
+  function navigateToEditTutor(tutorId: number) {
+    router.push(`/admin/tutores/${tutorId}/editar`)
+  }
+
+  function navigateToEditStudent(studentId: number) {
+    router.push(`/admin/estudiantes/${studentId}/editar`)
   }
 
   onMounted(() => {
@@ -272,6 +282,8 @@ export function useAdminActiveUsers() {
     confirmBaja,
     dismissFeedback,
     getInitials,
-    formatFecha
+    formatFecha,
+    navigateToEditTutor,
+    navigateToEditStudent
   }
 }

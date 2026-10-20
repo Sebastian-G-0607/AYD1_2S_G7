@@ -7,6 +7,7 @@ import {
   BaseSelect,
   BaseAlert,
   BaseAvatarUpload,
+  BaseFileUpload,
   BaseMultiSelect,
   type SelectOption
 } from '@/components/ui'
@@ -14,6 +15,7 @@ import PasswordRequirements from './PasswordRequirements.vue'
 import { useAuth } from '../composables/useAuth'
 import { useMaterias } from '@/composables/useMaterias'
 import type { TutorRegisterData } from '../types'
+import { MAX_PDF_SIZE_MB, validatePdfFile } from '@/utils/fileValidation'
 
 const formData = reactive<TutorRegisterData>({
   nombre: '',
@@ -25,6 +27,7 @@ const formData = reactive<TutorRegisterData>({
   telefono: '',
   fechaNacimiento: '',
   fotografia: null,
+  documentoCv: null,
   direccionTutoria: '',
   anioInicio: new Date().getFullYear(),
   universidad: '',
@@ -209,6 +212,20 @@ const onBirthDateBlur = () => {
   } else {
     birthDateTouchedError.value = null
   }
+}
+
+const cvPdfError = computed(() => {
+  if (!errorMessage.value) return undefined
+  return errorMessage.value.toLowerCase().includes('pdf') ? errorMessage.value : undefined
+})
+
+const clearCvError = () => {
+  if (errorMessage.value?.toLowerCase().includes('pdf')) clearError()
+}
+
+const onCvSelected = (file: File | null) => {
+  formData.documentoCv = file
+  clearCvError()
 }
 
 const handleSubmit = async () => {
@@ -493,6 +510,27 @@ const handleSubmit = async () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="flex items-center gap-3 border-b border-outline-variant/30 pb-3">
+          <span class="material-symbols-outlined text-primary text-[24px]">description</span>
+          <h2 class="text-xl font-bold text-on-surface font-headline">Documentos</h2>
+        </div>
+
+        <BaseFileUpload
+          id="cvPdf"
+          name="documentoCv"
+          label="Currículum vitae (PDF)"
+          accept="application/pdf"
+          required
+          :model-value="formData.documentoCv"
+          :error="cvPdfError"
+          :hint="`Solo archivos PDF, máximo ${MAX_PDF_SIZE_MB} MB. El administrador lo usará para validar tu perfil.`"
+          :validate="validatePdfFile"
+          @update:model-value="onCvSelected"
+          @reject="clearCvError"
+        />
       </div>
 
       <div class="space-y-6">

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { BaseAlert, BaseBadge, BaseButton, BaseInput } from '@/components/ui'
 import { useTutorHistory } from '../composables/useTutorHistory'
+import { RateStudentModal, ReportStudentModal } from '@/features/tutor-student-feedback'
 
 const {
   sessions,
@@ -70,6 +72,23 @@ function getStatusVariant(
     default:
       return 'neutral'
   }
+}
+
+const showRateModal = ref(false)
+const showReportModal = ref(false)
+const selectedSessionId = ref(0)
+const selectedStudentName = ref('')
+
+function openRateModal(sesionId: number, estudianteNombre: string) {
+  selectedSessionId.value = sesionId
+  selectedStudentName.value = estudianteNombre
+  showRateModal.value = true
+}
+
+function openReportModal(sesionId: number, estudianteNombre: string) {
+  selectedSessionId.value = sesionId
+  selectedStudentName.value = estudianteNombre
+  showReportModal.value = true
 }
 </script>
 
@@ -237,6 +256,8 @@ function getStatusVariant(
               <th class="px-6 py-4 text-sm font-semibold text-on-surface">Correo</th>
 
               <th class="px-6 py-4 text-sm font-semibold text-on-surface">Estado</th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-on-surface">Acciones</th>
             </tr>
           </thead>
 
@@ -285,6 +306,29 @@ function getStatusVariant(
                   {{ formatStatus(session.estado) }}
                 </BaseBadge>
               </td>
+
+              <td class="px-6 py-5 whitespace-nowrap">
+                <div v-if="session.estado === 'ATENDIDA'" class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="text-xs font-semibold text-primary hover:underline"
+                    @click="openRateModal(session.sesionId, session.estudiante)"
+                  >
+                    Calificar
+                  </button>
+
+                  <span class="text-outline-variant">|</span>
+
+                  <button
+                    type="button"
+                    class="text-xs font-semibold text-error hover:underline"
+                    @click="openReportModal(session.sesionId, session.estudiante)"
+                  >
+                    Reportar
+                  </button>
+                </div>
+                <span v-else class="text-xs text-on-surface-variant">-</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -326,5 +370,19 @@ function getStatusVariant(
         Limpiar filtros
       </BaseButton>
     </div>
+
+    <RateStudentModal
+      v-model="showRateModal"
+      :sesion-id="selectedSessionId"
+      :estudiante-nombre="selectedStudentName"
+      @rated="fetchHistory(true)"
+    />
+
+    <ReportStudentModal
+      v-model="showReportModal"
+      :sesion-id="selectedSessionId"
+      :estudiante-nombre="selectedStudentName"
+      @reported="fetchHistory(true)"
+    />
   </div>
 </template>

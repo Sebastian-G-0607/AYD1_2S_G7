@@ -45,6 +45,8 @@ public class RegistrarEstudianteRequestDto
     public string ConfirmPassword { get; set; } = string.Empty;
 
     public IFormFile? Fotografia { get; set; }
+
+    public IFormFile? DocumentoCarnet { get; set; }
 }
 
 public record EstudianteResponseDto(
@@ -60,5 +62,6 @@ public record EstudianteResponseDto(
     string Correo,
     string Rol,
     string Estado,
-    DateTime FechaRegistro
+    DateTime FechaRegistro,
+    string? DocumentoCarnetUrl = null
 );

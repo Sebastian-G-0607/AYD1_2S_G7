@@ -19,14 +19,31 @@ public class S3Service(
         ?? Environment.GetEnvironmentVariable("S3_BUCKET_NAME")
         ?? string.Empty;
 
-    public async Task<string> UploadImageAsync(
+    public Task<string> UploadImageAsync(
         IFormFile file,
         string? prefix = null,
         CancellationToken cancellationToken = default)
     {
+        return UploadCoreAsync(file, prefix, ".jpg", cancellationToken);
+    }
+
+    public Task<string> UploadFileAsync(
+        IFormFile file,
+        string? prefix = null,
+        CancellationToken cancellationToken = default)
+    {
+        return UploadCoreAsync(file, prefix, ".bin", cancellationToken);
+    }
+
+    private async Task<string> UploadCoreAsync(
+        IFormFile file,
+        string? prefix,
+        string fallbackExtension,
+        CancellationToken cancellationToken)
+    {
         if (file is null || file.Length == 0)
         {
-            throw new ArgumentException("El archivo de imagen no puede estar vacío.", nameof(file));
+            throw new ArgumentException("El archivo no puede estar vacío.", nameof(file));
         }
 
         if (string.IsNullOrWhiteSpace(_bucketName))
@@ -38,7 +55,7 @@ public class S3Service(
         var extension = Path.GetExtension(file.FileName);
         if (string.IsNullOrWhiteSpace(extension))
         {
-            extension = ".jpg";
+            extension = fallbackExtension;
         }
 
         var uniqueId = Guid.NewGuid().ToString("N");

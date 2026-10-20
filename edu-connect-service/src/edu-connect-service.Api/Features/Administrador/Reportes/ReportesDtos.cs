@@ -35,3 +35,52 @@ public record ReportesResumenDto(
     string? MateriaTopNombre,
     int MateriaTopSesiones
 );
+
+public record EstudianteSesionesReporteDto(
+    int EstudianteId,
+    string Nombre,
+    string Apellido,
+    string NombreCompleto,
+    string Carnet,
+    string Correo,
+    string? FotografiaUrl,
+    int TotalSesionesProgramadas,
+    int SesionesAtendidas,
+    int SesionesCanceladas,
+    int SesionesPendientes
+);
+
+public record MateriaCancelacionReporteDto(
+    int MateriaId,
+    string NombreMateria,
+    int TotalSesiones,
+    int SesionesCanceladas,
+    int SesionesAtendidas,
+    int SesionesPendientes,
+    double TasaCancelacion
+);
+
+public record MateriaAsistenciaVsCancelacionReporteDto(
+    int MateriaId,
+    string NombreMateria,
+    int TotalSesiones,
+    int SesionesAtendidas,
+    int SesionesCanceladas,
+    int SesionesPendientes,
+    double TasaAsistencia,
+    double TasaCancelacion
+);
+
+public record EstudianteCalificacionReporteDto(
+    int EstudianteId,
+    string Nombre,
+    string Apellido,
+    string NombreCompleto,
+    string Carnet,
+    string Correo,
+    string? FotografiaUrl,
+    int TotalSesionesAtendidas,
+    int TotalEvaluaciones,
+    double PromedioCalificacion
+);
+

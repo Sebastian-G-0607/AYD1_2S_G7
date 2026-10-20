@@ -5,6 +5,7 @@ public static class EmailExtensions
     public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ITokenCorreoService, TokenCorreoService>();
         return services;
     }
 }

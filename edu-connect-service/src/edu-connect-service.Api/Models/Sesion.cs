@@ -33,4 +33,14 @@ public class Sesion
     public string? MotivoCancelacion { get; set; }
 
     public DateTime FechaCreacion { get; set; }
+
+    public PlanEstudio? PlanEstudio { get; set; }
+
+    public CalificacionTutor? CalificacionTutor { get; set; }
+
+    public CalificacionEstudiante? CalificacionEstudiante { get; set; }
+
+    public ICollection<ReporteTutor> ReportesTutor { get; set; } = [];
+
+    public ICollection<ReporteEstudiante> ReportesEstudiante { get; set; } = [];
 }

@@ -7,6 +7,7 @@ export interface StudentApprovalItem {
   fechaNacimiento: string
   correo: string
   fotografiaUrl?: string
+  documentoCarnetUrl?: string | null
   direccion?: string
   telefono?: string
   fechaRegistro?: string
@@ -23,6 +24,7 @@ export interface TutorApprovalItem {
   fechaNacimiento: string
   correo: string
   fotografiaUrl?: string
+  documentoCvUrl?: string | null
   especialidad?: string
   materias: string[]
   direccionTutoria?: string
@@ -70,6 +72,7 @@ export interface ActiveStudentItem {
   telefono?: string
   fechaRegistro?: string
   estado?: string
+  documentoCarnetUrl?: string | null
 }
 
 export interface ActiveTutorItem {
@@ -137,6 +140,20 @@ export interface TutorAtencionesReporteItem {
   totalEstudiantesAtendidos: number
 }
 
+export interface EstudianteSesionesReporteItem {
+  estudianteId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string
+  totalSesionesProgramadas: number
+  sesionesAtendidas: number
+  sesionesCanceladas: number
+  sesionesPendientes: number
+}
+
 export interface MateriaDemandaReporteItem {
   materiaId: number
   nombreMateria: string
@@ -145,6 +162,27 @@ export interface MateriaDemandaReporteItem {
   sesionesPendientes: number
   sesionesCanceladas: number
   porcentajeDemanda: number
+}
+
+export interface MateriaCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesCanceladas: number
+  sesionesAtendidas: number
+  sesionesPendientes: number
+  tasaCancelacion: number
+}
+
+export interface MateriaAsistenciaVsCancelacionReporteItem {
+  materiaId: number
+  nombreMateria: string
+  totalSesiones: number
+  sesionesAtendidas: number
+  sesionesCanceladas: number
+  sesionesPendientes: number
+  tasaAsistencia: number
+  tasaCancelacion: number
 }
 
 export interface ReportesResumen {
@@ -161,4 +199,142 @@ export interface ReportesResumen {
   materiaTopSesiones: number
 }
 
-export type ReportsTabType = 'todos' | 'tutores' | 'materias'
+export interface EstudianteCalificacionReporteItem {
+  estudianteId: number
+  nombre: string
+  apellido: string
+  nombreCompleto: string
+  carnet: string
+  correo: string
+  fotografiaUrl?: string | null
+  totalSesionesAtendidas: number
+  totalEvaluaciones: number
+  promedioCalificacion: number
+}
+
+export type ReportsTabType = 'general' | 'todos' | 'tutores' | 'estudiantes' | 'materias'
+
+export interface CalificacionTutorReporteItem {
+  tutorId: number
+  nombreCompleto: string
+  especialidad: string
+  promedioCalificacion: number | null
+  totalCalificaciones: number
+}
+
+export type RatingSortDirection = 'desc' | 'asc'
+
+// ==========================================
+// HU-35: VER Y ACTUALIZAR TUTOR (ADMIN)
+// ==========================================
+export interface UpdateTutorAdminPayload {
+  nombre: string
+  apellido: string
+  carnetId: string
+  numeroIdentificacion: string
+  genero: string
+  fechaNacimiento: string
+  direccion: string
+  telefono?: string
+  direccionTutoria: string
+  anioInicio: number
+  universidad: string
+  materias?: string[]
+  materiasIds?: number[]
+  fotografiaUrl?: string
+}
+
+export interface UpdateTutorAdminResponse {
+  id: number
+  nombre: string
+  apellido: string
+  carnetId: string
+  numeroIdentificacion: string
+  genero: string
+  fechaNacimiento: string
+  correo: string
+  fotografiaUrl: string
+  especialidad: string
+  materias: string[]
+  direccionTutoria: string
+  anioInicio: number
+  universidad: string
+  direccion?: string
+  telefono?: string
+  mensaje: string
+}
+
+// ==========================================
+// HU-34: VER Y ACTUALIZAR ESTUDIANTE (ADMIN)
+// ==========================================
+export interface UpdateStudentAdminPayload {
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  direccion: string
+  telefono?: string
+  fotografiaUrl?: string
+  documentoCarnetUrl?: string
+}
+
+export interface UpdateStudentAdminResponse {
+  id: number
+  nombre: string
+  apellido: string
+  carnet: string
+  genero: string
+  fechaNacimiento: string
+  correo: string
+  fotografiaUrl?: string
+  direccion: string
+  telefono?: string
+  mensaje: string
+  documentoCarnetUrl?: string
+}
+
+// ==========================================
+// HU-36 / HU-37: GESTIÓN DE DENUNCIAS
+// ==========================================
+export interface TutorReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  tutorId: number
+  tutorNombreCompleto: string
+  tutorCorreo: string
+  estudianteDenuncianteId: number
+  estudianteDenuncianteNombreCompleto: string
+  estudianteDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface StudentReportItem {
+  id: number
+  sesionId: number
+  categoria: string
+  motivo: string
+  estudianteId: number
+  estudianteNombreCompleto: string
+  estudianteCorreo: string
+  tutorDenuncianteId: number
+  tutorDenuncianteNombreCompleto: string
+  tutorDenuncianteCorreo: string
+  fechaSesion: string
+  fechaReporte: string
+  estado: string
+}
+
+export interface ResolveReportResponse {
+  reporteId: number
+  estadoReporte: string
+  usuarioId: number
+  estadoUsuario: string
+  mensaje: string
+}
+
+export type UserReportsTab = 'tutores' | 'estudiantes'

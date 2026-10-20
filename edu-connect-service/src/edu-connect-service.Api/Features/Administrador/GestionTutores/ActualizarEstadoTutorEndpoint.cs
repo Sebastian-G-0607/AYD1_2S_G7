@@ -23,6 +23,7 @@ public static class ActualizarEstadoTutorEndpoint
         [FromBody] ActualizarEstadoTutorRequestDto request,
         edu_connect_serviceContext dbContext,
         IEmailService emailService,
+        ITokenCorreoService tokenCorreoService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Estado))
@@ -73,29 +74,41 @@ public static class ActualizarEstadoTutorEndpoint
         tutor.Usuario.EstadoId = estadoEntidad.Id;
         tutor.Usuario.Estado = estadoEntidad;
 
-        if (nuevoEstado == "RECHAZADO")
+        var nombreCompleto = $"{tutor.Nombre} {tutor.Apellido}".Trim();
+
+        if (nuevoEstado == "APROBADO")
+        {
+            tutor.Usuario.FechaBaja = null;
+            tutor.Usuario.MotivoBaja = null;
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            var token = await tokenCorreoService.GenerarYRegistrarTokenAsync(tutor.UsuarioId, cancellationToken);
+
+            await emailService.SendTokenVerificacionAsync(
+                tutor.Usuario.Correo,
+                nombreCompleto,
+                token,
+                cancellationToken
+            );
+        }
+        else
         {
             tutor.Usuario.FechaBaja = DateTime.UtcNow;
             tutor.Usuario.MotivoBaja = string.IsNullOrWhiteSpace(request.Motivo)
                 ? "Solicitud rechazada por el administrador"
                 : request.Motivo.Trim();
-        }
-        else
-        {
-            tutor.Usuario.FechaBaja = null;
-            tutor.Usuario.MotivoBaja = null;
-        }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-        var nombreCompleto = $"{tutor.Nombre} {tutor.Apellido}".Trim();
-        await emailService.SendEstadoCuentaNotificacionAsync(
-            tutor.Usuario.Correo,
-            nombreCompleto,
-            nuevoEstado,
-            request.Motivo,
-            cancellationToken
-        );
+            await emailService.SendEstadoCuentaNotificacionAsync(
+                tutor.Usuario.Correo,
+                nombreCompleto,
+                nuevoEstado,
+                request.Motivo,
+                cancellationToken
+            );
+        }
 
         var response = new ActualizarEstadoTutorResponseDto(
             tutor.UsuarioId,

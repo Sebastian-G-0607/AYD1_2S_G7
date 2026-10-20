@@ -1,4 +1,5 @@
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Shared.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ public static class TutoresMasAtencionesEndpoint
 
     private static async Task<IResult> HandleAsync(
         edu_connect_serviceContext dbContext,
+        IS3Service s3Service,
         [FromQuery] int? limit,
         CancellationToken cancellationToken)
     {
@@ -51,7 +53,7 @@ public static class TutoresMasAtencionesEndpoint
                 $"{g.Key.Nombre} {g.Key.Apellido}".Trim(),
                 g.Key.Carnet,
                 g.Key.Correo,
-                g.Key.FotografiaUrl,
+                s3Service.GeneratePresignedUrl(g.Key.FotografiaUrl) ?? g.Key.FotografiaUrl,
                 TotalSesionesAtendidas: g.Count(),
                 TotalEstudiantesAtendidos: g.Select(x => x.EstudianteId).Distinct().Count()
             ))

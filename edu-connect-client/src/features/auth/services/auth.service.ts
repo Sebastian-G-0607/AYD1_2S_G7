@@ -51,6 +51,37 @@ export const authService = {
     return data
   },
 
+  async verifyEmail(code: string, tempToken: string): Promise<TokenResponseDto> {
+    const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
+    const endpoint = isApiPrefix ? '/email-validations' : '/auth/email-validations'
+
+    const { data } = await api.post<TokenResponseDto>(
+      endpoint,
+      { token: code },
+      {
+        headers: {
+          Authorization: `Bearer ${tempToken}`
+        }
+      }
+    )
+    return data
+  },
+
+  async resendEmailValidationToken(tempToken: string): Promise<void> {
+    const isApiPrefix = api.defaults.baseURL?.replace(/\/+$/, '').endsWith('/api')
+    const endpoint = isApiPrefix ? '/email-validation-tokens' : '/api/email-validation-tokens'
+
+    await api.post(
+      endpoint,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${tempToken}`
+        }
+      }
+    )
+  },
+
   async registerStudent(studentData: StudentRegisterData): Promise<EstudianteResponseDto> {
     const formData = new FormData()
     formData.append('nombre', studentData.nombre)
@@ -66,6 +97,10 @@ export const authService = {
 
     if (studentData.fotografia instanceof File) {
       formData.append('fotografia', studentData.fotografia)
+    }
+
+    if (studentData.documentoCarnet instanceof File) {
+      formData.append('documentoCarnet', studentData.documentoCarnet)
     }
 
     const { data } = await api.post<EstudianteResponseDto>('/estudiantes/registro', formData, {
@@ -102,6 +137,10 @@ export const authService = {
 
     if (tutorData.fotografia instanceof File) {
       formData.append('fotografia', tutorData.fotografia)
+    }
+
+    if (tutorData.documentoCv instanceof File) {
+      formData.append('documentoCv', tutorData.documentoCv)
     }
 
     tutorData.materiasIds.forEach(id => {

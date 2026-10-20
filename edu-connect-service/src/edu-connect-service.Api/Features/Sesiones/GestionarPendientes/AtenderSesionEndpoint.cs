@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using edu_connect_service.Api.Data;
+using edu_connect_service.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace edu_connect_service.Api.Features.Sesiones.GestionarPendientes;
@@ -19,7 +20,7 @@ public static class AtenderSesionEndpoint
             .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         int id,
         AtenderSesionRequestDto request,
         ClaimsPrincipal user,
@@ -52,17 +53,40 @@ public static class AtenderSesionEndpoint
             );
         }
 
-        if (string.IsNullOrWhiteSpace(request.Resumen))
+        if (string.IsNullOrWhiteSpace(request.DificultadesIdentificadas))
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Resumen requerido",
-                detail: "Debe ingresar el resumen de la sesión para marcarla como atendida."
+                title: "Dificultades requeridas",
+                detail: "Debe ingresar las dificultades identificadas para marcar la sesión como atendida."
+            );
+        }
+
+        if (request.Recursos is null || request.Recursos.Count == 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Recursos requeridos",
+                detail: "Debe recomendar al menos un recurso de estudio."
+            );
+        }
+
+        if (request.Recursos.Any(recurso =>
+                recurso is null ||
+                string.IsNullOrWhiteSpace(recurso.Nombre) ||
+                string.IsNullOrWhiteSpace(recurso.Tipo) ||
+                string.IsNullOrWhiteSpace(recurso.DescripcionUso)))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Recurso incompleto",
+                detail: "Cada recurso debe incluir nombre, tipo y descripción de uso."
             );
         }
 
         var sesion = await dbContext.Sesiones
             .Include(sesion => sesion.Estado)
+            .Include(sesion => sesion.PlanEstudio)
             .FirstOrDefaultAsync(
                 sesion => sesion.Id == id,
                 cancellationToken
@@ -95,6 +119,15 @@ public static class AtenderSesionEndpoint
             );
         }
 
+        if (sesion.PlanEstudio is not null)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Plan de estudio existente",
+                detail: "La sesión ya tiene un plan de estudio registrado."
+            );
+        }
+
         var estadoAtendida = await dbContext.EstadosSesiones
             .FirstOrDefaultAsync(
                 estado => estado.Nombre == "ATENDIDA",
@@ -110,19 +143,45 @@ public static class AtenderSesionEndpoint
             );
         }
 
-        var resumenCompleto = string.IsNullOrWhiteSpace(request.Recomendaciones)
-            ? request.Resumen.Trim()
-            : $"{request.Resumen.Trim()}\n\nRecomendaciones: {request.Recomendaciones.Trim()}";
+        var resumenPartes = new List<string>();
+        if (!string.IsNullOrWhiteSpace(request.Resumen))
+        {
+            resumenPartes.Add(request.Resumen.Trim());
+        }
 
+        if (!string.IsNullOrWhiteSpace(request.Recomendaciones))
+        {
+            resumenPartes.Add($"Recomendaciones: {request.Recomendaciones.Trim()}");
+        }
+
+        if (resumenPartes.Count > 0)
+        {
+            sesion.Resumen = string.Join("\n\n", resumenPartes);
+        }
+
+        var planEstudio = new PlanEstudio
+        {
+            SesionId = sesion.Id,
+            Sesion = sesion,
+            DificultadesIdentificadas = request.DificultadesIdentificadas.Trim(),
+            FechaCreacion = DateTime.UtcNow,
+            Recursos = request.Recursos.Select(recurso => new RecursoPlanEstudio
+            {
+                Nombre = recurso.Nombre!.Trim(),
+                Tipo = recurso.Tipo!.Trim(),
+                DescripcionUso = recurso.DescripcionUso!.Trim()
+            }).ToList()
+        };
+
+        sesion.PlanEstudio = planEstudio;
         sesion.EstadoId = estadoAtendida.Id;
-        sesion.Resumen = resumenCompleto;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var response = new AtenderSesionResponseDto(
             sesion.Id,
             estadoAtendida.Nombre,
-            sesion.Resumen
+            sesion.Resumen ?? string.Empty
         );
 
         return Results.Ok(response);

@@ -78,6 +78,10 @@ public class TutorEntityConfiguration : IEntityTypeConfiguration<Tutor>
             .HasMaxLength(255)
             .IsRequired();
 
+        builder.Property(t => t.DocumentoCvUrl)
+            .HasColumnName("documento_cv_url")
+            .HasMaxLength(255);
+
         builder.Property(t => t.DireccionTutoria)
             .HasColumnName("direccion_tutoria")
             .HasMaxLength(255)

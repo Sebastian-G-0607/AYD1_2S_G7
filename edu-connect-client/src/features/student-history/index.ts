@@ -1,4 +1,8 @@
 export { default as StudentHistoryView } from './components/StudentHistoryView.vue'
+export { default as ReportTutorModal } from './components/ReportTutorModal.vue'
+export { default as RateTutorModal } from './components/RateTutorModal.vue'
 export { useStudentHistory } from './composables/useStudentHistory'
+export { useReportTutor } from './composables/useReportTutor'
+export { useRateTutor } from './composables/useRateTutor'
 export { studentHistoryService } from './services/studentHistory.service'
 export * from './types'

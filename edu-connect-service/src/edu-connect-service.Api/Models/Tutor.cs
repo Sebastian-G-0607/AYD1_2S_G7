@@ -24,6 +24,8 @@ public class Tutor
 
     public required string FotografiaUrl { get; set; }
 
+    public string? DocumentoCvUrl { get; set; }
+
     public required string DireccionTutoria { get; set; }
 
     public int AnioInicio { get; set; }

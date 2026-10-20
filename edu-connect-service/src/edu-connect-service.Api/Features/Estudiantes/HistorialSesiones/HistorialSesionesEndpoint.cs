@@ -90,7 +90,12 @@ public static class HistorialSesionesEndpoint
                     ? sesion.Resumen
                     : null,
 
-                sesion.Estado.Nombre
+                sesion.Estado.Nombre,
+                sesion.ReportesTutor.Any(),
+                sesion.CalificacionTutor != null,
+                sesion.CalificacionTutor == null
+                    ? (int?)null
+                    : sesion.CalificacionTutor.Estrellas
             ))
             .ToListAsync(cancellationToken);
 

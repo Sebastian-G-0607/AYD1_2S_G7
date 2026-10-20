@@ -43,6 +43,8 @@ public class RegistrarTutorRequestDto
     [Required(ErrorMessage = "La fotografía de perfil es obligatoria.")]
     public IFormFile? Fotografia { get; set; }
 
+    public IFormFile? DocumentoCv { get; set; }
+
     [Required(ErrorMessage = "La dirección de tutoría es obligatoria.")]
     [StringLength(255, ErrorMessage = "La dirección de tutoría no puede exceder 255 caracteres.")]
     public string DireccionTutoria { get; set; } = string.Empty;
@@ -99,5 +101,6 @@ public record TutorResponseDto(
     string Estado,
     DateTime FechaRegistro,
     List<int> DiasAtencion,
-    List<int> MateriasIds
+    List<int> MateriasIds,
+    string? DocumentoCvUrl = null
 );

@@ -6,15 +6,18 @@ namespace edu_connect_service.Api.Features.Administrador.GestionEstudiantes;
 
 public static class ListarEstudiantesPendientesEndpoint
 {
-    public static void MapListarEstudiantesPendientes(this IEndpointRouteBuilder app)
+    public static void MapListarEstudiantesPendientes(
+        this IEndpointRouteBuilder app)
     {
         app.MapGet("/estudiantes/pendientes", HandleAsync)
-            .Produces<List<EstudiantePendienteResponseDto>>(StatusCodes.Status200OK)
+            .Produces<List<EstudiantePendienteResponseDto>>(
+                StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         app.MapGet("/estudiantes", HandleAsync)
-            .Produces<List<EstudiantePendienteResponseDto>>(StatusCodes.Status200OK)
+            .Produces<List<EstudiantePendienteResponseDto>>(
+                StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ExcludeFromDescription();
@@ -33,21 +36,29 @@ public static class ListarEstudiantesPendientesEndpoint
             .OrderBy(e => e.Usuario.FechaRegistro)
             .ToListAsync(cancellationToken);
 
-        var estudiantesPendientes = estudiantes.Select(e => new EstudiantePendienteResponseDto(
-            e.UsuarioId,
-            e.Nombre,
-            e.Apellido,
-            e.Carnet,
-            e.Genero,
-            e.FechaNacimiento,
-            e.Usuario.Correo,
-            s3Service.GeneratePresignedUrl(e.FotografiaUrl),
-            e.Direccion,
-            e.Telefono,
-            e.Usuario.FechaRegistro
-        )).ToList();
+        var estudiantesPendientes = estudiantes
+            .Select(e =>
+                new EstudiantePendienteResponseDto(
+                    e.UsuarioId,
+                    e.Nombre,
+                    e.Apellido,
+                    e.Carnet,
+                    e.Genero,
+                    e.FechaNacimiento,
+                    e.Usuario.Correo,
+                    s3Service.GeneratePresignedUrl(
+                        e.FotografiaUrl
+                    ),
+                    e.Direccion,
+                    e.Telefono,
+                    e.Usuario.FechaRegistro,
+                    s3Service.GeneratePresignedUrl(
+                        e.DocumentoCarnetUrl
+                    )
+                )
+            )
+            .ToList();
 
         return Results.Ok(estudiantesPendientes);
     }
 }
-

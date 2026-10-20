@@ -39,6 +39,132 @@ namespace educonnectservice.Api.Data.Migrations
                     b.ToTable("administradores", (string)null);
                 });
 
+            modelBuilder.Entity("edu_connect_service.Api.Models.CalificacionEstudiante", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comentario")
+                        .HasColumnType("CLOB")
+                        .HasColumnName("comentario");
+
+                    b.Property<int>("Estrellas")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("estrellas");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_creacion")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("SesionId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("sesion_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SesionId")
+                        .IsUnique();
+
+                    b.ToTable("calificaciones_estudiantes", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.CalificacionTutor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comentario")
+                        .HasColumnType("CLOB")
+                        .HasColumnName("comentario");
+
+                    b.Property<int>("Estrellas")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("estrellas");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_creacion")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("SesionId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("sesion_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SesionId")
+                        .IsUnique();
+
+                    b.ToTable("calificaciones_tutores", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.CategoriaReporteEstudiante", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("categorias_reportes_estudiantes", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.CategoriaReporteTutor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("categorias_reportes_tutores", (string)null);
+                });
+
             modelBuilder.Entity("edu_connect_service.Api.Models.EstadoSesion", b =>
                 {
                     b.Property<int>("Id")
@@ -119,6 +245,11 @@ namespace educonnectservice.Api.Data.Migrations
                         .HasColumnType("NVARCHAR2(255)")
                         .HasColumnName("direccion");
 
+                    b.Property<string>("DocumentoCarnetUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("documento_carnet_url");
+
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("DATE")
                         .HasColumnName("fecha_nacimiento");
@@ -175,6 +306,160 @@ namespace educonnectservice.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("materias", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.PlanEstudio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DificultadesIdentificadas")
+                        .IsRequired()
+                        .HasColumnType("CLOB")
+                        .HasColumnName("dificultades_identificadas");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_creacion")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("SesionId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("sesion_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SesionId")
+                        .IsUnique();
+
+                    b.ToTable("planes_estudio", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.RecursoPlanEstudio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DescripcionUso")
+                        .HasColumnType("CLOB")
+                        .HasColumnName("descripcion_uso");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("nombre");
+
+                    b.Property<int>("PlanEstudioId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("plan_estudio_id");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnName("tipo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanEstudioId");
+
+                    b.ToTable("recursos_plan_estudio", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.ReporteEstudiante", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime>("FechaReporte")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_reporte")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasColumnType("CLOB")
+                        .HasColumnName("motivo");
+
+                    b.Property<int>("SesionId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("sesion_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("SesionId");
+
+                    b.ToTable("reportes_estudiantes", (string)null);
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.ReporteTutor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime>("FechaReporte")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_reporte")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasColumnType("CLOB")
+                        .HasColumnName("motivo");
+
+                    b.Property<int>("SesionId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("sesion_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("SesionId");
+
+                    b.ToTable("reportes_tutores", (string)null);
                 });
 
             modelBuilder.Entity("edu_connect_service.Api.Models.Rol", b =>
@@ -274,6 +559,48 @@ namespace educonnectservice.Api.Data.Migrations
                     b.ToTable("sesiones", (string)null);
                 });
 
+            modelBuilder.Entity("edu_connect_service.Api.Models.TokenCorreo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("id");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaExpiracion")
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_expiracion");
+
+                    b.Property<DateTime>("FechaGeneracion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnName("fecha_generacion")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("Revocado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("revocado");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("token");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("NUMBER(10)")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("token_correo", (string)null);
+                });
+
             modelBuilder.Entity("edu_connect_service.Api.Models.Tutor", b =>
                 {
                     b.Property<int>("UsuarioId")
@@ -307,6 +634,11 @@ namespace educonnectservice.Api.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("NVARCHAR2(255)")
                         .HasColumnName("direccion_tutoria");
+
+                    b.Property<string>("DocumentoCvUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("NVARCHAR2(255)")
+                        .HasColumnName("documento_cv_url");
 
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("DATE")
@@ -430,6 +762,12 @@ namespace educonnectservice.Api.Data.Migrations
                         .HasColumnType("NVARCHAR2(150)")
                         .HasColumnName("correo");
 
+                    b.Property<bool>("CorreoValidado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("correo_validado");
+
                     b.Property<int>("EstadoId")
                         .HasColumnType("NUMBER(10)")
                         .HasColumnName("estado_id");
@@ -481,6 +819,28 @@ namespace educonnectservice.Api.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("edu_connect_service.Api.Models.CalificacionEstudiante", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.Sesion", "Sesion")
+                        .WithOne("CalificacionEstudiante")
+                        .HasForeignKey("edu_connect_service.Api.Models.CalificacionEstudiante", "SesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sesion");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.CalificacionTutor", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.Sesion", "Sesion")
+                        .WithOne("CalificacionTutor")
+                        .HasForeignKey("edu_connect_service.Api.Models.CalificacionTutor", "SesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sesion");
+                });
+
             modelBuilder.Entity("edu_connect_service.Api.Models.Estudiante", b =>
                 {
                     b.HasOne("edu_connect_service.Api.Models.Usuario", "Usuario")
@@ -490,6 +850,66 @@ namespace educonnectservice.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.PlanEstudio", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.Sesion", "Sesion")
+                        .WithOne("PlanEstudio")
+                        .HasForeignKey("edu_connect_service.Api.Models.PlanEstudio", "SesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sesion");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.RecursoPlanEstudio", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.PlanEstudio", "PlanEstudio")
+                        .WithMany("Recursos")
+                        .HasForeignKey("PlanEstudioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlanEstudio");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.ReporteEstudiante", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.CategoriaReporteEstudiante", "Categoria")
+                        .WithMany("Reportes")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("edu_connect_service.Api.Models.Sesion", "Sesion")
+                        .WithMany("ReportesEstudiante")
+                        .HasForeignKey("SesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Sesion");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.ReporteTutor", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.CategoriaReporteTutor", "Categoria")
+                        .WithMany("Reportes")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("edu_connect_service.Api.Models.Sesion", "Sesion")
+                        .WithMany("ReportesTutor")
+                        .HasForeignKey("SesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Sesion");
                 });
 
             modelBuilder.Entity("edu_connect_service.Api.Models.Sesion", b =>
@@ -525,6 +945,17 @@ namespace educonnectservice.Api.Data.Migrations
                     b.Navigation("Materia");
 
                     b.Navigation("Tutor");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.TokenCorreo", b =>
+                {
+                    b.HasOne("edu_connect_service.Api.Models.Usuario", "Usuario")
+                        .WithMany("TokensCorreo")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("edu_connect_service.Api.Models.Tutor", b =>
@@ -587,6 +1018,16 @@ namespace educonnectservice.Api.Data.Migrations
                     b.Navigation("Rol");
                 });
 
+            modelBuilder.Entity("edu_connect_service.Api.Models.CategoriaReporteEstudiante", b =>
+                {
+                    b.Navigation("Reportes");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.CategoriaReporteTutor", b =>
+                {
+                    b.Navigation("Reportes");
+                });
+
             modelBuilder.Entity("edu_connect_service.Api.Models.EstadoSesion", b =>
                 {
                     b.Navigation("Sesiones");
@@ -609,9 +1050,27 @@ namespace educonnectservice.Api.Data.Migrations
                     b.Navigation("TutorMaterias");
                 });
 
+            modelBuilder.Entity("edu_connect_service.Api.Models.PlanEstudio", b =>
+                {
+                    b.Navigation("Recursos");
+                });
+
             modelBuilder.Entity("edu_connect_service.Api.Models.Rol", b =>
                 {
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("edu_connect_service.Api.Models.Sesion", b =>
+                {
+                    b.Navigation("CalificacionEstudiante");
+
+                    b.Navigation("CalificacionTutor");
+
+                    b.Navigation("PlanEstudio");
+
+                    b.Navigation("ReportesEstudiante");
+
+                    b.Navigation("ReportesTutor");
                 });
 
             modelBuilder.Entity("edu_connect_service.Api.Models.Tutor", b =>
@@ -628,6 +1087,8 @@ namespace educonnectservice.Api.Data.Migrations
                     b.Navigation("Administrador");
 
                     b.Navigation("Estudiante");
+
+                    b.Navigation("TokensCorreo");
 
                     b.Navigation("Tutor");
                 });

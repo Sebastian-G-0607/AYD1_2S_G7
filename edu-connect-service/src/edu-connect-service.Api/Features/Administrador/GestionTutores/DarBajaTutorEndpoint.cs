@@ -27,7 +27,7 @@ public static class DarBajaTutorEndpoint
             .ExcludeFromDescription();
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         int id,
         [FromBody] DarBajaTutorRequestDto? request,
         edu_connect_serviceContext dbContext,

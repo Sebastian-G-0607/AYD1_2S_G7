@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { extractApiErrorMessage } from '@/utils/apiError'
+import { validatePdfFile } from '@/utils/fileValidation'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store'
 import type { LoginCredentials, StudentRegisterData, TutorRegisterData } from '../types'
@@ -105,6 +106,16 @@ export function useAuth() {
       }
 
       const response = await authService.login(credentials)
+      if (!response.correo_validado) {
+        sessionStorage.setItem('edu_email_validation_token', response.token)
+        sessionStorage.setItem('edu_email_validation_email', response.correo)
+        await router.push({
+          path: '/verification/email',
+          query: { email: response.correo }
+        })
+        return true
+      }
+
       authStore.setAuthFromTokenResponse(response)
       const targetPath = getRedirectPathByRole(response.rol)
       await router.push(targetPath)
@@ -126,6 +137,22 @@ export function useAuth() {
   }
 
   async function registerStudent(studentData: StudentRegisterData): Promise<boolean> {
+    if (!studentData.fotografia) {
+      errorMessage.value = 'La fotografía reciente es obligatoria para registrarte.'
+      return false
+    }
+
+    if (!(studentData.documentoCarnet instanceof File)) {
+      errorMessage.value = 'El archivo PDF con tu carnet escaneado es obligatorio para registrarte.'
+      return false
+    }
+
+    const pdfError = validatePdfFile(studentData.documentoCarnet)
+    if (pdfError) {
+      errorMessage.value = pdfError
+      return false
+    }
+
     if (!validateCarnet(studentData.carnet)) {
       errorMessage.value = 'El carnet debe ser numérico y tener entre 6 y 10 dígitos.'
       return false
@@ -196,6 +223,18 @@ export function useAuth() {
 
     if (!tutorData.fotografia) {
       errorMessage.value = 'La fotografía de perfil es obligatoria para el registro de tutor.'
+      return false
+    }
+
+    if (!(tutorData.documentoCv instanceof File)) {
+      errorMessage.value =
+        'El archivo PDF con tu currículum vitae (CV) es obligatorio para registrarte.'
+      return false
+    }
+
+    const cvPdfError = validatePdfFile(tutorData.documentoCv)
+    if (cvPdfError) {
+      errorMessage.value = cvPdfError
       return false
     }
 
@@ -271,6 +310,63 @@ export function useAuth() {
     }
   }
 
+  async function verifyEmail(tokenCode: string): Promise<boolean> {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token') || ''
+    if (!tempToken) {
+      errorMessage.value =
+        'No se encontró una sesión de verificación activa. Por favor, inicia sesión nuevamente.'
+      return false
+    }
+
+    isLoading.value = true
+    errorMessage.value = null
+
+    try {
+      const response = await authService.verifyEmail(tokenCode, tempToken)
+      sessionStorage.removeItem('edu_email_validation_token')
+      sessionStorage.removeItem('edu_email_validation_email')
+      authStore.setAuthFromTokenResponse(response)
+      const targetPath = getRedirectPathByRole(response.rol)
+      await router.push(targetPath)
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Ocurrió un error al verificar el código. Inténtalo nuevamente.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function resendEmailToken(): Promise<boolean> {
+    const tempToken = sessionStorage.getItem('edu_email_validation_token') || ''
+    if (!tempToken) {
+      errorMessage.value =
+        'No se encontró una sesión de verificación activa. Por favor, inicia sesión nuevamente.'
+      return false
+    }
+
+    isLoading.value = true
+    errorMessage.value = null
+    successMessage.value = null
+
+    try {
+      await authService.resendEmailValidationToken(tempToken)
+      successMessage.value = 'Se ha enviado un nuevo código de verificación a tu correo.'
+      return true
+    } catch (error: unknown) {
+      errorMessage.value = extractErrorMessage(
+        error,
+        'Ocurrió un error al reenviar el código. Inténtalo nuevamente.'
+      )
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     errorMessage,
@@ -283,6 +379,8 @@ export function useAuth() {
     registerStudent,
     registerTutor,
     verifyAdmin2Fa,
+    verifyEmail,
+    resendEmailToken,
     validateCarnet,
     validateDpi,
     validateTelefono,

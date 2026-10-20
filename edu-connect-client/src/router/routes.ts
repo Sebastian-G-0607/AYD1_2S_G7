@@ -93,6 +93,30 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/tutores/:id/editar',
+    name: 'admin-edit-tutor',
+    component: () => import('@/pages/AdminEditTutorPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Editar Tutor - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/estudiantes/:id/editar',
+    name: 'admin-edit-student',
+    component: () => import('@/pages/AdminEditStudentPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Editar Estudiante - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/reportes',
     name: 'admin-reports',
     component: () => import('@/pages/AdminReportsPage.vue'),
@@ -105,6 +129,30 @@ export const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/admin/denuncias',
+    name: 'admin-user-reports',
+    component: () => import('@/pages/AdminUserReportsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Gestión de Denuncias - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
+    path: '/admin/calificaciones-tutores',
+    name: 'admin-tutor-ratings',
+    component: () => import('@/pages/AdminTutorRatingsPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Administrador', 'Admin'],
+      title: 'Calificación de Tutores - EduConnect Admin',
+      layout: 'dashboard'
+    }
+  },
+  {
     path: '/admin/2fa',
     name: 'admin-2fa',
     component: () => import('@/pages/AdminTwoFactorPage.vue'),
@@ -112,6 +160,17 @@ export const routes: RouteRecordRaw[] = [
       requiresAuth: false,
       guestOnly: true,
       title: 'Verificación Administrador - EduConnect',
+      layout: 'auth'
+    }
+  },
+  {
+    path: '/verification/email',
+    name: 'email-verification',
+    component: () => import('@/pages/EmailVerificationPage.vue'),
+    meta: {
+      requiresAuth: false,
+      guestOnly: true,
+      title: 'Verificación de Seguridad - EduConnect',
       layout: 'auth'
     }
   },
@@ -199,7 +258,6 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
   {
     path: '/estudiante/historial',
     name: 'student-history',
@@ -212,7 +270,18 @@ export const routes: RouteRecordRaw[] = [
       layout: 'dashboard'
     }
   },
-
+  {
+    path: '/estudiante/plan-estudio',
+    name: 'student-study-plan',
+    component: () => import('@/pages/StudentStudyPlanPage.vue'),
+    meta: {
+      requiresAuth: true,
+      guestOnly: false,
+      roles: ['Estudiante', 'Student'],
+      title: 'Plan de Estudio - EduConnect',
+      layout: 'dashboard'
+    }
+  },
   {
     path: '/estudiante/mi-perfil',
     name: 'student-profile',

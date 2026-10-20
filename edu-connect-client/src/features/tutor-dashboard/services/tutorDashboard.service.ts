@@ -19,7 +19,8 @@ export const tutorDashboardService = {
   },
 
   async completeSession(payload: CompleteSessionPayload): Promise<boolean> {
-    await api.post(`/sesiones/${payload.sesionId}/atender`, payload)
+    const { sesionId, ...planEstudio } = payload
+    await api.post(`/sesiones/${sesionId}/atender`, planEstudio)
     return true
   },
 

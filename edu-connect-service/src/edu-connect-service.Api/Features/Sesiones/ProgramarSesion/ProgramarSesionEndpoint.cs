@@ -22,7 +22,7 @@ public static class ProgramarSesionEndpoint
             .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         ProgramarSesionRequestDto request,
         ClaimsPrincipal user,
         edu_connect_serviceContext dbContext,
@@ -74,6 +74,8 @@ public static class ProgramarSesionEndpoint
 
         var estudiante = await dbContext.Estudiantes
             .AsNoTracking()
+            .Include(e => e.Usuario)
+                .ThenInclude(u => u.Estado)
             .FirstOrDefaultAsync(
                 estudiante => estudiante.UsuarioId == idUsuario,
                 cancellationToken
@@ -88,8 +90,19 @@ public static class ProgramarSesionEndpoint
             );
         }
 
+        if (estudiante.Usuario != null && estudiante.Usuario.Estado != null && estudiante.Usuario.Estado.Nombre != "APROBADO")
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Estudiante inactivo",
+                detail: "Su cuenta no se encuentra activa para programar sesiones."
+            );
+        }
+
         var tutor = await dbContext.Tutores
             .AsNoTracking()
+            .Include(tutor => tutor.Usuario)
+                .ThenInclude(u => u.Estado)
             .FirstOrDefaultAsync(
                 tutor => tutor.UsuarioId == request.TutorId,
                 cancellationToken
@@ -101,6 +114,15 @@ public static class ProgramarSesionEndpoint
                 statusCode: StatusCodes.Status404NotFound,
                 title: "Tutor no encontrado",
                 detail: "El tutor seleccionado no existe."
+            );
+        }
+
+        if (tutor.Usuario.Estado.Nombre != "APROBADO")
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Tutor no disponible",
+                detail: "El tutor seleccionado no se encuentra activo para recibir reservas de tutoría."
             );
         }
 

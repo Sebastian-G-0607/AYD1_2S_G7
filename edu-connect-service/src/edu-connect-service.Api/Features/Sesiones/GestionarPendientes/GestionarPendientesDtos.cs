@@ -13,8 +13,16 @@ public record SesionPendienteDto(
 );
 
 public record AtenderSesionRequestDto(
-    string Resumen,
-    string? Recomendaciones
+    string? DificultadesIdentificadas,
+    IReadOnlyList<RecursoPlanEstudioRequestDto>? Recursos,
+    string? Resumen = null,
+    string? Recomendaciones = null
+);
+
+public record RecursoPlanEstudioRequestDto(
+    string? Nombre,
+    string? Tipo,
+    string? DescripcionUso
 );
 
 public record AtenderSesionResponseDto(
