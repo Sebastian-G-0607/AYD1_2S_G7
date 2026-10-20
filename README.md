@@ -60,8 +60,9 @@ A continuación se presenta el directorio maestro de entregables del sistema **E
 * **Sprint 2 (Fase 2):**
   - [Daily Scrums del Sprint 2 (Fase 2)](docs/tablero-kanban/Fase%202%20-%20Dailies%20sprint%202.md)
   - [Grabación Sprint Planning 2 (Drive)](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk)
+  - [Grabación Sprint Retrospective 2 (Drive)](https://drive.google.com/file/d/1eyTxsxvzjNZxjRDQUI6gPWD27x0rPAJd/view?usp=drive_link)
 * **Evaluación Oficial del Scrum Master (Rango 1 a 100):**
-  - [Evaluación y Calificación Integral Consolidada](docs/tablero-kanban/tablero.md#5-sección-oficial-del-scrum-master-calificación-del-equipo-de-desarrollo-escala-de-1-a-100)
+  - [Evaluación y Calificación Integral Consolidada](docs/tablero-kanban/calificacion-equipo-fase2.md) · [Detalle en Tablero Kanban](docs/tablero-kanban/tablero.md#5-sección-oficial-del-scrum-master-calificación-del-equipo-de-desarrollo-escala-de-1-a-100)
 
 ### 4. Diseño y Experiencia de Usuario (UX / UI)
 * **[Prototipado Interactivo con Google Stitch](docs/prototipos/prototipos-stitch.md):** Flujos interactivos, pantallas de alta fidelidad y sistema de diseño visual.
@@ -85,7 +86,7 @@ A continuación se presenta el directorio maestro de entregables del sistema **E
 | **Fase 2** | **Sprint Planning 1 (Fase 2)** | 28/09/2026 | Google Drive | [Ver Video en Drive](https://drive.google.com/file/d/1HbWsrEQJ48EdGgmKzNFBxe9j-RGiSIfL/view?usp=drivesdk) |
 | **Fase 2** | **Sprint Retrospective 1 (Fase 2)** | 03/10/2026 | Google Drive | [Ver Video en Drive](https://drive.google.com/file/d/16kqTk8sTwLZ7XVo4j3HdBpANuAM7rgf1/view?usp=drivesdk) |
 | **Fase 2** | **Sprint Planning 2 (Fase 2)** | 05/10/2026 | Google Drive | [Ver Video en Drive](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk) |
-| **Fase 2** | **Sprint Retrospective 2 (Fase 2)** | 10/10/2026 | Google Drive | [Ver Video en Drive](https://drive.google.com/file/d/1cs33HjPimm_d2zusLpagXPFDeMIj5nEp/view?usp=drive_link) |
+| **Fase 2** | **Sprint Retrospective 2 (Fase 2)** | 10/10/2026 | Google Drive | [Ver Video en Drive](https://drive.google.com/file/d/1eyTxsxvzjNZxjRDQUI6gPWD27x0rPAJd/view?usp=drive_link) |
 
 ---
 

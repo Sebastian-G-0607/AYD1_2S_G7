@@ -33,8 +33,8 @@ Este directorio centraliza toda la documentación técnica, funcional, arquitect
   - Sprint 2: [Sprint Planning](../scrum/sprint-2/sprint-planning.md) · [Daily Scrums](../scrum/sprint-2/sprint-dailies.md) · [Retrospectiva](../scrum/sprint-2/sprint-retrospective.md) · [Calificación](../scrum/sprint-2/calificacion-equipo.md)
 - **Fase 2:**
   - Sprint 1 (Fase 2): [Daily Scrums](tablero-kanban/Fase%202%20-%20Dailies%20sprint%201.md) · [Grabación Planning 1 (Drive)](https://drive.google.com/file/d/1HbWsrEQJ48EdGgmKzNFBxe9j-RGiSIfL/view?usp=drivesdk) · [Grabación Retrospective 1 (Drive)](https://drive.google.com/file/d/16kqTk8sTwLZ7XVo4j3HdBpANuAM7rgf1/view?usp=drivesdk)
-  - Sprint 2 (Fase 2): [Daily Scrums](tablero-kanban/Fase%202%20-%20Dailies%20sprint%202.md) · [Grabación Planning 2 (Drive)](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk)
-  - Evaluación Scrum Master: [Calificación del Equipo (Escala 1 a 100)](tablero-kanban/tablero.md#5-sección-oficial-del-scrum-master-calificación-del-equipo-de-desarrollo-escala-de-1-a-100)
+  - Sprint 2 (Fase 2): [Daily Scrums](tablero-kanban/Fase%202%20-%20Dailies%20sprint%202.md) · [Grabación Planning 2 (Drive)](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk) · [Grabación Retrospective 2 (Drive)](https://drive.google.com/file/d/1eyTxsxvzjNZxjRDQUI6gPWD27x0rPAJd/view?usp=drive_link)
+  - Evaluación Scrum Master: [Calificación del Equipo — Fase 2 (1 a 100)](tablero-kanban/calificacion-equipo-fase2.md) · [Sección en Tablero Kanban](tablero-kanban/tablero.md#5-sección-oficial-del-scrum-master-calificación-del-equipo-de-desarrollo-escala-de-1-a-100)
 
 ### 5. Prototipado y Experiencia de Usuario (UX / UI)
 - [Prototipado Interactivo con Google Stitch](prototipos/prototipos-stitch.md) — Vistas, flujos y diseño de interfaces.

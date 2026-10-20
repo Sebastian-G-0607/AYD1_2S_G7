@@ -267,7 +267,7 @@ En la segunda fase se incorporaron requerimientos avanzados de auditoría docume
 | **Sprint Planning 1 (Fase 2)** | 28 de septiembre de 2026 | 45 min | Google Drive | [Ver Grabación Planning 1 (Fase 2)](https://drive.google.com/file/d/1HbWsrEQJ48EdGgmKzNFBxe9j-RGiSIfL/view?usp=drivesdk) |
 | **Sprint Retrospective 1 (Fase 2)** | 3 de octubre de 2026 | 30 min | Google Drive | [Ver Grabación Retrospective 1 (Fase 2)](https://drive.google.com/file/d/16kqTk8sTwLZ7XVo4j3HdBpANuAM7rgf1/view?usp=drivesdk) |
 | **Sprint Planning 2 (Fase 2)** | 5 de octubre de 2026 | 40 min | Google Drive | [Ver Grabación Planning 2 (Fase 2)](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk) |
-| **Sprint Retrospective 2 (Fase 2)** | 10 de octubre de 2026 | 35 min | Google Drive | [Ver Grabación Retrospective 2 (Fase 2)](https://drive.google.com/file/d/1cs33HjPimm_d2zusLpagXPFDeMIj5nEp/view?usp=drive_link) *(o enlace a actualizar por el equipo)* |
+| **Sprint Retrospective 2 (Fase 2)** | 10 de octubre de 2026 | 35 min | Google Drive | [Ver Grabación Retrospective 2 (Fase 2)](https://drive.google.com/file/d/1eyTxsxvzjNZxjRDQUI6gPWD27x0rPAJd/view?usp=drive_link) |
 
 ---
 
@@ -385,23 +385,18 @@ De acuerdo con las directrices de evaluación del curso, el **Scrum Master (Carl
 
 ---
 
-### 5.5 Plantilla Editable para Ajustes Posteriores del Scrum Master
-<!-- 
-========================================================================================
-ESPACIO EDITABLE DEL SCRUM MASTER (CARLOS EDUARDO LAU LÓPEZ)
-Si deseas modificar algún criterio, porcentaje o retroalimentación cualitativa más adelante,
-puedes editar directamente esta plantilla de evaluación:
+### 5.5 Validación y Cierre Oficial del Scrum Master
+El Scrum Master certifica que los criterios cuantitativos y ponderaciones descritos han sido aplicados conforme a las entregas de código, participación en ceremonias ágiles y calidad técnica observada durante la Fase 2:
 
-Criterio 1 - Cumplimiento de Historias (30 pts): [___]
-Criterio 2 - Calidad técnica y tests (25 pts):    [___]
-Criterio 3 - Asistencia y ceremonias (20 pts):    [___]
-Criterio 4 - Proactividad y apoyo (15 pts):       [___]
-Criterio 5 - Trazabilidad en Jira (10 pts):       [___]
+* **Criterio 1 — Cumplimiento de Historias de Usuario y DoD (30 pts):** Validado al 100% (18 historias de Fase 2 completadas y desplegadas).
+* **Criterio 2 — Calidad técnica y cobertura de pruebas (25 pts):** Validado (271 pruebas unitarias pasando y suite E2E Playwright operativa).
+* **Criterio 3 — Puntualidad y asistencia a ceremonias Scrum (20 pts):** Validado (12 Dailies y 4 ceremonias grabadas y documentadas).
+* **Criterio 4 — Colaboración, proactividad y resolución de bloqueos (15 pts):** Validado (soporte activo en incidencias y revisiones de código).
+* **Criterio 5 — Trazabilidad en Jira Kanban y documentación (10 pts):** Validado (tablero actualizado, DoD verificado y manuales completos).
 
-Firma del Scrum Master: Carlos Eduardo Lau López (Carnet: 202202812)
-Fecha de Cierre: 10 de octubre de 2026
-========================================================================================
--->
+**Firma del Scrum Master:** Carlos Eduardo Lau López (Carnet: 202202812)  
+**Fecha de Cierre:** 10 de octubre de 2026  
+**Documento Complementario:** [Evaluación del Equipo Scrum — Fase 2](calificacion-equipo-fase2.md)
 
 ---
 
