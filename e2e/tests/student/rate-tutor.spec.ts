@@ -1,13 +1,12 @@
 import { expect, test } from '@playwright/test'
+import { iniciarSesion } from '../../fixtures/auth'
+import { E2E_STUDENT_USER } from '../../fixtures/test-data'
 
 test.describe('Calificar atención de tutoría', () => {
   test('permite puntuar una sesión atendida y bloquea sesiones canceladas', async ({ page }) => {
     let submittedRating: unknown
 
-    await page.addInitScript(() => {
-      localStorage.setItem('edu_auth_token', 'e2e-student-token')
-      localStorage.setItem('edu_auth_user', JSON.stringify({ rol: 'Estudiante' }))
-    })
+    await iniciarSesion(page, E2E_STUDENT_USER)
 
     await page.route('**/estudiantes/historial', route =>
       route.fulfill({

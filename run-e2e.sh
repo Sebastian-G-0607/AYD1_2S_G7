@@ -38,14 +38,14 @@ if [ "$1" == "--ui" ]; then
   echo "=========================================================="
   echo "Iniciando EduConnect y Playwright UI Web en Docker..."
   echo "=========================================================="
-  
-  docker compose -f docker-compose.e2e.yaml up -d oracle-db api frontend
-  
-  echo "Esperando que el frontend responda en http://localhost:5173..."
-  timeout 60s bash -c 'until curl -s http://localhost:5173 > /dev/null; do sleep 2; done' || true
+
+  docker compose -f docker-compose.e2e.yaml up -d --build oracle-db api frontend
+
+  echo "Esperando a que el frontend responda en http://localhost:5173..."
+  timeout 120s bash -c 'until curl -s http://localhost:5173 > /dev/null; do sleep 2; done' || true
 
   echo "Abriendo Playwright UI en: http://localhost:9323"
-  
+
   (sleep 3 && { command -v xdg-open >/dev/null && xdg-open http://localhost:9323 || true; }) &
 
   EXIT_CODE=0
@@ -57,11 +57,11 @@ elif [ "$1" == "--headed" ]; then
   echo "=========================================================="
   echo "Ejecutando pruebas con ventana gráfica en tu escritorio..."
   echo "=========================================================="
-  
-  docker compose -f docker-compose.e2e.yaml up -d oracle-db api frontend
-  
-  echo "Esperando que el frontend responda en http://localhost:5173..."
-  timeout 60s bash -c 'until curl -s http://localhost:5173 > /dev/null; do sleep 2; done' || true
+
+  docker compose -f docker-compose.e2e.yaml up -d --build oracle-db api frontend
+
+  echo "Esperando a que el frontend responda en http://localhost:5173..."
+  timeout 120s bash -c 'until curl -s http://localhost:5173 > /dev/null; do sleep 2; done' || true
 
   EXIT_CODE=0
   docker compose -f docker-compose.e2e.yaml run --rm e2e \
@@ -74,7 +74,13 @@ else
   echo "=========================================================="
 
   SHOW_REPORT=true
+  docker compose -f docker-compose.e2e.yaml up -d --build oracle-db api frontend
+
+  echo "Esperando a que el frontend responda en http://localhost:5173..."
+  timeout 120s bash -c 'until curl -s http://localhost:5173 > /dev/null; do sleep 2; done' || true
+
   EXIT_CODE=0
-  docker compose -f docker-compose.e2e.yaml up --build --abort-on-container-exit --exit-code-from e2e || EXIT_CODE=$?
+  docker compose -f docker-compose.e2e.yaml run --rm e2e \
+    npx playwright test || EXIT_CODE=$?
   exit $EXIT_CODE
 fi

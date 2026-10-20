@@ -4,7 +4,10 @@ import { AdminUsersPage } from '../../pages/admin-users.page'
 import { AdminEditTutorPage } from '../../pages/admin-edit-tutor.page'
 import { AdminApprovalsPage } from '../../pages/admin-approvals.page'
 import { TutorRegisterPage } from '../../pages/tutor-register.page'
-import { TUTOR_TEST_DATA } from '../../fixtures/test-data'
+import { crearDatosTutorRegistro } from '../../fixtures/test-data'
+import { identificadorUnico } from '../../fixtures/identificador'
+
+const TUTOR_TEST_DATA = crearDatosTutorRegistro(identificadorUnico(`${__filename}:tutor`))
 
 test.describe('HU-35 - Ver y Actualizar Tutor (Módulo Administrador)', () => {
   test('Debe acceder al formulario de edición de tutor, comprobar bloqueo de correo y actualizar perfil con éxito', async ({ page }) => {

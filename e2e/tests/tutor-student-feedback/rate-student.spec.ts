@@ -1,30 +1,27 @@
 import { expect, test } from '@playwright/test'
+import { iniciarSesion } from '../../fixtures/auth'
+import { E2E_TUTOR_USER } from '../../fixtures/test-data'
 
 test.describe('Calificar estudiante', () => {
   test('el tutor califica a un estudiante desde una sesión atendida', async ({ page }) => {
     let submittedRating: unknown
 
-    await page.addInitScript(() => {
-      localStorage.setItem('edu_auth_token', 'e2e-tutor-token')
-      localStorage.setItem('edu_auth_user', JSON.stringify({ rol: 'Tutor' }))
-    })
+    await iniciarSesion(page, E2E_TUTOR_USER)
 
     await page.route('**/tutores/historial*', route =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          sessions: [
-            {
-              sesionId: 55,
-              fecha: '2026-10-01',
-              hora: '10:00 AM',
-              estudiante: 'Ana López',
-              correo: 'ana.lopez@educonnect.test',
-              estado: 'ATENDIDA'
-            }
-          ]
-        })
+        body: JSON.stringify([
+          {
+            sesionId: 55,
+            fechaSesion: '2026-10-01',
+            horaInicio: '10:00',
+            estudiante: 'Ana López',
+            estudianteEmail: 'ana.lopez@educonnect.test',
+            estado: 'ATENDIDA'
+          }
+        ])
       })
     )
 

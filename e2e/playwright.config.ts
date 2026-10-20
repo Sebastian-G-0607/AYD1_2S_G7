@@ -8,6 +8,7 @@ const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173'
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './global-setup.ts',
   timeout: 45 * 1000,
   expect: {
     timeout: 10 * 1000
