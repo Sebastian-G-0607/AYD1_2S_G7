@@ -56,7 +56,7 @@
 | Evento Scrum | Fecha | Plataforma | Enlace de la Grabación |
 | :--- | :---: | :---: | :--- |
 | **Sprint Planning 2 (Fase 2)** | 5 de octubre de 2026 | Google Drive | [Ver Grabación en Drive](https://drive.google.com/file/d/1vwCyVQ9oFVsBaT03VRKmn_90KmrDpwCf/view?usp=drivesdk) |
-| **Sprint Retrospective 2 (Fase 2)** | 10 de octubre de 2026 | Google Drive | [ENLACE_PENDIENTE_GRABACION_RETROSPECTIVE_2_FASE_2] |
+| **Sprint Retrospective 2 (Fase 2)** | 10 de octubre de 2026 | Google Drive | [Ver Grabación en Drive](https://drive.google.com/file/d/1eyTxsxvzjNZxjRDQUI6gPWD27x0rPAJd/view?usp=drive_link) |
 
 ---
 
